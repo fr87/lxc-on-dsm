@@ -1,0 +1,11 @@
+name: verify
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  shell-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check analysis scripts
+        run: sh tests/check-analysis-safety.sh

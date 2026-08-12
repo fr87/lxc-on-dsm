@@ -1,0 +1,6 @@
+# Deliberately inactive until Phase 1 has been evaluated.
+lxc.include = /path/to/generated/common.conf
+lxc.uts.name = example
+lxc.rootfs.path = dir:/volumeN/@lxc/example/rootfs
+
+# Network, id maps, security, capabilities and autostart are intentionally omitted.
