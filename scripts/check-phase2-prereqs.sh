@@ -33,6 +33,17 @@ check_tool() {
     fi
 }
 
+check_pkg_config() {
+    if command -v pkg-config >/dev/null 2>&1; then
+        printf 'OK: pkg-config metadata tool (pkg-config)\n'
+    elif command -v pkgconf >/dev/null 2>&1; then
+        printf 'OK: pkg-config metadata tool (pkgconf fallback)\n'
+    else
+        printf 'MISSING: pkg-config metadata tool (pkg-config or pkgconf)\n'
+        missing=$((missing + 1))
+    fi
+}
+
 printf '%s\n' '# DSM LXC Phase 2 prerequisite check'
 printf '\n'
 printf 'manifest=%s\n' "$manifest"
@@ -52,7 +63,7 @@ printf '\n'
 printf '%s\n' '## Build tools'
 check_tool cc optional 'C compiler'
 check_tool gcc optional 'GCC compiler'
-check_tool pkg-config required 'pkg-config metadata tool'
+check_pkg_config
 check_tool meson required 'Meson build system'
 check_tool ninja required 'Ninja build runner'
 check_tool make optional 'Make build runner'
@@ -74,7 +85,7 @@ printf '\n'
 printf '%s\n' '## Suggested Entware packages'
 printf '%s\n' 'opkg update'
 printf '%s\n' 'opkg install gcc binutils busybox gawk ldd make sed tar'
-printf '%s\n' 'opkg install coreutils-install diffutils ldconfig patch pkg-config --force-overwrite'
+printf '%s\n' 'opkg install coreutils-install diffutils ldconfig patch pkgconf --force-overwrite'
 printf '%s\n' 'opkg install bash git python3-pip python3-setuptools'
 printf '%s\n' 'python3 -m pip install -U wheel meson'
 printf '%s\n' 'Build ninja from source if no Entware ninja package is available.'

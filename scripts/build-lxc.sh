@@ -32,6 +32,15 @@ done
 for tool in meson ninja tar gzip sed awk grep; do
     command -v "$tool" >/dev/null 2>&1 || { printf 'Missing required tool: %s\n' "$tool" >&2; exit 1; }
 done
+if command -v pkg-config >/dev/null 2>&1; then
+    :
+elif command -v pkgconf >/dev/null 2>&1; then
+    PKG_CONFIG=$(command -v pkgconf)
+    export PKG_CONFIG
+else
+    printf 'Missing required tool: pkg-config or pkgconf\n' >&2
+    exit 1
+fi
 if ! command -v cc >/dev/null 2>&1 && ! command -v gcc >/dev/null 2>&1; then
     printf 'Missing required tool: cc or gcc\n' >&2
     exit 1

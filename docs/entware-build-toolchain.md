@@ -6,7 +6,7 @@ The current Virtual DSM check shows:
 
 - no `/opt`-style prefix
 - no `opkg`
-- no `pkg-config`
+- no `pkg-config` or `pkgconf`
 - no `meson`
 - no `ninja`
 - no compiler in `PATH`
@@ -37,7 +37,7 @@ Entware's native GCC notes recommend installing GCC plus common build helpers:
 opkg update
 opkg install gcc
 opkg install binutils busybox gawk ldd make sed tar
-opkg install coreutils-install diffutils ldconfig patch pkg-config --force-overwrite
+opkg install coreutils-install diffutils ldconfig patch pkgconf --force-overwrite
 opkg install bash git python3-pip python3-setuptools
 python3 -m pip install -U wheel meson
 ```

@@ -70,7 +70,7 @@ emit "curl -fL \"${installer_url}\" | /bin/sh"
 emit '. /opt/etc/profile'
 emit 'opkg update'
 emit 'opkg install gcc binutils busybox gawk ldd make sed tar'
-emit 'opkg install coreutils-install diffutils ldconfig patch pkg-config --force-overwrite'
+emit 'opkg install coreutils-install diffutils ldconfig patch pkgconf --force-overwrite'
 emit 'opkg install bash git python3-pip python3-setuptools'
 emit 'python3 -m pip install -U wheel meson'
 emit '```'
