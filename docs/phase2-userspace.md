@@ -20,11 +20,13 @@ sh scripts/build-pkgconf.sh --prefix /opt --install
 sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt
 sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt --install
 sh scripts/verify-lxc-install.sh --prefix /volume1/@lxc/lab/opt
+eval "$(sh scripts/print-lxc-env.sh --prefix /volume1/@lxc/lab/opt)"
 ```
 
 The fetch step writes only below the selected output directory. The manifest intentionally keeps SHA256 values as `TODO` until the first fetch has been verified against GPG signatures or another trusted checksum source.
 The build step compiles LXC under `build/work` and does not install unless `--install` is passed explicitly.
 The verify step checks installed LXC binaries and versions only. It does not start containers.
+Directly calling installed LXC binaries requires `LD_LIBRARY_PATH` for the lab prefix. Use `print-lxc-env.sh` before manual binary calls.
 The first LXC build intentionally disables D-Bus, distro init files, manpage generation, AppArmor, SELinux and seccomp integration. This keeps Phase 2 focused on proving that the core userspace can compile on DSM before adding optional isolation features back one by one.
 `build-lxc.sh` also applies project patches from `patches/lxc-6.0.6/`. The first DSM patch defines missing stable Linux UAPI queue attributes for older Entware kernel headers.
 

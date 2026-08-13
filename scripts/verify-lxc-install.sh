@@ -55,4 +55,5 @@ printf '\n'
 lxc-start --version
 lxc-info --version
 lxc-ls --version
-printf '\nResult: INSTALLED USERSpace OK. No container was started.\n'
+printf '\nResult: INSTALLED USERSPACE OK. No container was started.\n'
+printf 'For direct shell use, run: eval "$(sh scripts/print-lxc-env.sh --prefix %s)"\n' "$prefix"
