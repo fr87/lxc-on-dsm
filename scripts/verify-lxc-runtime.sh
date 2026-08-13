@@ -36,7 +36,10 @@ printf 'container=%s\n' "$name"
 printf 'state_dir=%s\n' "$state_dir"
 printf 'config=%s\n' "$config_file"
 printf '\n'
-lxc-info -P "$state_dir" -n "$name" || true
+if ! lxc-info -P "$state_dir" -n "$name"; then
+    printf '\nResult: FAILED TO LOAD CONTAINER CONFIG. No container was started.\n' >&2
+    exit 1
+fi
 printf '\nConfig network lines:\n'
 grep -E '^lxc\.net\.|^lxc\.start\.auto' "$config_file"
-printf '\nNo container was started.\n'
+printf '\nResult: STOPPED CONTAINER CONFIG LOADS OK. No container was started.\n'
