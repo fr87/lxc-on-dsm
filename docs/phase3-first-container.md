@@ -41,3 +41,22 @@ lxc-start -F -P /volume1/@lxc/lab/containers -n alpine-lab
 ```
 
 Do not enable autostart or bridge networking during this phase.
+
+## Reproducible smoke test
+
+After the first manual shell start has succeeded once, use the smoke test for
+repeatability:
+
+```sh
+sh scripts/run-lab-smoke-test.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
+```
+
+The smoke test starts the container in foreground mode, feeds a small command
+sequence to `/bin/sh`, records evidence under `artifacts/`, and exits the shell
+again. It still keeps the container networkless and does not enable autostart.
+
+Expected result:
+
+```text
+Result: SMOKE TEST PASSED. Container was started and stopped without networking.
+```

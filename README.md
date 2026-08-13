@@ -55,3 +55,9 @@ sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-la
 ```
 
 Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+
+Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
+
+```sh
+sh scripts/run-lab-smoke-test.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
+```
