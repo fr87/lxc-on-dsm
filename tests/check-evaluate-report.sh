@@ -31,6 +31,7 @@ CONFIG_UTS_NS=y
 CONFIG_IPC_NS=y
 CONFIG_PID_NS=y
 CONFIG_NET_NS=y
+CONFIG_MOUNT_NS=y
 CONFIG_CGROUPS=y
 CONFIG_CGROUP_PIDS=y
 CONFIG_SECCOMP=y
@@ -57,3 +58,49 @@ output=$(sh scripts/evaluate-report.sh "$report")
 printf '%s\n' "$output" | grep -q 'PASS WITH CAUTION'
 printf '%s\n' "$output" | grep -q 'TODO: lxc-start is missing'
 printf '%s\n' "$output" | grep -q 'OK: Network namespaces'
+
+unknown_report="$tmp_dir/unknown-report"
+mkdir -p "$unknown_report/raw"
+cp "$report/summary.env" "$unknown_report/summary.env"
+cat >"$unknown_report/kernel-config.txt" <<'EOF'
+CONFIG_NAMESPACES=unknown
+CONFIG_UTS_NS=unknown
+CONFIG_IPC_NS=unknown
+CONFIG_PID_NS=unknown
+CONFIG_NET_NS=unknown
+CONFIG_MOUNT_NS=unknown
+CONFIG_CGROUPS=unknown
+CONFIG_CGROUP_PIDS=unknown
+CONFIG_SECCOMP=unknown
+CONFIG_MEMCG=unknown
+CONFIG_USER_NS=unknown
+CONFIG_SECCOMP_FILTER=unknown
+CONFIG_CGROUP_DEVICE=unknown
+CONFIG_DEVPTS_MULTIPLE_INSTANCES=unknown
+CONFIG_KEYS=unknown
+CONFIG_OVERLAY_FS=unknown
+CONFIG_VETH=unknown
+CONFIG_BRIDGE=unknown
+CONFIG_MACVLAN=unknown
+EOF
+cat >"$unknown_report/raw/namespaces.txt" <<'EOF'
+lrwxrwxrwx 1 root root 0 Aug 13 18:33 ipc -> ipc:[4026531839]
+lrwxrwxrwx 1 root root 0 Aug 13 18:33 mnt -> mnt:[4026531840]
+lrwxrwxrwx 1 root root 0 Aug 13 18:33 net -> net:[4026531992]
+lrwxrwxrwx 1 root root 0 Aug 13 18:33 pid -> pid:[4026531836]
+lrwxrwxrwx 1 root root 0 Aug 13 18:33 uts -> uts:[4026531838]
+EOF
+cat >"$unknown_report/raw/cgroups.txt" <<'EOF'
+#subsys_name	hierarchy	num_cgroups	enabled
+devices	2	1	1
+memory	3	1	1
+EOF
+
+set +e
+unknown_output=$(sh scripts/evaluate-report.sh "$unknown_report" 2>&1)
+unknown_status=$?
+set -e
+[ "$unknown_status" -eq 3 ]
+printf '%s\n' "$unknown_output" | grep -q 'INCONCLUSIVE'
+printf '%s\n' "$unknown_output" | grep -q 'OK: Network namespaces (runtime namespace evidence present'
+printf '%s\n' "$unknown_output" | grep -q 'NEEDS EVIDENCE: PIDs cgroup'

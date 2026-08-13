@@ -35,6 +35,7 @@ capture_file cgroups /proc/cgroups
 capture_file filesystems /proc/filesystems
 capture_file mounts /proc/self/mountinfo
 capture_file modules /proc/modules
+capture_file self_status /proc/self/status
 capture_file unprivileged_userns /proc/sys/kernel/unprivileged_userns_clone
 capture_file max_userns /proc/sys/user/max_user_namespaces
 capture_file lsm /sys/kernel/security/lsm
@@ -53,7 +54,7 @@ elif [ -n "$config_path" ]; then
 fi
 
 : >"${run_dir}/kernel-config.txt"
-for key in CONFIG_NAMESPACES CONFIG_UTS_NS CONFIG_IPC_NS CONFIG_PID_NS CONFIG_NET_NS CONFIG_USER_NS \
+for key in CONFIG_NAMESPACES CONFIG_UTS_NS CONFIG_IPC_NS CONFIG_PID_NS CONFIG_NET_NS CONFIG_MOUNT_NS CONFIG_USER_NS \
     CONFIG_CGROUPS CONFIG_CGROUP_PIDS CONFIG_MEMCG CONFIG_CPUSETS CONFIG_CGROUP_DEVICE CONFIG_SECCOMP \
     CONFIG_SECCOMP_FILTER CONFIG_VETH CONFIG_BRIDGE CONFIG_MACVLAN CONFIG_VXLAN CONFIG_OVERLAY_FS \
     CONFIG_KEYS CONFIG_DEVPTS_MULTIPLE_INSTANCES CONFIG_SECURITY_APPARMOR; do

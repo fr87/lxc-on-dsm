@@ -66,6 +66,38 @@ cgroup_enabled() {
     if [ "$enabled" = 1 ]; then printf 'enabled'; else printf 'disabled'; fi
 }
 
+cgroup_any_enabled() {
+    file="$report_dir/raw/cgroups.txt"
+    [ -r "$file" ] || { printf 'unknown'; return; }
+    if awk '$1 !~ /^#/ && $4 == 1 { found=1 } END { exit found ? 0 : 1 }' "$file" 2>/dev/null; then
+        printf 'enabled'
+    else
+        printf 'unknown'
+    fi
+}
+
+namespace_exists() {
+    name=$1
+    file="$report_dir/raw/namespaces.txt"
+    [ -r "$file" ] || { printf 'unknown'; return; }
+    if grep -Eq "[[:space:]]${name}[[:space:]]*->|[[:space:]]${name}$" "$file" 2>/dev/null; then
+        printf 'present'
+    else
+        printf 'unknown'
+    fi
+}
+
+seccomp_runtime_state() {
+    file="$report_dir/raw/self_status.txt"
+    [ -r "$file" ] || { printf 'unknown'; return; }
+    value=$(awk '$1 == "Seccomp:" { print $2; found=1 } END { if (!found) exit 1 }' "$file" 2>/dev/null || true)
+    case "$value" in
+        1|2) printf 'enabled' ;;
+        0) printf 'disabled' ;;
+        *) printf 'unknown' ;;
+    esac
+}
+
 tool_state() {
     tool=$1
     safe_tool_name=$(printf '%s' "$tool" | sed 's/[-.]/_/g')
@@ -79,6 +111,7 @@ tool_state() {
 
 blocked=0
 warnings=0
+inconclusive=0
 
 require_config() {
     key=$1
@@ -86,8 +119,62 @@ require_config() {
     state=$(config_state "$key")
     case "$state" in
         enabled|module) emit "- OK: $label ($key=$state)" ;;
-        unknown) emit "- WARN: $label ($key unknown)"; warnings=$((warnings + 1)) ;;
+        unknown) emit "- NEEDS EVIDENCE: $label ($key unknown)"; inconclusive=$((inconclusive + 1)) ;;
         *) emit "- BLOCKER: $label ($key=$state)"; blocked=$((blocked + 1)) ;;
+    esac
+}
+
+require_namespace() {
+    key=$1
+    ns=$2
+    label=$3
+    state=$(config_state "$key")
+    case "$state" in
+        enabled|module) emit "- OK: $label ($key=$state)" ;;
+        unknown)
+            ns_state=$(namespace_exists "$ns")
+            if [ "$ns_state" = present ]; then
+                emit "- OK: $label (runtime namespace evidence present; $key unknown)"
+            else
+                emit "- NEEDS EVIDENCE: $label ($key unknown and runtime evidence missing)"
+                inconclusive=$((inconclusive + 1))
+            fi
+            ;;
+        *) emit "- BLOCKER: $label ($key=$state)"; blocked=$((blocked + 1)) ;;
+    esac
+}
+
+require_cgroups_kernel() {
+    state=$(config_state CONFIG_CGROUPS)
+    case "$state" in
+        enabled|module) emit "- OK: Cgroups (CONFIG_CGROUPS=$state)" ;;
+        unknown)
+            runtime_state=$(cgroup_any_enabled)
+            if [ "$runtime_state" = enabled ]; then
+                emit "- OK: Cgroups (runtime cgroup evidence present; CONFIG_CGROUPS unknown)"
+            else
+                emit "- NEEDS EVIDENCE: Cgroups (CONFIG_CGROUPS unknown and runtime evidence missing)"
+                inconclusive=$((inconclusive + 1))
+            fi
+            ;;
+        *) emit "- BLOCKER: Cgroups (CONFIG_CGROUPS=$state)"; blocked=$((blocked + 1)) ;;
+    esac
+}
+
+require_seccomp() {
+    state=$(config_state CONFIG_SECCOMP)
+    case "$state" in
+        enabled|module) emit "- OK: Seccomp (CONFIG_SECCOMP=$state)" ;;
+        unknown)
+            runtime_state=$(seccomp_runtime_state)
+            if [ "$runtime_state" = enabled ]; then
+                emit "- OK: Seccomp (runtime status enabled; CONFIG_SECCOMP unknown)"
+            else
+                emit "- NEEDS EVIDENCE: Seccomp (CONFIG_SECCOMP unknown and runtime evidence missing)"
+                inconclusive=$((inconclusive + 1))
+            fi
+            ;;
+        *) emit "- BLOCKER: Seccomp (CONFIG_SECCOMP=$state)"; blocked=$((blocked + 1)) ;;
     esac
 }
 
@@ -107,7 +194,7 @@ require_cgroup() {
     state=$(cgroup_enabled "$name")
     case "$state" in
         enabled) emit "- OK: $label cgroup is enabled" ;;
-        unknown) emit "- WARN: $label cgroup state unknown"; warnings=$((warnings + 1)) ;;
+        unknown) emit "- NEEDS EVIDENCE: $label cgroup state unknown"; inconclusive=$((inconclusive + 1)) ;;
         *) emit "- BLOCKER: $label cgroup is $state"; blocked=$((blocked + 1)) ;;
     esac
 }
@@ -123,13 +210,14 @@ emit "- kernel_config_source: $(summary_value kernel_config_source)"
 emit ""
 emit "## Required kernel primitives"
 require_config CONFIG_NAMESPACES "Namespace support"
-require_config CONFIG_UTS_NS "UTS namespaces"
-require_config CONFIG_IPC_NS "IPC namespaces"
-require_config CONFIG_PID_NS "PID namespaces"
-require_config CONFIG_NET_NS "Network namespaces"
-require_config CONFIG_CGROUPS "Cgroups"
+require_namespace CONFIG_MOUNT_NS mnt "Mount namespaces"
+require_namespace CONFIG_UTS_NS uts "UTS namespaces"
+require_namespace CONFIG_IPC_NS ipc "IPC namespaces"
+require_namespace CONFIG_PID_NS pid "PID namespaces"
+require_namespace CONFIG_NET_NS net "Network namespaces"
+require_cgroups_kernel
 require_config CONFIG_CGROUP_PIDS "PIDs cgroup"
-require_config CONFIG_SECCOMP "Seccomp"
+require_seccomp
 emit ""
 emit "## Runtime cgroups"
 require_cgroup pids "PIDs"
@@ -163,8 +251,13 @@ done
 emit ""
 if [ "$blocked" -gt 0 ]; then
     emit "## Result"
-    emit "BLOCKED: $blocked blocker(s), $warnings warning(s). Do not attempt LXC startup yet."
+    emit "BLOCKED: $blocked blocker(s), $inconclusive unresolved hard evidence item(s), $warnings warning(s). Do not attempt LXC startup yet."
     exit 1
+fi
+if [ "$inconclusive" -gt 0 ]; then
+    emit "## Result"
+    emit "INCONCLUSIVE: $inconclusive hard evidence item(s) still unknown, $warnings warning(s). Gather more evidence before LXC startup."
+    exit 3
 fi
 emit "## Result"
 emit "PASS WITH CAUTION: no hard blocker detected, $warnings warning(s). Proceed to userspace/toolchain experiments in Virtual DSM."

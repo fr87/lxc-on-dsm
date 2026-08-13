@@ -24,5 +24,6 @@ The first hardware and Virtual DSM reports from 2026-08-13 only differed by `gen
 ## Preflight result classes
 
 - `BLOCKED`: at least one hard requirement is missing or disabled. Do not attempt container startup.
+- `INCONCLUSIVE`: no hard blocker was detected, but at least one hard requirement is still unproven. Gather more evidence before LXC startup.
 - `PASS WITH CAUTION`: no hard blocker was detected, but warnings remain. Continue in Virtual DSM only.
 - `WARN`: the report could not prove a feature or found a missing recommended feature. Treat unknown as work still to do, not as support.
