@@ -47,6 +47,8 @@ sh scripts/plan-entware-bootstrap.sh --volume /volume1
 sh scripts/fetch-sources.sh --output /volume1/Dev/lxc-on-dsm/build/sources
 sh scripts/build-pkgconf.sh --prefix /opt --install
 sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt
+sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt --install
+sh scripts/verify-lxc-install.sh --prefix /volume1/@lxc/lab/opt
 ```
 
 Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
