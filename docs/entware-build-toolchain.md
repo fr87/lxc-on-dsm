@@ -52,14 +52,17 @@ sh scripts/build-pkgconf.sh --prefix /opt --install
 Entware's Meson/Ninja notes build Ninja from source when a package is not available:
 
 ```sh
+export PATH="/opt/bin:/opt/sbin:$PATH"
+mkdir -p /opt/tmp
 cd /opt/tmp
-git clone https://github.com/ninja-build/ninja.git
-cd ninja
-git checkout release
+rm -rf ninja-release ninja.tar.gz
+curl -fL https://github.com/ninja-build/ninja/archive/refs/heads/release.tar.gz -o ninja.tar.gz
+tar -xzf ninja.tar.gz
+cd ninja-release
 CONFIG_SHELL=/opt/bin/bash python3 ./configure.py --bootstrap
 install -Dm0755 -t /opt/bin ./ninja
 cd /opt/tmp
-rm -Rf /opt/tmp/ninja
+rm -rf ninja-release ninja.tar.gz
 ```
 
 ## Environment

@@ -78,15 +78,17 @@ emit ""
 emit "If no Entware ninja package exists, build Ninja after the package step:"
 emit ""
 emit '```sh'
+emit 'export PATH="/opt/bin:/opt/sbin:$PATH"'
 emit 'mkdir -p /opt/tmp'
 emit 'cd /opt/tmp'
-emit 'git clone https://github.com/ninja-build/ninja.git'
-emit 'cd ninja'
-emit 'git checkout release'
+emit 'rm -rf ninja-release ninja.tar.gz'
+emit 'curl -fL https://github.com/ninja-build/ninja/archive/refs/heads/release.tar.gz -o ninja.tar.gz'
+emit 'tar -xzf ninja.tar.gz'
+emit 'cd ninja-release'
 emit 'CONFIG_SHELL=/opt/bin/bash python3 ./configure.py --bootstrap'
 emit 'install -Dm0755 -t /opt/bin ./ninja'
 emit 'cd /opt/tmp'
-emit 'rm -Rf /opt/tmp/ninja'
+emit 'rm -rf ninja-release ninja.tar.gz'
 emit '```'
 emit ""
 emit "Afterwards, rerun:"
