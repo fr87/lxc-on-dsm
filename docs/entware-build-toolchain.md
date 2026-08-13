@@ -21,6 +21,14 @@ The Entware Synology guide uses a persistent folder outside the DSM root filesys
 
 Then `/opt` is bind-mounted to that folder. This matters because DSM updates can recreate or erase root filesystem paths.
 
+Generate a lab-specific command plan:
+
+```sh
+sh scripts/plan-entware-bootstrap.sh --volume /volume1 --output artifacts/entware-bootstrap-plan.md
+```
+
+The generated plan is intentionally not an installer. Review the commands, then run them manually inside Virtual DSM as `root`.
+
 ## Native build packages
 
 Entware's native GCC notes recommend installing GCC plus common build helpers:

@@ -23,6 +23,7 @@ The fetch step writes only below the selected output directory. The manifest int
 The build step compiles LXC under `build/work` and does not install unless `--install` is passed explicitly.
 
 If `check-phase2-prereqs.sh` reports missing build tools, follow the [Entware build toolchain notes](entware-build-toolchain.md) in Virtual DSM.
+For a concrete command plan, run `sh scripts/plan-entware-bootstrap.sh --volume /volume1`.
 
 ## Build isolation target
 
