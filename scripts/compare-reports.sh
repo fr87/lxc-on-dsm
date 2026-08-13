@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-[ "$#" -eq 2 ] || { printf 'Usage: %s VDSM_REPORT_DIR HARDWARE_REPORT_DIR\n' "$0" >&2; exit 2; }
+[ "$#" -eq 2 ] || { printf 'Usage: %s HARDWARE_REPORT_DIR VDSM_REPORT_DIR\n' "$0" >&2; exit 2; }
 for report in "$1" "$2"; do
     [ -f "$report/summary.env" ] && [ -f "$report/kernel-config.txt" ] || { printf 'Invalid report: %s\n' "$report" >&2; exit 2; }
 done

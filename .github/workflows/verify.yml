@@ -9,3 +9,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check analysis scripts
         run: sh tests/check-analysis-safety.sh
+      - name: Check report evaluator
+        run: sh tests/check-evaluate-report.sh

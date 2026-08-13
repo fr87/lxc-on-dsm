@@ -58,7 +58,7 @@ for key in CONFIG_NAMESPACES CONFIG_UTS_NS CONFIG_IPC_NS CONFIG_PID_NS CONFIG_NE
     CONFIG_SECCOMP_FILTER CONFIG_VETH CONFIG_BRIDGE CONFIG_MACVLAN CONFIG_VXLAN CONFIG_OVERLAY_FS \
     CONFIG_KEYS CONFIG_DEVPTS_MULTIPLE_INSTANCES CONFIG_SECURITY_APPARMOR; do
     if [ -r "$expanded_config" ]; then
-        value=$(grep -E "^${key}(=| )" "$expanded_config" 2>/dev/null | tail -n 1 || true)
+        value=$(grep -E "^${key}=|^# ${key} is not set$" "$expanded_config" 2>/dev/null | tail -n 1 || true)
         [ -n "$value" ] || value="${key}=not-set"
     else
         value="${key}=unknown"
@@ -74,7 +74,8 @@ done
     printf 'kernel_config_source=%s\n' "${config_path:-unavailable}"
     for tool in lxc-start lxc-checkconfig newuidmap newgidmap unshare nsenter ip bridge nft iptables tar xz gzip; do
         if command -v "$tool" >/dev/null 2>&1; then state=present; else state=missing; fi
-        printf 'tool_%s=%s\n' "$tool" "$state"
+        safe_tool_name=$(printf '%s' "$tool" | sed 's/[-.]/_/g')
+        printf 'tool_%s=%s\n' "$safe_tool_name" "$state"
     done
 } >"${run_dir}/summary.env"
 
