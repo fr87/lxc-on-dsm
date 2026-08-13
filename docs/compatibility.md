@@ -2,7 +2,7 @@
 
 Phase 1 produces evidence; a compilable LXC binary alone does not prove safe operation.
 
-Hard requirements are mount, PID, UTS, IPC and network namespaces; usable cgroups; `devpts`/PTY and capabilities; a usable root filesystem; and container networking (preferably `veth` plus bridge).
+Hard Phase 1 requirements are mount, PID, UTS, IPC and network namespaces, plus usable base cgroups. `devpts`/PTY, capabilities, a usable root filesystem, container networking, pids cgroup and seccomp remain required before trusting real workloads, but missing proof for those does not by itself block userspace build experiments in Virtual DSM.
 
 User namespaces are required for the preferred unprivileged design. If disabled, a privileged PoC is not an automatic fallback; it requires a separate security decision.
 
@@ -15,7 +15,7 @@ User namespaces are required for the preferred unprivileged design. If disabled,
 5. Evaluate both reports with `scripts/evaluate-report.sh`.
 6. Only then select LXC version, build method, storage and networking.
 
-Seccomp, AppArmor, overlayfs, resource controllers and UID/GID mapping are separately assessed. Missing isolation controls can reduce acceptable scope even where LXC starts.
+Seccomp, AppArmor, overlayfs, resource controllers and UID/GID mapping are separately assessed. Missing isolation controls can reduce acceptable scope even where LXC starts. A shell showing `Seccomp: 0` only proves that the shell is not confined; it does not prove that kernel seccomp support is absent.
 
 ## Current DS224+ and Virtual DSM observation
 

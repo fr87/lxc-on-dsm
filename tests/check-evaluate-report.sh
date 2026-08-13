@@ -100,7 +100,8 @@ set +e
 unknown_output=$(sh scripts/evaluate-report.sh "$unknown_report" 2>&1)
 unknown_status=$?
 set -e
-[ "$unknown_status" -eq 3 ]
-printf '%s\n' "$unknown_output" | grep -q 'INCONCLUSIVE'
+[ "$unknown_status" -eq 0 ]
+printf '%s\n' "$unknown_output" | grep -q 'PASS WITH CAUTION'
+printf '%s\n' "$unknown_output" | grep -q 'OK: Namespace support (runtime namespace evidence present'
 printf '%s\n' "$unknown_output" | grep -q 'OK: Network namespaces (runtime namespace evidence present'
-printf '%s\n' "$unknown_output" | grep -q 'NEEDS EVIDENCE: PIDs cgroup'
+printf '%s\n' "$unknown_output" | grep -q 'WARN: PIDs cgroup'

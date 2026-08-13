@@ -93,7 +93,7 @@ seccomp_runtime_state() {
     value=$(awk '$1 == "Seccomp:" { print $2; found=1 } END { if (!found) exit 1 }' "$file" 2>/dev/null || true)
     case "$value" in
         1|2) printf 'enabled' ;;
-        0) printf 'disabled' ;;
+        0) printf 'available-not-active' ;;
         *) printf 'unknown' ;;
     esac
 }
@@ -124,6 +124,24 @@ require_config() {
     esac
 }
 
+require_namespace_base() {
+    state=$(config_state CONFIG_NAMESPACES)
+    case "$state" in
+        enabled|module) emit "- OK: Namespace support (CONFIG_NAMESPACES=$state)" ;;
+        unknown)
+            for ns in mnt uts ipc pid net; do
+                if [ "$(namespace_exists "$ns")" != present ]; then
+                    emit "- NEEDS EVIDENCE: Namespace support (CONFIG_NAMESPACES unknown and incomplete runtime namespace evidence)"
+                    inconclusive=$((inconclusive + 1))
+                    return
+                fi
+            done
+            emit "- OK: Namespace support (runtime namespace evidence present; CONFIG_NAMESPACES unknown)"
+            ;;
+        *) emit "- BLOCKER: Namespace support (CONFIG_NAMESPACES=$state)"; blocked=$((blocked + 1)) ;;
+    esac
+}
+
 require_namespace() {
     key=$1
     ns=$2
@@ -144,7 +162,7 @@ require_namespace() {
     esac
 }
 
-require_cgroups_kernel() {
+require_cgroups_base() {
     state=$(config_state CONFIG_CGROUPS)
     case "$state" in
         enabled|module) emit "- OK: Cgroups (CONFIG_CGROUPS=$state)" ;;
@@ -161,23 +179,6 @@ require_cgroups_kernel() {
     esac
 }
 
-require_seccomp() {
-    state=$(config_state CONFIG_SECCOMP)
-    case "$state" in
-        enabled|module) emit "- OK: Seccomp (CONFIG_SECCOMP=$state)" ;;
-        unknown)
-            runtime_state=$(seccomp_runtime_state)
-            if [ "$runtime_state" = enabled ]; then
-                emit "- OK: Seccomp (runtime status enabled; CONFIG_SECCOMP unknown)"
-            else
-                emit "- NEEDS EVIDENCE: Seccomp (CONFIG_SECCOMP unknown and runtime evidence missing)"
-                inconclusive=$((inconclusive + 1))
-            fi
-            ;;
-        *) emit "- BLOCKER: Seccomp (CONFIG_SECCOMP=$state)"; blocked=$((blocked + 1)) ;;
-    esac
-}
-
 recommend_config() {
     key=$1
     label=$2
@@ -185,6 +186,22 @@ recommend_config() {
     case "$state" in
         enabled|module) emit "- OK: $label ($key=$state)" ;;
         *) emit "- WARN: $label ($key=$state)"; warnings=$((warnings + 1)) ;;
+    esac
+}
+
+recommend_seccomp() {
+    state=$(config_state CONFIG_SECCOMP)
+    case "$state" in
+        enabled|module) emit "- OK: Seccomp (CONFIG_SECCOMP=$state)" ;;
+        unknown)
+            runtime_state=$(seccomp_runtime_state)
+            case "$runtime_state" in
+                enabled) emit "- OK: Seccomp (runtime status enabled; CONFIG_SECCOMP unknown)" ;;
+                available-not-active) emit "- WARN: Seccomp kernel support unproven; current shell is not seccomp-confined"; warnings=$((warnings + 1)) ;;
+                *) emit "- WARN: Seccomp kernel support unknown"; warnings=$((warnings + 1)) ;;
+            esac
+            ;;
+        *) emit "- WARN: Seccomp ($state)"; warnings=$((warnings + 1)) ;;
     esac
 }
 
@@ -199,6 +216,16 @@ require_cgroup() {
     esac
 }
 
+recommend_cgroup() {
+    name=$1
+    label=$2
+    state=$(cgroup_enabled "$name")
+    case "$state" in
+        enabled) emit "- OK: $label cgroup is enabled" ;;
+        *) emit "- WARN: $label cgroup is $state"; warnings=$((warnings + 1)) ;;
+    esac
+}
+
 emit "# DSM LXC preflight"
 emit ""
 emit "- report: $report_dir"
@@ -209,24 +236,24 @@ emit "- effective_uid: $(summary_value effective_uid)"
 emit "- kernel_config_source: $(summary_value kernel_config_source)"
 emit ""
 emit "## Required kernel primitives"
-require_config CONFIG_NAMESPACES "Namespace support"
+require_namespace_base
 require_namespace CONFIG_MOUNT_NS mnt "Mount namespaces"
 require_namespace CONFIG_UTS_NS uts "UTS namespaces"
 require_namespace CONFIG_IPC_NS ipc "IPC namespaces"
 require_namespace CONFIG_PID_NS pid "PID namespaces"
 require_namespace CONFIG_NET_NS net "Network namespaces"
-require_cgroups_kernel
-require_config CONFIG_CGROUP_PIDS "PIDs cgroup"
-require_seccomp
+require_cgroups_base
 emit ""
 emit "## Runtime cgroups"
-require_cgroup pids "PIDs"
 require_cgroup devices "Devices"
 recommend_config CONFIG_MEMCG "Memory cgroup kernel support"
 require_cgroup memory "Memory"
+recommend_config CONFIG_CGROUP_PIDS "PIDs cgroup kernel support"
+recommend_cgroup pids "PIDs"
 emit ""
 emit "## Strongly recommended features"
 recommend_config CONFIG_USER_NS "User namespaces"
+recommend_seccomp
 recommend_config CONFIG_SECCOMP_FILTER "Seccomp filters"
 recommend_config CONFIG_CGROUP_DEVICE "Device cgroup kernel support"
 recommend_config CONFIG_DEVPTS_MULTIPLE_INSTANCES "Multiple devpts instances"
