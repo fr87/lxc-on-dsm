@@ -70,7 +70,15 @@ meson setup "$lxc_build" "$lxc_src" \
     --prefix "$prefix" \
     --sysconfdir etc \
     --localstatedir var \
-    --libdir lib
+    --libdir lib \
+    -Dapparmor=false \
+    -Ddbus=false \
+    -Dinit-script=[] \
+    -Dinstall-init-files=false \
+    -Dman=false \
+    -Dseccomp=false \
+    -Dselinux=false \
+    -Dspecfile=false
 ninja -C "$lxc_build"
 
 if [ "$install_after_build" -eq 1 ]; then

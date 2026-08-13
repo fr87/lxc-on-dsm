@@ -22,6 +22,7 @@ sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt
 
 The fetch step writes only below the selected output directory. The manifest intentionally keeps SHA256 values as `TODO` until the first fetch has been verified against GPG signatures or another trusted checksum source.
 The build step compiles LXC under `build/work` and does not install unless `--install` is passed explicitly.
+The first LXC build intentionally disables D-Bus, distro init files, manpage generation, AppArmor, SELinux and seccomp integration. This keeps Phase 2 focused on proving that the core userspace can compile on DSM before adding optional isolation features back one by one.
 
 If `check-phase2-prereqs.sh` reports missing build tools, follow the [Entware build toolchain notes](entware-build-toolchain.md) in Virtual DSM.
 For a concrete command plan, run `sh scripts/plan-entware-bootstrap.sh --volume /volume1`.
