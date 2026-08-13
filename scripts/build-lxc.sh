@@ -29,7 +29,7 @@ done
 [ -r "$manifest" ] || { printf 'Missing manifest: %s\n' "$manifest" >&2; exit 2; }
 . "$manifest"
 
-for tool in meson ninja tar gzip sed awk grep; do
+for tool in meson ninja tar gzip sed awk grep patch; do
     command -v "$tool" >/dev/null 2>&1 || { printf 'Missing required tool: %s\n' "$tool" >&2; exit 1; }
 done
 if command -v pkg-config >/dev/null 2>&1; then
@@ -64,6 +64,15 @@ mkdir -p "$src_parent"
 
 if [ ! -d "$lxc_src" ]; then
     gzip -dc "$lxc_tar" | tar -xf - -C "$src_parent"
+fi
+
+patch_stamp="${lxc_src}/.lxc-on-dsm-patches-applied"
+if [ ! -f "$patch_stamp" ]; then
+    for patch_file in patches/lxc-"${LXC_VERSION}"/*.patch; do
+        [ -r "$patch_file" ] || continue
+        patch -d "$lxc_src" -p1 <"$patch_file"
+    done
+    : >"$patch_stamp"
 fi
 
 meson setup "$lxc_build" "$lxc_src" \

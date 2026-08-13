@@ -67,6 +67,7 @@ check_pkg_config
 check_tool meson required 'Meson build system'
 check_tool ninja required 'Ninja build runner'
 check_tool make optional 'Make build runner'
+check_tool patch required 'Patch utility'
 check_tool sed required 'sed'
 check_tool awk required 'awk'
 check_tool grep required 'grep'
