@@ -42,6 +42,13 @@ opkg install bash git python3-pip python3-setuptools
 python3 -m pip install -U wheel meson
 ```
 
+The current x64 Entware feed no longer exposes `pkg-config` as an installable package. If `check-phase2-prereqs.sh` still reports `pkg-config` or `pkgconf` missing after the package step, bootstrap `pkgconf` from pinned source:
+
+```sh
+sh scripts/fetch-sources.sh --output /volume1/Dev/lxc-on-dsm/build/sources
+sh scripts/build-pkgconf.sh --prefix /opt --install
+```
+
 Entware's Meson/Ninja notes build Ninja from source when a package is not available:
 
 ```sh

@@ -82,14 +82,17 @@ lxc_tar="${output_dir}/lxc-${LXC_VERSION}.tar.gz"
 lxc_asc="${lxc_tar}.asc"
 lxcfs_tar="${output_dir}/lxcfs-${LXCFS_VERSION}.tar.gz"
 lxcfs_asc="${lxcfs_tar}.asc"
+pkgconf_tar="${output_dir}/pkgconf-${PKGCONF_VERSION}.tar.xz"
 
 download "$LXC_URL" "$lxc_tar"
 download "$LXC_ASC_URL" "$lxc_asc"
 download "$LXCFS_URL" "$lxcfs_tar"
 download "$LXCFS_ASC_URL" "$lxcfs_asc"
+download "$PKGCONF_URL" "$pkgconf_tar"
 
 verify_sha256 "$lxc_tar" "$LXC_SHA256"
 verify_sha256 "$lxcfs_tar" "$LXCFS_SHA256"
+verify_sha256 "$pkgconf_tar" "$PKGCONF_SHA256"
 verify_signature "$lxc_tar" "$lxc_asc"
 verify_signature "$lxcfs_tar" "$lxcfs_asc"
 

@@ -45,6 +45,7 @@ Nach `PASS WITH CAUTION` auf Hardware und Virtual DSM beginnt Phase 2 nur in Vir
 sh scripts/check-phase2-prereqs.sh
 sh scripts/plan-entware-bootstrap.sh --volume /volume1
 sh scripts/fetch-sources.sh --output /volume1/Dev/lxc-on-dsm/build/sources
+sh scripts/build-pkgconf.sh --prefix /opt --install
 sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt
 ```
 
