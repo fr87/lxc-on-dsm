@@ -9,4 +9,8 @@ if grep -En "$forbidden" scripts/*.sh; then
     printf '%s\n' 'Forbidden mutating command found.' >&2
     exit 1
 fi
+if grep -En 'SHA256=TODO|SHA256=$' manifests/*.env; then
+    printf '%s\n' 'Unpinned source checksum found.' >&2
+    exit 1
+fi
 printf '%s\n' 'Analysis scripts passed syntax and safety checks.'
