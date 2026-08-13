@@ -1,6 +1,7 @@
 #!/bin/sh
 # Build pinned LXC sources under project-owned directories.
 set -eu
+PATH="/opt/bin:/opt/sbin:${PATH}"
 
 usage() {
     printf '%s\n' "Usage: $0 --prefix DIRECTORY [--manifest FILE] [--sources DIRECTORY] [--build DIRECTORY] [--install]"

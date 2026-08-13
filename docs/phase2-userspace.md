@@ -22,6 +22,8 @@ sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt
 The fetch step writes only below the selected output directory. The manifest intentionally keeps SHA256 values as `TODO` until the first fetch has been verified against GPG signatures or another trusted checksum source.
 The build step compiles LXC under `build/work` and does not install unless `--install` is passed explicitly.
 
+If `check-phase2-prereqs.sh` reports missing build tools, follow the [Entware build toolchain notes](entware-build-toolchain.md) in Virtual DSM.
+
 ## Build isolation target
 
 The first install prefix should be project-owned and disposable, for example:

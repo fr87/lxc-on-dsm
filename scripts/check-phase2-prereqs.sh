@@ -1,6 +1,7 @@
 #!/bin/sh
 # Read-only build prerequisite check for Phase 2.
 set -eu
+PATH="/opt/bin:/opt/sbin:${PATH}"
 
 usage() { printf '%s\n' "Usage: $0 [--manifest FILE]"; }
 manifest=manifests/lxc-userspace.env
@@ -68,6 +69,15 @@ else
     warn=$((warn + 1))
 fi
 check_tool opkg optional 'Entware package manager'
+printf '\n'
+
+printf '%s\n' '## Suggested Entware packages'
+printf '%s\n' 'opkg update'
+printf '%s\n' 'opkg install gcc binutils busybox gawk ldd make sed tar'
+printf '%s\n' 'opkg install coreutils-install diffutils ldconfig patch pkg-config --force-overwrite'
+printf '%s\n' 'opkg install bash git python3-pip python3-setuptools'
+printf '%s\n' 'python3 -m pip install -U wheel meson'
+printf '%s\n' 'Build ninja from source if no Entware ninja package is available.'
 printf '\n'
 
 if [ "$missing" -gt 0 ]; then

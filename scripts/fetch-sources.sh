@@ -1,14 +1,17 @@
 #!/bin/sh
 # Fetch pinned Phase 2 source tarballs. Writes only beneath --output.
 set -eu
+PATH="/opt/bin:/opt/sbin:${PATH}"
 
-usage() { printf '%s\n' "Usage: $0 [--manifest FILE] [--output DIRECTORY]"; }
+usage() { printf '%s\n' "Usage: $0 [--manifest FILE] [--output DIRECTORY] [--gpg-home DIRECTORY]"; }
 manifest=manifests/lxc-userspace.env
 output_dir="${PWD}/build/sources"
+gpg_home=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --manifest) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; manifest=$2; shift 2 ;;
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_dir=$2; shift 2 ;;
+        --gpg-home) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; gpg_home=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
     esac
@@ -17,6 +20,7 @@ done
 [ -r "$manifest" ] || { printf 'Missing manifest: %s\n' "$manifest" >&2; exit 2; }
 . "$manifest"
 mkdir -p "$output_dir"
+[ -n "$gpg_home" ] || gpg_home="${output_dir}/gnupg"
 
 download() {
     url=$1
@@ -40,6 +44,10 @@ verify_sha256() {
     expected=$2
     if [ "$expected" = TODO ]; then
         printf 'WARN: no pinned sha256 for %s yet\n' "$file"
+        if command -v sha256sum >/dev/null 2>&1; then
+            actual=$(sha256sum "$file" | awk '{ print $1 }')
+            printf 'PINNED_SHA256 %s %s\n' "$(basename "$file")" "$actual"
+        fi
         return
     fi
     if ! command -v sha256sum >/dev/null 2>&1; then
@@ -58,7 +66,9 @@ verify_signature() {
     file=$1
     signature=$2
     if command -v gpg >/dev/null 2>&1; then
-        gpg --verify "$signature" "$file" || {
+        mkdir -p "$gpg_home"
+        chmod 700 "$gpg_home" 2>/dev/null || true
+        gpg --homedir "$gpg_home" --verify "$signature" "$file" || {
             printf 'WARN: gpg verification failed or maintainer key is missing: %s\n' "$file"
             return
         }
