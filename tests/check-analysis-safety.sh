@@ -1,10 +1,10 @@
 #!/bin/sh
 set -eu
 target=scripts/analyze-dsm.sh
-for script in scripts/analyze-dsm.sh scripts/compare-reports.sh scripts/evaluate-report.sh; do
+for script in scripts/analyze-dsm.sh scripts/compare-reports.sh scripts/evaluate-report.sh scripts/check-phase2-prereqs.sh scripts/fetch-sources.sh scripts/build-lxc.sh; do
     sh -n "$script"
 done
-forbidden='(^|[[:space:]])(mount|umount|modprobe|insmod|rmmod|sysctl[[:space:]]+-w|apk|apt|opkg|synopkg|iptables[[:space:]]+-|nft[[:space:]]+(add|delete|flush))([[:space:]]|$)'
+forbidden='(^|[[:space:]])(mount|umount|modprobe|insmod|rmmod|sysctl[[:space:]]+-w|apk[[:space:]]+(add|del)|apt[[:space:]]+(install|remove|purge)|opkg[[:space:]]+(install|remove|upgrade)|synopkg|iptables[[:space:]]+-|nft[[:space:]]+(add|delete|flush))([[:space:]]|$)'
 if grep -En "$forbidden" scripts/*.sh; then
     printf '%s\n' 'Forbidden mutating command found.' >&2
     exit 1

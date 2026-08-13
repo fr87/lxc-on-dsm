@@ -37,4 +37,14 @@ sh scripts/evaluate-report.sh VDSM_REPORT_DIR --output artifacts/vdsm-preflight.
 4. Kernel- und Modulunterschiede zur physischen DS224+ pruefen.
 5. Installation, Konfiguration, Backup und Reparatur nach DSM-Updates paketieren.
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+## Phase 2 starten
+
+Nach `PASS WITH CAUTION` auf Hardware und Virtual DSM beginnt Phase 2 nur in Virtual DSM:
+
+```sh
+sh scripts/check-phase2-prereqs.sh
+sh scripts/fetch-sources.sh --output /volume1/Dev/lxc-on-dsm/build/sources
+sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt
+```
+
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
