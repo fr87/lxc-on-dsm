@@ -50,6 +50,8 @@ sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt
 sh scripts/build-lxc.sh --prefix /volume1/@lxc/lab/opt --install
 sh scripts/verify-lxc-install.sh --prefix /volume1/@lxc/lab/opt
 eval "$(sh scripts/print-lxc-env.sh --prefix /volume1/@lxc/lab/opt)"
+sh scripts/create-lab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
+sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
