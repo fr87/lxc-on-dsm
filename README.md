@@ -62,7 +62,9 @@ Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
 sh scripts/run-lab-smoke-test.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Danach sammelt Phase 3.2 eine breitere Runtime-Evidence mit `lxc-attach`:
+Danach sammelt Phase 3.2 eine breitere Runtime-Evidence. `lxc-attach` wird
+separat bewertet; die eigentliche Evidence nutzt weiterhin den bewährten
+netzwerklosen Foreground-Start:
 
 ```sh
 sh scripts/probe-lab-features.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab

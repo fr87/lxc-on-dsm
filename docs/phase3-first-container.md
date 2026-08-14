@@ -69,10 +69,16 @@ After the smoke test passes, collect a broader runtime snapshot:
 sh scripts/probe-lab-features.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-This starts the container with a temporary keeper command, uses `lxc-attach` to
-inspect the running container, then stops it again. It records:
+This first tries `lxc-attach` against a temporary detached container. On
+DSM/Entware this can fail independently of container startup because the
+Phase 2 build intentionally disables seccomp integration and DSM may lack the
+capability operations expected by LXC attach. The probe records that as a
+warning, stops the detached container again, and then uses the proven
+foreground-start path to collect runtime evidence.
 
-- `lxc-attach` functionality
+It records:
+
+- `lxc-attach` functionality or the reason it is limited
 - hostname and kernel evidence
 - PID namespace evidence from `/proc`
 - `/proc`, `/sys`, cgroup and `/dev/pts` mount evidence
