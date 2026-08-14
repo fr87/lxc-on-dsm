@@ -60,3 +60,27 @@ Expected result:
 ```text
 Result: SMOKE TEST PASSED. Container was started and stopped without networking.
 ```
+
+## Feature probe
+
+After the smoke test passes, collect a broader runtime snapshot:
+
+```sh
+sh scripts/probe-lab-features.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
+```
+
+This starts the container with a temporary keeper command, uses `lxc-attach` to
+inspect the running container, then stops it again. It records:
+
+- `lxc-attach` functionality
+- hostname and kernel evidence
+- PID namespace evidence from `/proc`
+- `/proc`, `/sys`, cgroup and `/dev/pts` mount evidence
+- capability fields from `/proc/self/status`
+- network device visibility while networking is still disabled
+
+Expected result:
+
+```text
+Result: FEATURE PROBE COMPLETE. Container was stopped and networking remained disabled.
+```

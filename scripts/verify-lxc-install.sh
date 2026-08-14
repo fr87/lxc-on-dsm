@@ -42,7 +42,7 @@ printf '\n'
 printf 'prefix=%s\n' "$prefix"
 printf '\n'
 
-for binary in lxc-start lxc-info lxc-monitor lxc-ls lxc-checkconfig; do
+for binary in lxc-start lxc-info lxc-monitor lxc-ls lxc-checkconfig lxc-attach lxc-stop; do
     check_binary "$binary"
 done
 
