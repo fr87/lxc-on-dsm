@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 1 - read-only Machbarkeitsanalyse. Es wird noch nichts installiert und kein Container gestartet.
+> **Status:** Phase 3 in Virtual DSM erreicht. Ein netzwerkloser Alpine-LXC startet reproduzierbar; `lxc-attach` ist als Known Limitation dokumentiert.
 
 ## Analyse ausfuehren
 
@@ -54,7 +54,7 @@ sh scripts/create-lab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
 
 Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
 
@@ -68,4 +68,10 @@ netzwerklosen Foreground-Start:
 
 ```sh
 sh scripts/probe-lab-features.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
+```
+
+Der erste Phase-4-Schritt ist weiterhin read-only:
+
+```sh
+sh scripts/check-network-prereqs.sh
 ```
