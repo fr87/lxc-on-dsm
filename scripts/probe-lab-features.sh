@@ -45,6 +45,19 @@ log_file="${output_dir}/lxc-probe-${name}-${stamp}.log"
 summary_file="${output_dir}/lxc-probe-${name}-${stamp}.summary"
 started=0
 
+show_log_tail() {
+    if [ -r "$log_file" ]; then
+        printf '\nLast log lines from %s:\n' "$log_file" >&2
+        tail -n 40 "$log_file" >&2 || true
+    fi
+}
+
+fail_with_log() {
+    printf '%s\n' "$1" >&2
+    show_log_tail
+    exit 1
+}
+
 cleanup() {
     if [ "$started" -eq 1 ] && lxc-info -s -P "$state_dir" -n "$name" 2>/dev/null | grep -q 'RUNNING'; then
         lxc-stop -P "$state_dir" -n "$name" >>"$log_file" 2>&1 || true
@@ -57,7 +70,12 @@ run_attach() {
     shift
     {
         printf '\n## %s\n' "$label"
-        lxc-attach -P "$state_dir" -n "$name" -- "$@"
+        if lxc-attach -P "$state_dir" -n "$name" -- "$@"; then
+            printf 'attach_%s_status=OK\n' "$label"
+        else
+            printf 'attach_%s_status=FAIL\n' "$label"
+            return 1
+        fi
     } >>"$log_file" 2>&1
 }
 
@@ -80,7 +98,18 @@ fi
     printf '\n## start keeper\n'
 } >"$log_file"
 
-lxc-start -d -P "$state_dir" -n "$name" -- /bin/sh -c 'trap "exit 0" TERM INT; while :; do sleep 60; done' >>"$log_file" 2>&1
+printf '%s\n' '# LXC lab feature probe'
+printf '\n'
+printf 'container=%s\n' "$name"
+printf 'state_dir=%s\n' "$state_dir"
+printf 'config=%s\n' "$config_file"
+printf 'log=%s\n' "$log_file"
+printf 'summary=%s\n' "$summary_file"
+printf '\n'
+
+if ! lxc-start -d -P "$state_dir" -n "$name" -- /bin/sh -c 'trap "exit 0" TERM INT; while :; do sleep 60; done' >>"$log_file" 2>&1; then
+    fail_with_log "Container start failed; inspect log: $log_file"
+fi
 started=1
 
 i=0
@@ -93,18 +122,18 @@ while [ "$i" -lt 10 ]; do
 done
 
 if ! lxc-info -s -P "$state_dir" -n "$name" 2>/dev/null | grep -q 'RUNNING'; then
-    printf 'Container did not reach RUNNING state; inspect log: %s\n' "$log_file" >&2
     lxc-info -P "$state_dir" -n "$name" >>"$log_file" 2>&1 || true
-    exit 1
+    fail_with_log "Container did not reach RUNNING state; inspect log: $log_file"
 fi
 
 lxc-info -P "$state_dir" -n "$name" >>"$log_file" 2>&1
-run_attach basic /bin/sh -c 'echo PROBE_ATTACH_OK; printf "hostname="; hostname; printf "kernel="; uname -r; printf "id="; id'
-run_attach pid /bin/sh -c 'printf "pid1_comm="; cat /proc/1/comm 2>/dev/null || true; printf "self_nspid="; sed -n "s/^NSpid:[[:space:]]*//p" /proc/self/status 2>/dev/null || true; printf "self_pid="; echo $$'
-run_attach mounts /bin/sh -c 'printf "proc_mount="; grep " /proc " /proc/mounts 2>/dev/null || true; printf "sys_mount="; grep " /sys " /proc/mounts 2>/dev/null || true; printf "cgroup_mounts="; grep cgroup /proc/mounts 2>/dev/null | wc -l'
-run_attach devpts /bin/sh -c 'printf "devpts_mount="; grep " /dev/pts " /proc/mounts 2>/dev/null || true; printf "devpts_dir="; ls -ld /dev/pts 2>/dev/null || true; printf "dev_null="; ls -l /dev/null 2>/dev/null || true'
-run_attach caps /bin/sh -c 'grep "^Cap" /proc/self/status 2>/dev/null || true'
-run_attach network /bin/sh -c 'printf "net_devices="; sed -n "3,$s/:.*//p" /proc/net/dev 2>/dev/null | tr "\n" ","; echo'
+attach_fail=0
+run_attach basic /bin/sh -c 'echo PROBE_ATTACH_OK; printf "hostname="; hostname; printf "kernel="; uname -r; printf "id="; id' || attach_fail=1
+run_attach pid /bin/sh -c 'printf "pid1_comm="; cat /proc/1/comm 2>/dev/null || true; printf "self_nspid="; sed -n "s/^NSpid:[[:space:]]*//p" /proc/self/status 2>/dev/null || true; printf "self_pid="; echo $$' || attach_fail=1
+run_attach mounts /bin/sh -c 'printf "proc_mount="; grep " /proc " /proc/mounts 2>/dev/null || true; printf "sys_mount="; grep " /sys " /proc/mounts 2>/dev/null || true; printf "cgroup_mounts="; grep cgroup /proc/mounts 2>/dev/null | wc -l' || attach_fail=1
+run_attach devpts /bin/sh -c 'printf "devpts_mount="; grep " /dev/pts " /proc/mounts 2>/dev/null || true; printf "devpts_dir="; ls -ld /dev/pts 2>/dev/null || true; printf "dev_null="; ls -l /dev/null 2>/dev/null || true' || attach_fail=1
+run_attach caps /bin/sh -c 'grep "^Cap" /proc/self/status 2>/dev/null || true' || attach_fail=1
+run_attach network /bin/sh -c 'printf "net_devices="; sed -n "3,$s/:.*//p" /proc/net/dev 2>/dev/null | tr "\n" ","; echo' || attach_fail=1
 
 lxc-stop -P "$state_dir" -n "$name" >>"$log_file" 2>&1 || true
 started=0
@@ -156,3 +185,8 @@ fi
 } >"$summary_file"
 
 cat "$summary_file"
+
+if [ "$attach_fail" -ne 0 ]; then
+    printf '\nOne or more lxc-attach probes failed; inspect log: %s\n' "$log_file" >&2
+    exit 1
+fi
