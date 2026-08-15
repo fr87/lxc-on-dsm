@@ -124,3 +124,47 @@ Result: MACVLAN LIFECYCLE STOPPED. Container stopped and lifecycle-owned shim re
 If a shim interface exists but no runtime state claims ownership, the stop
 script warns instead of deleting an unknown interface. In that case, inspect
 the host manually before continuing.
+
+## Validated lifecycle result
+
+Validated in Virtual DSM:
+
+```text
+# start
+container=alpine-macvlanlab
+parent_if=eth0
+shim_if=lxcshim0
+host_cidr=10.26.88.237/26
+container_ip=10.26.88.202
+gateway=10.26.88.199
+dhcp_status=OK
+shim_created=1
+route_added=1
+runtime_state=/volume1/@lxc/lab/containers/alpine-macvlanlab/lifecycle-state.env
+
+# stop
+container=alpine-macvlanlab
+shim_if=lxcshim0
+container_stopped=YES
+shim_absent=YES
+```
+
+Result:
+
+```text
+MACVLAN LIFECYCLE STARTED
+MACVLAN LIFECYCLE STOPPED
+```
+
+This validates the manual lifecycle gate:
+
+- profile-driven container start
+- DHCP inside the container
+- temporary host-side macvlan shim creation
+- `/32` route creation for the detected container IP
+- runtime ownership state writing
+- container stop
+- lifecycle-owned shim removal
+
+The current boundary remains deliberate: no DSM package integration, no DSM
+boot integration and no automatic autostart yet.

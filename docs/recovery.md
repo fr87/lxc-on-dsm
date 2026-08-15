@@ -15,3 +15,6 @@ After every DSM update:
 5. Reinstall or repair only project-owned files under the package and container data locations.
 6. Regenerate or verify the local lifecycle profile with
    `scripts/verify-macvlan-profile.sh` before starting any networked container.
+7. Start only through `scripts/start-macvlan-profile.sh` and stop through
+   `scripts/stop-macvlan-profile.sh` until DSM package lifecycle integration is
+   implemented.
