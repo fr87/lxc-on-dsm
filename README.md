@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 3 in Virtual DSM erreicht. Ein netzwerkloser Alpine-LXC startet reproduzierbar; `lxc-attach` ist als Known Limitation dokumentiert.
+> **Status:** Phase 4 in Virtual DSM erreicht: `empty`-Netznamespace und veth-Lifecycle ohne Bridge funktionieren; `lxc-attach` und Container-seitige Interface-Introspektion sind Known Limitations.
 
 ## Analyse ausfuehren
 

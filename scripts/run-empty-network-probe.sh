@@ -61,6 +61,7 @@ write_probe_commands() {
     printf '%s\n' 'printf "hostname="; hostname'
     printf '%s\n' 'printf "kernel="; uname -r'
     printf '%s\n' 'printf "net_devices="; sed -n "3,$s/:.*//p" /proc/net/dev 2>/dev/null | tr "\n" ","; echo'
+    printf '%s\n' 'printf "ip_link_count="; ip -o link show 2>/dev/null | wc -l'
     printf '%s\n' 'printf "routes="; cat /proc/net/route 2>/dev/null | wc -l'
     printf '%s\n' 'printf "ipv6_if="; cat /proc/net/if_inet6 2>/dev/null | wc -l'
     printf '%s\n' 'echo EMPTY_NET_PROBE_END'
@@ -109,5 +110,5 @@ printf '\n'
 printf 'container=%s\n' "$name"
 printf 'log=%s\n' "$log_file"
 printf '\n'
-grep -E 'EMPTY_NET_PROBE_|^hostname=|^kernel=|^net_devices=|^routes=|^ipv6_if=' "$log_file"
+grep -E 'EMPTY_NET_PROBE_|^hostname=|^kernel=|^net_devices=|^ip_link_count=|^routes=|^ipv6_if=' "$log_file"
 printf '\nResult: EMPTY NETWORK PROBE COMPLETE. No host interface or bridge was configured.\n'

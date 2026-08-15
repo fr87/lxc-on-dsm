@@ -84,6 +84,20 @@ The probe checks that the host-side veth appears while the detached container is
 running and disappears again after stop. It also runs a foreground container
 probe to capture container-side network evidence.
 
+Validated in Virtual DSM:
+
+```text
+OK: host veth appeared while detached container was running
+OK: host veth disappeared after detached stop
+OK: host veth absent after foreground probe
+```
+
+In the first successful run, `/proc/net/dev` inside the foreground probe did not
+list interface names, while route and IPv6 procfs evidence existed. Treat
+container-side interface introspection as still under investigation until a
+follow-up probe compares `/proc/net/dev` with `ip link` output from inside the
+container.
+
 Expected result:
 
 ```text

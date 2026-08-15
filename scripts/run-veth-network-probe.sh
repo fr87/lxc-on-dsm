@@ -77,6 +77,7 @@ write_probe_commands() {
     printf '%s\n' 'printf "hostname="; hostname'
     printf '%s\n' 'printf "kernel="; uname -r'
     printf '%s\n' 'printf "net_devices="; sed -n "3,$s/:.*//p" /proc/net/dev 2>/dev/null | tr "\n" ","; echo'
+    printf '%s\n' 'printf "ip_link_count="; ip -o link show 2>/dev/null | wc -l'
     printf '%s\n' 'printf "routes="; cat /proc/net/route 2>/dev/null | wc -l'
     printf '%s\n' 'printf "ipv6_if="; cat /proc/net/if_inet6 2>/dev/null | wc -l'
     printf '%s\n' 'echo VETH_PROBE_END'
@@ -191,7 +192,7 @@ case "$host_veth_final" in
     OK) printf 'OK: host veth absent after foreground probe\n' ;;
     WARN) printf 'WARN: host veth still exists after foreground probe\n' ;;
 esac
-grep -E 'VETH_PROBE_|^hostname=|^kernel=|^net_devices=|^routes=|^ipv6_if=' "$log_file"
+grep -E 'VETH_PROBE_|^hostname=|^kernel=|^net_devices=|^ip_link_count=|^routes=|^ipv6_if=' "$log_file"
 printf '\nResult: VETH PROBE COMPLETE. No bridge was configured.\n'
 
 if [ "$host_veth_cleanup" = WARN ] || [ "$host_veth_final" = WARN ]; then
