@@ -51,6 +51,22 @@ host_ping=FAIL
 
 This is expected macvlan behavior on Linux-style networking and does not
 invalidate the outbound LAN result.
+- A temporary host-side macvlan shim restores DSM host-to-container
+  reachability:
+
+```text
+host_cidr=10.26.88.237/26
+container_ip=10.26.88.216
+dhcp_status=OK
+detected_ip=10.26.88.216
+gateway=10.26.88.199
+shim_ping=OK
+cleanup=OK
+```
+
+The selected shim address must be a free LAN address and must not match the
+current container IP. In this run, `10.26.88.237/26` was safe because DHCP gave
+the container `10.26.88.216`.
 
 ## Current boundary
 
@@ -61,7 +77,7 @@ The following has not been tested and remains out of scope for this phase:
 - static IP assignment
 - host-managed route changes
 - firewall/NAT rules
-- host-side macvlan shim for DSM host-to-container connectivity
+- persistent host-side macvlan shim configuration
 - long-running LAN container behavior
 
 Use `scripts/plan-macvlan-host-shim.sh` to generate a reviewable manual plan if

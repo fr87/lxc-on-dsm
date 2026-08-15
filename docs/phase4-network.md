@@ -303,3 +303,19 @@ Success criteria:
 - `container_ip=` is present
 - `shim_ping=OK`
 - `cleanup=OK`
+
+Validated in Virtual DSM:
+
+```text
+host_cidr=10.26.88.237/26
+container_ip=10.26.88.216
+dhcp_status=OK
+detected_ip=10.26.88.216
+gateway=10.26.88.199
+shim_ping=OK
+cleanup=OK
+```
+
+In this run the shim address differed from the DHCP-assigned container address,
+so there was no live IP collision. For repeatable use, reserve a dedicated
+shim address instead of relying on a previously observed container lease.

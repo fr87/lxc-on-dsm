@@ -184,6 +184,10 @@ gateway=$(sed -n 's/^gateway=//p' "$evidence_file" | sed -n '1p')
 
 container_ip=${container_ip_override:-$detected_ip}
 [ -n "$container_ip" ] || fail_with_log "Container IP is empty; cannot add a host shim route"
+host_ip_plain=${host_cidr%%/*}
+if [ "$host_ip_plain" = "$container_ip" ]; then
+    fail_with_log "Host shim IP equals container IP; choose a different free LAN address: $host_cidr"
+fi
 
 printf '\n## host shim setup\n' >>"$log_file"
 ip link add "$shim_if" link "$parent_if" type macvlan mode bridge >>"$log_file" 2>&1 || fail_with_log "Host shim creation failed; inspect log: $log_file"

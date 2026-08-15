@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 4 in Virtual DSM erreicht: `empty`-Netznamespace, veth-Lifecycle, isolierte Lab-Bridge und macvlan-DHCP-LAN funktionieren; direkte DSM-Host-zu-macvlan-Container-Erreichbarkeit ist ohne Host-Shim erwartungsgemäß nicht gegeben.
+> **Status:** Phase 4 in Virtual DSM erreicht: `empty`-Netznamespace, veth-Lifecycle, isolierte Lab-Bridge, macvlan-DHCP-LAN und DSM-Host-zu-Container-Erreichbarkeit ueber temporaeren macvlan-Host-Shim funktionieren.
 
 ## Analyse ausfuehren
 

@@ -76,7 +76,7 @@ Current handling:
 
 ## Macvlan host-to-container communication fails without host shim
 
-Status: observed, non-blocking for outbound LAN validation.
+Status: observed without shim; workaround validated with temporary host shim.
 
 Observed in Virtual DSM:
 
@@ -106,3 +106,6 @@ Current handling:
 - After choosing a free LAN IP/CIDR for the shim, use
   `scripts/run-macvlan-host-shim-probe.sh` to validate the workaround. The probe
   creates and removes the shim during one run.
+- The validated shim probe used `host_cidr=10.26.88.237/26` while the container
+  received `10.26.88.216`; this proves the workaround path, not that
+  `10.26.88.237` is always safe to reuse.
