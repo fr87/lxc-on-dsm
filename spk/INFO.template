@@ -1,5 +1,5 @@
 package="lxc-on-dsm"
-version="0.1.0-0005"
+version="0.1.0-0006"
 displayname="LXC on DSM Lab"
 maintainer="fr87"
 arch="x86_64"

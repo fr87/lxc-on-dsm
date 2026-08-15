@@ -78,6 +78,8 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
     grep -q 'scripts/doctor-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target doctor script present' || { printf '%s\n' 'MISSING: target doctor script'; missing=$((missing + 1)); }
     grep -q 'scripts/prepare-package-access.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target package access script present' || { printf '%s\n' 'MISSING: target package access script'; missing=$((missing + 1)); }
     grep -q 'config/lab-macvlan.env.example' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target profile example present' || { printf '%s\n' 'MISSING: target profile example'; missing=$((missing + 1)); }
+    grep -q -- '--logfile' "${tmp_dir}/package/scripts/start-macvlan-profile.sh" && printf '%s\n' 'OK: start script captures LXC debug logfile' || { printf '%s\n' 'MISSING: start script LXC debug logfile capture'; missing=$((missing + 1)); }
+    grep -q '0730' "${tmp_dir}/package/scripts/prepare-package-access.sh" && printf '%s\n' 'OK: package access can allow lifecycle-state writes' || { printf '%s\n' 'MISSING: package access lifecycle-state write permission'; missing=$((missing + 1)); }
     if grep -q 'volume1/@lxc\|lifecycle-state.env\|rootfs' "${tmp_dir}/package-files.txt"; then
         printf '%s\n' 'BLOCKED: archive appears to contain runtime/container data'
         missing=$((missing + 1))

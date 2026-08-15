@@ -89,6 +89,14 @@ if ! grep -q 'PACKAGE ACCESS PLAN READY' "${payload_dir}/target/scripts/prepare-
     printf '%s\n' 'MISSING: package access script dry-run guard'
     missing=$((missing + 1))
 fi
+if ! grep -q '0730' "${payload_dir}/target/scripts/prepare-package-access.sh"; then
+    printf '%s\n' 'MISSING: package access script lifecycle-state write permission'
+    missing=$((missing + 1))
+fi
+if ! grep -q -- '--logfile' "${payload_dir}/target/scripts/start-macvlan-profile.sh"; then
+    printf '%s\n' 'MISSING: start script LXC debug logfile capture'
+    missing=$((missing + 1))
+fi
 if find "$payload_dir" -name '*.spk' | grep -q .; then
     printf '%s\n' 'BLOCKED: payload contains an .spk artifact'
     missing=$((missing + 1))

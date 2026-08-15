@@ -170,9 +170,12 @@ sh scripts/prepare-package-access.sh \
 It only plans these changes:
 
 ```text
-chmod 0711 LXC_LAB_STATE_DIR
-chmod 0711 LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER
-chmod 0644 LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER/config
+chgrp lxc_on_dsm LXC_LAB_STATE_DIR
+chmod 0710 LXC_LAB_STATE_DIR
+chgrp lxc_on_dsm LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER
+chmod 0730 LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER
+chgrp lxc_on_dsm LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER/config
+chmod 0640 LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER/config
 ```
 
 Apply explicitly only after reviewing the plan:
@@ -184,8 +187,10 @@ sh scripts/prepare-package-access.sh \
   --apply
 ```
 
-The script does not recurse into the container rootfs and does not change
-networking or start containers.
+The package user needs write access on the container directory so lifecycle
+start/stop can create and archive `lifecycle-state.env`. The script does not
+recurse into the container rootfs and does not change networking or start
+containers.
 
 ## Validated lifecycle result
 

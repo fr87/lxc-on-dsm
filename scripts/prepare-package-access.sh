@@ -65,9 +65,12 @@ su -s /bin/sh "$package_user" -c "test -x '$rootfs_dir'; echo rootfs_traverse=\$
 printf '\n'
 
 printf '%s\n' 'Required changes:'
-printf 'chmod 0711 %s\n' "$state_dir"
-printf 'chmod 0711 %s\n' "$container_dir"
-printf 'chmod 0644 %s\n' "$config_file"
+printf 'chgrp %s %s\n' "$package_user" "$state_dir"
+printf 'chmod 0710 %s\n' "$state_dir"
+printf 'chgrp %s %s\n' "$package_user" "$container_dir"
+printf 'chmod 0730 %s\n' "$container_dir"
+printf 'chgrp %s %s\n' "$package_user" "$config_file"
+printf 'chmod 0640 %s\n' "$config_file"
 printf '\n'
 
 if [ "$apply" -eq 0 ]; then
@@ -76,9 +79,12 @@ if [ "$apply" -eq 0 ]; then
     exit 0
 fi
 
-chmod 0711 "$state_dir"
-chmod 0711 "$container_dir"
-chmod 0644 "$config_file"
+chgrp "$package_user" "$state_dir"
+chmod 0710 "$state_dir"
+chgrp "$package_user" "$container_dir"
+chmod 0730 "$container_dir"
+chgrp "$package_user" "$config_file"
+chmod 0640 "$config_file"
 
 printf '%s\n' 'Access evidence after apply:'
 ls -ld "$state_dir" "$container_dir" "$rootfs_dir"

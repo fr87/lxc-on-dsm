@@ -48,7 +48,6 @@ container_dir="${state_dir}/${name}"
 rootfs_dir="${container_dir}/rootfs"
 config_file="${container_dir}/config"
 runtime_state="${container_dir}/lifecycle-state.env"
-evidence_file="${rootfs_dir}/tmp/dsm-lxc-macvlan-lifecycle.env"
 
 [ -r "$config_file" ] || { printf 'Missing config: %s\n' "$config_file" >&2; exit 1; }
 [ -d "$rootfs_dir" ] || { printf 'Missing rootfs: %s\n' "$rootfs_dir" >&2; exit 1; }
@@ -70,6 +69,9 @@ fi
 mkdir -p "$output_dir"
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 log_file="${output_dir}/lxc-lifecycle-start-${name}-${stamp}.log"
+lxc_debug_log="${output_dir}/lxc-start-${name}-${stamp}.debug.log"
+evidence_name="dsm-lxc-macvlan-lifecycle-${stamp}.env"
+evidence_file="${rootfs_dir}/tmp/${evidence_name}"
 shim_created=0
 route_added=0
 started=0
@@ -79,6 +81,10 @@ show_log_tail() {
     if [ -r "$log_file" ]; then
         printf '\nLast log lines from %s:\n' "$log_file" >&2
         tail -n 120 "$log_file" >&2 || true
+    fi
+    if [ -r "$lxc_debug_log" ]; then
+        printf '\nLast LXC debug lines from %s:\n' "$lxc_debug_log" >&2
+        tail -n 120 "$lxc_debug_log" >&2 || true
     fi
 }
 
@@ -102,10 +108,6 @@ cleanup_on_failure() {
 }
 trap cleanup_on_failure EXIT HUP INT TERM
 
-if [ -e "$evidence_file" ]; then
-    mv "$evidence_file" "${evidence_file}.previous"
-fi
-
 {
     printf '%s\n' '# LXC macvlan lifecycle start'
     printf 'generated_utc=%s\n' "$stamp"
@@ -114,13 +116,15 @@ fi
     printf 'parent_if=%s\n' "$parent_if"
     printf 'shim_if=%s\n' "$shim_if"
     printf 'host_cidr=%s\n' "$host_cidr"
+    printf 'lxc_debug_log=%s\n' "$lxc_debug_log"
+    printf 'evidence_file=%s\n' "$evidence_file"
     printf '\n## config network lines\n'
     grep -E '^lxc\.net\.|^lxc\.start\.auto' "$config_file" || true
     printf '\n## detached container start\n'
 } >"$log_file"
 
-if ! lxc-start -d -P "$state_dir" -n "$name" -- /bin/sh -c '
-    evidence=/tmp/dsm-lxc-macvlan-lifecycle.env
+if ! lxc-start -d -P "$state_dir" -n "$name" --logfile "$lxc_debug_log" --logpriority DEBUG -- /bin/sh -c '
+    evidence=/tmp/'"$evidence_name"'
     dhcp_status=SKIPPED
     if command -v udhcpc >/dev/null 2>&1; then
         udhcpc -i eth0 -n -q -t 3 -T 3 >/tmp/udhcpc-lifecycle.log 2>&1 && dhcp_status=OK || dhcp_status=FAIL
@@ -129,6 +133,7 @@ if ! lxc-start -d -P "$state_dir" -n "$name" -- /bin/sh -c '
     ip_plain=${ip_addr%%/*}
     gateway=$(ip route 2>/dev/null | awk "/^default / {print \$3; exit}")
     {
+        printf "generated_utc=%s\n" "'"$stamp"'"
         printf "dhcp_status=%s\n" "$dhcp_status"
         printf "ip_addr=%s\n" "$ip_addr"
         printf "ip_plain=%s\n" "$ip_plain"
@@ -187,6 +192,7 @@ fi
     printf 'shim_created=%s\n' "$shim_created"
     printf 'route_added=%s\n' "$route_added"
     printf 'log=%s\n' "$log_file"
+    printf 'lxc_debug_log=%s\n' "$lxc_debug_log"
 } >"$runtime_state"
 
 trap - EXIT HUP INT TERM
@@ -205,5 +211,6 @@ printf 'shim_created=%s\n' "$shim_created"
 printf 'route_added=%s\n' "$route_added"
 printf 'runtime_state=%s\n' "$runtime_state"
 printf 'log=%s\n' "$log_file"
+printf 'lxc_debug_log=%s\n' "$lxc_debug_log"
 printf '\n'
 printf '%s\n' 'Result: MACVLAN LIFECYCLE STARTED. Stop with scripts/stop-macvlan-profile.sh.'
