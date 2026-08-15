@@ -92,3 +92,9 @@ sh scripts/create-netlab-container.sh --prefix /volume1/@lxc/lab/opt --name alpi
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-vethlab
 sh scripts/run-veth-network-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-vethlab
 ```
+
+Vor Bridge-Experimenten erst read-only pruefen:
+
+```sh
+sh scripts/check-bridge-prereqs.sh
+```

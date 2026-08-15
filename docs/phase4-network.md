@@ -93,10 +93,9 @@ OK: host veth absent after foreground probe
 ```
 
 In the first successful run, `/proc/net/dev` inside the foreground probe did not
-list interface names, while route and IPv6 procfs evidence existed. Treat
-container-side interface introspection as still under investigation until a
-follow-up probe compares `/proc/net/dev` with `ip link` output from inside the
-container.
+list interface names, while route and IPv6 procfs evidence existed. A follow-up
+run showed `ip_link_count=3`, so container-side interfaces exist even where the
+minimal `/proc/net/dev` parsing is not useful.
 
 Expected result:
 
@@ -107,3 +106,24 @@ Result: VETH PROBE COMPLETE. No bridge was configured.
 If the probe reports that the host veth still exists after stop, do not proceed
 to bridge testing until the leftover interface has been investigated and
 removed.
+
+## Bridge preflight
+
+Before creating any bridge-backed container, inspect the DSM bridge landscape:
+
+```sh
+sh scripts/check-bridge-prereqs.sh
+```
+
+This is read-only. It collects `ip link`, `brctl show` and sysfs bridge/port
+evidence where available.
+
+Expected result:
+
+```text
+Result: BRIDGE PREFLIGHT COMPLETE. No networking was changed.
+```
+
+Do not attach an LXC veth to a DSM production bridge until this report has been
+reviewed. Prefer a dedicated throwaway lab bridge for the first bridge
+experiment if DSM allows that safely.

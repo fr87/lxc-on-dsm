@@ -40,9 +40,9 @@ Potential future paths:
 - Keep `lxc-attach` unsupported and design operational tooling around
   foreground/console workflows, if acceptable for the target workloads.
 
-## Container-side network interface listing is incomplete
+## `/proc/net/dev` interface listing can be incomplete
 
-Status: open, non-blocking for the detached veth lifecycle gate.
+Status: observed, non-blocking for the detached veth lifecycle gate.
 
 Observed in Virtual DSM during the first successful veth probe:
 
@@ -51,6 +51,7 @@ OK: host veth appeared while detached container was running
 OK: host veth disappeared after detached stop
 OK: host veth absent after foreground probe
 net_devices=
+ip_link_count=3
 routes=1
 ipv6_if=2
 ```
@@ -58,6 +59,8 @@ ipv6_if=2
 Current interpretation:
 
 - Host-side veth creation and cleanup works.
+- Container-side interfaces exist; `ip -o link show` reported three links in a
+  follow-up run.
 - Container-side network evidence via `/proc/net/dev` is incomplete or empty in
   this minimal foreground `/bin/sh` probe.
 - The route and IPv6 procfs files are present, so the network namespace itself
@@ -66,7 +69,7 @@ Current interpretation:
 Current handling:
 
 - Phase 4 treats host-side veth lifecycle as validated.
-- Container-side interface introspection remains a follow-up item before bridge
-  or macvlan experiments.
-- Network probe scripts also attempt `ip -o link show` inside the container
-  when available.
+- Use `ip -o link show` as the preferred container-side interface signal when
+  available.
+- Do not treat empty `net_devices=` by itself as evidence that the network
+  namespace lacks interfaces.
