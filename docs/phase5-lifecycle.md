@@ -195,6 +195,21 @@ This validates the manual lifecycle gate:
 - runtime ownership state writing
 - container stop
 - lifecycle-owned shim removal
+- post-stop doctor status check
 
 The current boundary remains deliberate: no DSM package integration, no DSM
 boot integration and no automatic autostart yet.
+
+Validated post-stop doctor result:
+
+```text
+container_state=STOPPED
+runtime_state_present=NO
+runtime_container_ip=
+runtime_shim_created=0
+runtime_route_added=0
+shim_present=NO
+route_present=NO_RUNTIME_IP
+
+Result: MACVLAN DOCTOR PASS. No container was started and no networking was changed.
+```

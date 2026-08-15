@@ -20,3 +20,11 @@ After every DSM update:
    implemented.
 8. Use `scripts/doctor-macvlan-profile.sh` for read-only status checks before
    any manual repair after an interrupted start/stop or DSM update.
+
+After a clean manual stop, the expected idle state is:
+
+- container stopped
+- no lifecycle runtime-state file
+- no host shim interface
+- no lifecycle route
+- `scripts/doctor-macvlan-profile.sh` returns `MACVLAN DOCTOR PASS`
