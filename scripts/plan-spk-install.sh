@@ -8,7 +8,7 @@ usage() {
 }
 
 package_name=lxc-on-dsm
-spk_file=build/spk/lxc-on-dsm-0.1.0-lab.spk
+spk_file=build/spk/lxc-on-dsm-0.1.0-0001.spk
 profile_file=config/lab-macvlan.env
 output_dir=artifacts
 
@@ -55,6 +55,7 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '%s\n' '4. `scripts/check-spk-archive.sh` reports the archive is OK.'
     printf '%s\n' '5. The package is not already installed, or uninstall/reinstall is explicitly planned.'
     printf '%s\n' '6. Container autostart remains disabled.'
+    printf '%s\n' '7. Package installation and package lifecycle start are separate gates; DSM 7 package scripts may run without the privileges required for LXC/network start.'
     printf '\n'
     printf '%s\n' '## Pre-install read-only checks'
     printf '\n'
@@ -77,6 +78,7 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '```\n'
     printf '\n'
     printf '%s\n' 'Do not start the package automatically after install.'
+    printf '%s\n' 'If installation still fails before `/var/packages` is created, collect the exact `synopkg install` JSON and do not retry with modified runtime state.'
     printf '\n'
     printf '%s\n' '## Post-install checks before start'
     printf '\n'
@@ -108,6 +110,7 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '```\n'
     printf '\n'
     printf '%s\n' 'Expected post-stop doctor state: container stopped, no runtime state, no shim and no lifecycle route.'
+    printf '%s\n' 'If package `start` fails because of package-user privileges, stop there and keep the package installed for log/profile inspection.'
     printf '\n'
     printf '%s\n' '## Rollback / uninstall'
     printf '\n'

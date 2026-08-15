@@ -34,7 +34,7 @@ printf '\n'
 printf 'spk=%s\n' "$spk_file"
 printf '\n'
 
-for top in INFO scripts package.tgz; do
+for top in INFO conf scripts package.tgz; do
     if grep -qx "$top" "${tmp_dir}/spk-files.txt" || grep -q "^${top}/" "${tmp_dir}/spk-files.txt"; then
         printf 'OK: top-level %s present\n' "$top"
     else
@@ -45,13 +45,20 @@ done
 
 tar -xf "$spk_file" -C "$tmp_dir"
 [ -r "${tmp_dir}/INFO" ] || { printf 'MISSING: extracted INFO\n'; missing=$((missing + 1)); }
+[ -r "${tmp_dir}/conf/privilege" ] || { printf 'MISSING: extracted conf/privilege\n'; missing=$((missing + 1)); }
 [ -r "${tmp_dir}/package.tgz" ] || { printf 'MISSING: extracted package.tgz\n'; missing=$((missing + 1)); }
 
 if [ -r "${tmp_dir}/INFO" ]; then
     grep -q '^package="lxc-on-dsm"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata name' || { printf '%s\n' 'MISSING: package metadata name'; missing=$((missing + 1)); }
+    grep -q '^version="[0-9][0-9.]*-[0-9][0-9]*"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata version format' || { printf '%s\n' 'MISSING: DSM-compatible numeric package version'; missing=$((missing + 1)); }
+    grep -q '^os_min_ver="7\.0-40000"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata os_min_ver' || { printf '%s\n' 'MISSING: DSM 7 compatible os_min_ver metadata'; missing=$((missing + 1)); }
     grep -q '^silent_install="no"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: silent_install disabled' || { printf '%s\n' 'MISSING: silent_install disabled'; missing=$((missing + 1)); }
     grep -q '^silent_upgrade="no"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: silent_upgrade disabled' || { printf '%s\n' 'MISSING: silent_upgrade disabled'; missing=$((missing + 1)); }
     grep -q '^silent_uninstall="no"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: silent_uninstall disabled' || { printf '%s\n' 'MISSING: silent_uninstall disabled'; missing=$((missing + 1)); }
+fi
+
+if [ -r "${tmp_dir}/conf/privilege" ]; then
+    grep -q '"run-as": "package"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package privilege run-as declaration' || { printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'; missing=$((missing + 1)); }
 fi
 
 if [ -r "${tmp_dir}/package.tgz" ]; then

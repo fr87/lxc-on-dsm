@@ -19,6 +19,7 @@ done
 required_files="
 INFO
 PAYLOAD-MANIFEST.txt
+conf/privilege
 etc/lab-macvlan.env.example
 scripts/start-stop-status
 scripts/preinst
@@ -26,6 +27,7 @@ scripts/postinst
 scripts/preupgrade
 scripts/postupgrade
 scripts/preuninst
+scripts/postuninst
 target/scripts/start-macvlan-profile.sh
 target/scripts/stop-macvlan-profile.sh
 target/scripts/doctor-macvlan-profile.sh
@@ -62,6 +64,10 @@ rm -f /tmp/lxc-on-dsm-payload-check.$$
 if ! grep -q '/var/packages/${PACKAGE}/etc/lab-macvlan.env' "${payload_dir}/scripts/start-stop-status" &&
    ! grep -q '/var/packages/lxc-on-dsm/etc/lab-macvlan.env' "${payload_dir}/scripts/start-stop-status"; then
     printf '%s\n' 'MISSING: package wrapper does not reference package-owned profile path'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
+    printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
     missing=$((missing + 1))
 fi
 if ! grep -q 'doctor-macvlan-profile.sh' "${payload_dir}/scripts/start-stop-status"; then

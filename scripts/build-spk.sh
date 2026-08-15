@@ -24,12 +24,13 @@ done
 case "$package_name" in *[!A-Za-z0-9_.-]*|'') printf 'Invalid package name: %s\n' "$package_name" >&2; exit 2 ;; esac
 [ -d "$payload_dir" ] || { printf 'Missing payload directory: %s\n' "$payload_dir" >&2; exit 1; }
 [ -r "${payload_dir}/INFO" ] || { printf 'Missing payload INFO: %s\n' "${payload_dir}/INFO" >&2; exit 1; }
+[ -d "${payload_dir}/conf" ] || { printf 'Missing payload conf directory: %s\n' "${payload_dir}/conf" >&2; exit 1; }
 [ -d "${payload_dir}/scripts" ] || { printf 'Missing payload scripts directory: %s\n' "${payload_dir}/scripts" >&2; exit 1; }
 [ -d "${payload_dir}/target" ] || { printf 'Missing payload target directory: %s\n' "${payload_dir}/target" >&2; exit 1; }
 
 version=$(sed -n 's/^version="//p' "${payload_dir}/INFO" | sed 's/"$//' | sed -n '1p')
 [ -n "$version" ] || { printf 'Unable to read version from payload INFO\n' >&2; exit 1; }
-case "$version" in *[!A-Za-z0-9_.:-]*|'') printf 'Invalid package version: %s\n' "$version" >&2; exit 1 ;; esac
+case "$version" in *[!0-9._-]*|'') printf 'Invalid package version: %s\n' "$version" >&2; exit 1 ;; esac
 
 mkdir -p "$output_dir"
 spk_file="${output_dir}/${package_name}-${version}.spk"
@@ -39,7 +40,7 @@ tmp_package="${payload_dir}/package.tgz"
 [ ! -e "$tmp_package" ] || { printf 'Payload already contains package.tgz, refusing to overwrite: %s\n' "$tmp_package" >&2; exit 1; }
 
 tar -czf "$tmp_package" -C "${payload_dir}/target" .
-tar -cf "$spk_file" -C "$payload_dir" INFO scripts package.tgz
+tar -cf "$spk_file" -C "$payload_dir" INFO conf scripts package.tgz
 rm -f "$tmp_package"
 
 printf '%s\n' '# Experimental SPK build'

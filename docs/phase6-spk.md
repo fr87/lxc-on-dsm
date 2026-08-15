@@ -1,16 +1,16 @@
 # Phase 6: DSM package skeleton
 
-Phase 6 starts the transition from lab scripts to a DSM package, but it does
-not produce an installable `.spk` yet. The first gate is a reviewable skeleton
-that maps DSM package lifecycle hooks to the validated profile lifecycle.
+Phase 6 starts the transition from lab scripts to a DSM package. The first
+gates are a reviewable skeleton, a dry-run payload, an inspected `.spk` archive
+and then a Virtual DSM-only install test.
 
 ## Current scope
 
-The skeleton under `spk/` is template-only:
+The skeleton under `spk/` is conservative:
 
-- no package is built
-- no package is installed
-- no DSM package scripts are executed
+- package build is local and ignored by Git
+- package installation is Virtual DSM-only
+- package lifecycle start remains a separate gate from package installation
 - no container is started
 - no networking is changed
 
@@ -25,17 +25,22 @@ The package design must keep these constraints:
 - package upgrade must run compatibility/profile checks before any later start
 - package uninstall must not delete container data unless explicitly requested
 - DSM production bridges and `eth0` must not be reconfigured
+- DSM 7 package metadata must stay compatible with Synology validation rules
+- DSM 7 `conf/privilege` uses `run-as: package`; privileged LXC/network start
+  may require a later, explicit privilege/service design
 
 ## Skeleton files
 
 ```text
 spk/INFO.template
+spk/conf/privilege.template
 spk/scripts/start-stop-status.template
 spk/scripts/preinst.template
 spk/scripts/postinst.template
 spk/scripts/preupgrade.template
 spk/scripts/postupgrade.template
 spk/scripts/preuninst.template
+spk/scripts/postuninst.template
 ```
 
 Validate the skeleton:
@@ -59,7 +64,21 @@ stop        -> scripts/stop-macvlan-profile.sh
 preupgrade  -> stop managed runtime state
 postupgrade -> verify compatibility and profile, keep autostart disabled
 preuninst   -> stop managed runtime state, preserve data by default
+postuninst  -> preserve data by default
 ```
+
+## DSM 7 package validation gate
+
+The package metadata must satisfy DSM 7's early package validation before any
+package directory is created under `/var/packages`:
+
+- `version` uses numeric parts only, for example `0.1.0-0001`
+- `os_min_ver` is set to `7.0-40000`
+- the SPK archive contains top-level `conf/privilege`
+- `conf/privilege` declares `"run-as": "package"`
+
+The old local artifact name `lxc-on-dsm-0.1.0-lab.spk` is intentionally treated
+as invalid for DSM installation because `lab` is not a numeric version segment.
 
 The next packaging gate should create a local build plan that assembles a dry
 run payload directory from project-owned files. It should still avoid producing
@@ -144,7 +163,7 @@ Result: SPK BUILT. No package was installed and no package scripts were executed
 Then inspect the archive before any install attempt:
 
 ```sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-lab.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0001.spk
 ```
 
 Expected result:
@@ -167,7 +186,7 @@ Result: SPK ARCHIVE OK. No package was installed and no package scripts were exe
 The first local artifact is:
 
 ```text
-build/spk/lxc-on-dsm-0.1.0-lab.spk
+build/spk/lxc-on-dsm-0.1.0-0001.spk
 ```
 
 The next gate must be an installation plan for Virtual DSM only. It should
@@ -193,3 +212,16 @@ The generated plan is intentionally manual and Virtual DSM-only. It includes
 pre-install doctor/archive checks, package install options, package-owned
 profile placement, package start/stop smoke testing, post-stop doctor checks
 and rollback notes.
+
+## First install-attempt evidence
+
+The first Virtual DSM CLI install attempt for the earlier artifact failed
+before `/var/packages/lxc-on-dsm` was created:
+
+```text
+error code 261: invalid package info content
+```
+
+That failure is a metadata/package-layout gate, not runtime damage. The follow-up
+fixes keep the install test focused on a DSM-7-valid archive first; package
+`start` remains a later privilege/runtime gate.

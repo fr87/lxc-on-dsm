@@ -23,6 +23,7 @@ case "$package_name" in *[!A-Za-z0-9_.-]*|'') printf 'Invalid package name: %s\n
 payload_dir="${output_root}/${package_name}"
 target_dir="${payload_dir}/target"
 etc_dir="${payload_dir}/etc"
+conf_dir="${payload_dir}/conf"
 pkg_scripts_dir="${payload_dir}/scripts"
 
 if [ -e "$payload_dir" ]; then
@@ -30,15 +31,17 @@ if [ -e "$payload_dir" ]; then
     exit 1
 fi
 
-mkdir -p "${target_dir}/scripts" "${target_dir}/config" "$etc_dir" "$pkg_scripts_dir"
+mkdir -p "${target_dir}/scripts" "${target_dir}/config" "$etc_dir" "$conf_dir" "$pkg_scripts_dir"
 
 cp spk/INFO.template "${payload_dir}/INFO"
+cp spk/conf/privilege.template "${conf_dir}/privilege"
 sed "s/%%PACKAGE_NAME%%/${package_name}/g" spk/scripts/start-stop-status.template >"${pkg_scripts_dir}/start-stop-status"
 cp spk/scripts/preinst.template "${pkg_scripts_dir}/preinst"
 cp spk/scripts/postinst.template "${pkg_scripts_dir}/postinst"
 cp spk/scripts/preupgrade.template "${pkg_scripts_dir}/preupgrade"
 cp spk/scripts/postupgrade.template "${pkg_scripts_dir}/postupgrade"
 cp spk/scripts/preuninst.template "${pkg_scripts_dir}/preuninst"
+cp spk/scripts/postuninst.template "${pkg_scripts_dir}/postuninst"
 
 cp scripts/start-macvlan-profile.sh "${target_dir}/scripts/"
 cp scripts/stop-macvlan-profile.sh "${target_dir}/scripts/"
@@ -53,6 +56,7 @@ chmod 0755 "${pkg_scripts_dir}/start-stop-status" \
     "${pkg_scripts_dir}/preupgrade" \
     "${pkg_scripts_dir}/postupgrade" \
     "${pkg_scripts_dir}/preuninst" \
+    "${pkg_scripts_dir}/postuninst" \
     "${target_dir}/scripts/start-macvlan-profile.sh" \
     "${target_dir}/scripts/stop-macvlan-profile.sh" \
     "${target_dir}/scripts/doctor-macvlan-profile.sh" \

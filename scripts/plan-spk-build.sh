@@ -55,12 +55,14 @@ plan_file="${output_dir}/spk-build-plan-${stamp}.md"
     printf '\n'
     printf '```text\n'
     printf 'INFO\n'
+    printf 'conf/privilege\n'
     printf 'scripts/start-stop-status\n'
     printf 'scripts/preinst\n'
     printf 'scripts/postinst\n'
     printf 'scripts/preupgrade\n'
     printf 'scripts/postupgrade\n'
     printf 'scripts/preuninst\n'
+    printf 'scripts/postuninst\n'
     printf 'package.tgz\n'
     printf '```\n'
     printf '\n'
@@ -75,7 +77,7 @@ plan_file="${output_dir}/spk-build-plan-${stamp}.md"
     printf 'sh scripts/check-spk-payload.sh --payload %s\n' "$payload_dir"
     printf 'cd %s\n' "$payload_dir"
     printf 'tar -czf package.tgz -C target .\n'
-    printf 'tar -cf ../../%s-0.1.0-lab.spk INFO scripts package.tgz\n' "$package_name"
+    printf 'tar -cf ../../%s-0.1.0-0001.spk INFO conf scripts package.tgz\n' "$package_name"
     printf '```\n'
     printf '\n'
     printf '%s\n' '## Required future checks'

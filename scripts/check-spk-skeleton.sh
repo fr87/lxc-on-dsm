@@ -7,12 +7,14 @@ root_dir=spk
 required_files="
 spk/README.md
 spk/INFO.template
+spk/conf/privilege.template
 spk/scripts/start-stop-status.template
 spk/scripts/preinst.template
 spk/scripts/postinst.template
 spk/scripts/preupgrade.template
 spk/scripts/postupgrade.template
 spk/scripts/preuninst.template
+spk/scripts/postuninst.template
 "
 
 missing=0
@@ -39,6 +41,18 @@ rm -f /tmp/lxc-on-dsm-spk-check.$$
 
 if ! grep -q '^startable="yes"$' spk/INFO.template; then
     printf '%s\n' 'MISSING: startable package metadata'
+    missing=$((missing + 1))
+fi
+if ! grep -q '^version="[0-9][0-9.]*-[0-9][0-9]*"$' spk/INFO.template; then
+    printf '%s\n' 'MISSING: DSM-compatible numeric package version'
+    missing=$((missing + 1))
+fi
+if ! grep -q '^os_min_ver="7\.0-40000"$' spk/INFO.template; then
+    printf '%s\n' 'MISSING: DSM 7 compatible os_min_ver metadata'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"run-as": "package"' spk/conf/privilege.template; then
+    printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
     missing=$((missing + 1))
 fi
 if ! grep -q 'doctor-macvlan-profile.sh' spk/scripts/start-stop-status.template; then
