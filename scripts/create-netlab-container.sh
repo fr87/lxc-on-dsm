@@ -4,7 +4,7 @@ set -eu
 PATH="/opt/bin:/opt/sbin:${PATH}"
 
 usage() {
-    printf '%s\n' "Usage: $0 --prefix DIRECTORY [--name NAME] [--state-dir DIRECTORY] [--manifest FILE] [--sources DIRECTORY] [--network-type empty|veth] [--host-veth NAME]"
+    printf '%s\n' "Usage: $0 --prefix DIRECTORY [--name NAME] [--state-dir DIRECTORY] [--manifest FILE] [--sources DIRECTORY] [--network-type empty|veth|macvlan] [--host-veth NAME] [--parent-if NAME]"
 }
 
 prefix=""
@@ -14,6 +14,7 @@ manifest=manifests/lxc-userspace.env
 sources_dir="${PWD}/build/sources"
 network_type=empty
 host_veth=lxcveth0
+parent_if=eth0
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 . "${script_dir}/lib/lab-config.sh"
 
@@ -26,6 +27,7 @@ while [ "$#" -gt 0 ]; do
         --sources) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; sources_dir=$2; shift 2 ;;
         --network-type) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; network_type=$2; shift 2 ;;
         --host-veth) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; host_veth=$2; shift 2 ;;
+        --parent-if) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; parent_if=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
     esac
@@ -39,12 +41,17 @@ case "$prefix" in /*) ;; *) printf 'Prefix must be absolute: %s\n' "$prefix" >&2
 case "$state_dir" in /*) ;; *) printf 'State dir must be absolute: %s\n' "$state_dir" >&2; exit 2 ;; esac
 case "$name" in *[!A-Za-z0-9_.-]*|'') printf 'Invalid container name: %s\n' "$name" >&2; exit 2 ;; esac
 case "$network_type" in
-    empty|veth) ;;
+    empty|veth|macvlan) ;;
     *) printf 'Unsupported network type for this gate: %s\n' "$network_type" >&2; exit 2 ;;
 esac
 case "$host_veth" in *[!A-Za-z0-9_.:-]*|'') printf 'Invalid host veth name: %s\n' "$host_veth" >&2; exit 2 ;; esac
+case "$parent_if" in *[!A-Za-z0-9_.:-]*|'') printf 'Invalid parent interface name: %s\n' "$parent_if" >&2; exit 2 ;; esac
 if [ ${#host_veth} -gt 15 ]; then
     printf 'Host veth name is too long for Linux interfaces: %s\n' "$host_veth" >&2
+    exit 2
+fi
+if [ ${#parent_if} -gt 15 ]; then
+    printf 'Parent interface name is too long for Linux interfaces: %s\n' "$parent_if" >&2
     exit 2
 fi
 
@@ -72,10 +79,18 @@ lxc.net.0.name = eth0
 lxc.net.0.flags = up
 lxc.net.0.veth.pair = ${host_veth}
 EOF
+elif [ "$network_type" = macvlan ]; then
+    cat >>"$config_file" <<EOF
+lxc.net.0.link = ${parent_if}
+lxc.net.0.name = eth0
+lxc.net.0.flags = up
+lxc.net.0.macvlan.mode = bridge
+EOF
 fi
 
 printf 'Created stopped network lab container: %s\n' "$container_dir"
 printf 'Config: %s\n' "$config_file"
 printf 'Network type: %s\n' "$network_type"
 [ "$network_type" != veth ] || printf 'Host veth pair name: %s\n' "$host_veth"
+[ "$network_type" != macvlan ] || printf 'Parent interface: %s\n' "$parent_if"
 printf 'No container was started.\n'

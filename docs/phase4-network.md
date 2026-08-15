@@ -179,3 +179,37 @@ Validated in Virtual DSM:
 The isolated bridge gate is considered complete. Do not proceed from this result
 directly to LAN connectivity; production bridge, `eth0`, DHCP, static IP and
 firewall/NAT behavior remain separate future gates.
+
+## Macvlan DHCP LAN gate
+
+The first real LAN connectivity test should avoid moving DSM's `eth0` into a
+bridge. Use a separate macvlan container instead:
+
+```sh
+sh scripts/create-netlab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab --network-type macvlan --parent-if eth0
+sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
+sh scripts/run-macvlan-dhcp-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
+```
+
+Scope:
+
+- uses `eth0` only as macvlan parent
+- does not move `eth0` into a bridge
+- does not change the host IP address
+- requests DHCP only from inside the container
+- stops the container after the probe
+
+Expected result:
+
+```text
+Result: MACVLAN DHCP PROBE COMPLETE. Parent interface was not bridged or reconfigured by this script.
+```
+
+Success criteria for real connectivity are stricter than script completion:
+
+- `dhcp_status=OK`
+- `addr_after=` contains an IPv4 address on `eth0`
+- `gateway=` is present
+- `gateway_ping=OK`
+
+`internet_ping=OK` is useful evidence but may fail if upstream ICMP is blocked.
