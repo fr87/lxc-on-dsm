@@ -125,6 +125,36 @@ If a shim interface exists but no runtime state claims ownership, the stop
 script warns instead of deleting an unknown interface. In that case, inspect
 the host manually before continuing.
 
+## Doctor / status check
+
+Inspect profile and runtime state without changing anything:
+
+```sh
+sh scripts/doctor-macvlan-profile.sh --profile config/lab-macvlan.env
+```
+
+The doctor checks:
+
+- profile and LXC binary presence
+- container config and rootfs presence
+- parent interface presence
+- current LXC state
+- lifecycle runtime-state file
+- effective shim interface presence
+- `/32` route presence for the runtime container IP
+- stale or orphaned lifecycle state
+
+Expected clean result:
+
+```text
+Result: MACVLAN DOCTOR PASS. No container was started and no networking was changed.
+```
+
+If it finds a running container without runtime state, a stale runtime-state
+file, an orphaned shim or a missing lifecycle route, it returns non-zero and
+prints a `PROBLEM:` line. Run the stop script only when the lifecycle state
+claims ownership of the shim; otherwise inspect manually.
+
 ## Validated lifecycle result
 
 Validated in Virtual DSM:

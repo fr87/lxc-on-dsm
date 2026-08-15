@@ -122,6 +122,8 @@ Danach wird ein lokales Lifecycle-Profil erzeugt und read-only geprueft:
 ```sh
 sh scripts/write-macvlan-profile.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab --parent-if eth0 --host-cidr FREE_LAN_IP/CIDR
 sh scripts/verify-macvlan-profile.sh --profile config/lab-macvlan.env
+sh scripts/doctor-macvlan-profile.sh --profile config/lab-macvlan.env
 sh scripts/start-macvlan-profile.sh --profile config/lab-macvlan.env
 sh scripts/stop-macvlan-profile.sh --profile config/lab-macvlan.env
+sh scripts/doctor-macvlan-profile.sh --profile config/lab-macvlan.env
 ```

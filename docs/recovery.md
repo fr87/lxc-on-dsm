@@ -18,3 +18,5 @@ After every DSM update:
 7. Start only through `scripts/start-macvlan-profile.sh` and stop through
    `scripts/stop-macvlan-profile.sh` until DSM package lifecycle integration is
    implemented.
+8. Use `scripts/doctor-macvlan-profile.sh` for read-only status checks before
+   any manual repair after an interrupted start/stop or DSM update.
