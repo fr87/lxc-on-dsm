@@ -26,8 +26,10 @@ The package design must keep these constraints:
 - package uninstall must not delete container data unless explicitly requested
 - DSM production bridges and `eth0` must not be reconfigured
 - DSM 7 package metadata must stay compatible with Synology validation rules
-- DSM 7 `conf/privilege` uses `run-as: package`; privileged LXC/network start
-  may require a later, explicit privilege/service design
+- DSM 7 `conf/privilege` uses `run-as: package` by default
+- Package `start` and `stop` use root `ctrl-script` actions for the
+  experimental privileged LXC lifecycle
+- Package `status` remains package-user read-only
 
 ## Skeleton files
 
@@ -72,10 +74,11 @@ postuninst  -> preserve data by default
 The package metadata must satisfy DSM 7's early package validation before any
 package directory is created under `/var/packages`:
 
-- `version` uses numeric parts only, for example `0.1.0-0006`
+- `version` uses numeric parts only, for example `0.1.0-0007`
 - `os_min_ver` is set to `7.0-40000`
 - the SPK archive contains top-level `conf/privilege`
 - `conf/privilege` declares `"run-as": "package"`
+- `conf/privilege` declares root `ctrl-script` actions for `start` and `stop`
 
 The old local artifact name `lxc-on-dsm-0.1.0-lab.spk` is intentionally treated
 as invalid for DSM installation because `lab` is not a numeric version segment.
@@ -163,7 +166,7 @@ Result: SPK BUILT. No package was installed and no package scripts were executed
 Then inspect the archive before any install attempt:
 
 ```sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0006.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0007.spk
 ```
 
 Expected result:
@@ -186,7 +189,7 @@ Result: SPK ARCHIVE OK. No package was installed and no package scripts were exe
 The first local artifact is:
 
 ```text
-build/spk/lxc-on-dsm-0.1.0-0006.spk
+build/spk/lxc-on-dsm-0.1.0-0007.spk
 ```
 
 The next gate must be an installation plan for Virtual DSM only. It should
@@ -263,3 +266,10 @@ root-owned lifecycle evidence handling. The `0.1.0-0006` gate adds per-run
 evidence filenames, captures an LXC debug logfile with `--logfile` and updates
 package access preparation to use a package group model that permits writing
 `lifecycle-state.env` without making the container directory world-writable.
+
+The `0.1.0-0006` debug log showed the expected privileged-runtime gate:
+legacy cgroup hierarchies were not writable and LXC failed with
+`Permission denied - Failed to pin rootfs` while running as `lxc_on_dsm`.
+The `0.1.0-0007` gate therefore keeps package `status` as package-user but
+declares package `start` and `stop` as root `ctrl-script` actions in
+`conf/privilege`.

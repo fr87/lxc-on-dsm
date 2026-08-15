@@ -16,10 +16,9 @@ scripts, but packaging, signing, installation and upgrade handling are still
 future gates.
 
 DSM 7 package validation requires a package privilege declaration. The skeleton
-therefore includes `conf/privilege` with `run-as: package`. That keeps the
-package conservative, but it also means privileged LXC and network lifecycle
-operations may need a later, explicit privilege/service design before Package
-Center `start` can be expected to work end-to-end.
+therefore keeps the default as `run-as: package`, but declares package
+`start`/`stop` as root `ctrl-script` actions for the experimental LXC lifecycle.
+Package `status` remains package-user read-only.
 
 ## Proposed package paths
 

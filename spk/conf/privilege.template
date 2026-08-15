@@ -3,5 +3,15 @@
         "run-as": "package"
     },
     "username": "lxc_on_dsm",
-    "groupname": "lxc_on_dsm"
+    "groupname": "lxc_on_dsm",
+    "ctrl-script": [{
+        "action": "start",
+        "run-as": "root"
+    }, {
+        "action": "stop",
+        "run-as": "root"
+    }, {
+        "action": "status",
+        "run-as": "package"
+    }]
 }

@@ -56,6 +56,12 @@ if ! grep -q '"run-as": "package"' spk/conf/privilege.template; then
     printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
     missing=$((missing + 1))
 fi
+if ! grep -q '"ctrl-script"' spk/conf/privilege.template ||
+   ! grep -q '"action": "start"' spk/conf/privilege.template ||
+   ! grep -q '"run-as": "root"' spk/conf/privilege.template; then
+    printf '%s\n' 'MISSING: DSM package start/stop root ctrl-script declaration'
+    missing=$((missing + 1))
+fi
 if grep -q '"tool"' spk/conf/privilege.template; then
     printf '%s\n' 'BLOCKED: package privilege tool attributes are not used in the lab skeleton'
     missing=$((missing + 1))

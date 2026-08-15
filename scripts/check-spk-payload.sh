@@ -77,6 +77,12 @@ if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
     printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
     missing=$((missing + 1))
 fi
+if ! grep -q '"ctrl-script"' "${payload_dir}/conf/privilege" ||
+   ! grep -q '"action": "start"' "${payload_dir}/conf/privilege" ||
+   ! grep -q '"run-as": "root"' "${payload_dir}/conf/privilege"; then
+    printf '%s\n' 'MISSING: DSM package start/stop root ctrl-script declaration'
+    missing=$((missing + 1))
+fi
 if grep -q '"tool"' "${payload_dir}/conf/privilege"; then
     printf '%s\n' 'BLOCKED: package privilege tool attributes are not used in the lab skeleton'
     missing=$((missing + 1))
