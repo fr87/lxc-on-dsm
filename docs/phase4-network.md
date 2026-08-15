@@ -152,3 +152,14 @@ The planned bridge experiment is intentionally isolated:
 Only run the generated commands after reviewing the plan and keeping the VM
 snapshot ready. The cleanup section of the generated plan must be run even if
 the probe fails.
+
+When `scripts/run-veth-network-probe.sh` sees `lxc.net.0.link` in the container
+config, it switches to isolated-bridge reporting. It then checks whether the
+host veth appears as a bridge port while the container is running and disappears
+again after stop.
+
+Expected bridge-linked result:
+
+```text
+Result: ISOLATED BRIDGE PROBE COMPLETE. No production interface was attached.
+```
