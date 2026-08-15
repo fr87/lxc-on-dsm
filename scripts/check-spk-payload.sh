@@ -71,8 +71,8 @@ if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
     printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
     missing=$((missing + 1))
 fi
-if ! grep -q '"relpath": "scripts"' "${payload_dir}/conf/privilege"; then
-    printf '%s\n' 'MISSING: package privilege target scripts directory permission'
+if grep -q '"tool"' "${payload_dir}/conf/privilege"; then
+    printf '%s\n' 'BLOCKED: package privilege tool attributes are not used in the lab skeleton'
     missing=$((missing + 1))
 fi
 if ! grep -q 'doctor-macvlan-profile.sh' "${payload_dir}/scripts/start-stop-status"; then

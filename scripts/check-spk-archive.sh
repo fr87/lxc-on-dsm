@@ -59,7 +59,12 @@ fi
 
 if [ -r "${tmp_dir}/conf/privilege" ]; then
     grep -q '"run-as": "package"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package privilege run-as declaration' || { printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'; missing=$((missing + 1)); }
-    grep -q '"relpath": "scripts"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package privilege target scripts permission declaration' || { printf '%s\n' 'MISSING: package privilege target scripts permission declaration'; missing=$((missing + 1)); }
+    if grep -q '"tool"' "${tmp_dir}/conf/privilege"; then
+        printf '%s\n' 'BLOCKED: package privilege tool attributes are not used in the lab skeleton'
+        missing=$((missing + 1))
+    else
+        printf '%s\n' 'OK: package privilege avoids tool attribute rewrites'
+    fi
 fi
 
 if [ -r "${tmp_dir}/package.tgz" ]; then

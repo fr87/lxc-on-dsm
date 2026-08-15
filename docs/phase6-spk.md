@@ -72,7 +72,7 @@ postuninst  -> preserve data by default
 The package metadata must satisfy DSM 7's early package validation before any
 package directory is created under `/var/packages`:
 
-- `version` uses numeric parts only, for example `0.1.0-0002`
+- `version` uses numeric parts only, for example `0.1.0-0003`
 - `os_min_ver` is set to `7.0-40000`
 - the SPK archive contains top-level `conf/privilege`
 - `conf/privilege` declares `"run-as": "package"`
@@ -163,7 +163,7 @@ Result: SPK BUILT. No package was installed and no package scripts were executed
 Then inspect the archive before any install attempt:
 
 ```sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0002.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0003.spk
 ```
 
 Expected result:
@@ -186,7 +186,7 @@ Result: SPK ARCHIVE OK. No package was installed and no package scripts were exe
 The first local artifact is:
 
 ```text
-build/spk/lxc-on-dsm-0.1.0-0002.spk
+build/spk/lxc-on-dsm-0.1.0-0003.spk
 ```
 
 The next gate must be an installation plan for Virtual DSM only. It should
@@ -234,7 +234,10 @@ denied on `target/scripts/doctor-macvlan-profile.sh`. Evidence showed
 `/var/packages/lxc-on-dsm/target/scripts` installed as `d---------` and the
 manually copied profile as `---------- root root`.
 
-The `0.1.0-0002` package gate therefore adds explicit `conf/privilege` tool
-permissions for `target/scripts` and ships `target/config/lab-macvlan.env.example`.
+The `0.1.0-0002` package gate then tried explicit `conf/privilege` `tool`
+permissions for `target/scripts`, but DSM rejected installation with error
+`313` (`failed to revise file attributes`). The `0.1.0-0003` gate therefore
+keeps `conf/privilege` minimal and moves target permission repair into
+`postinst`, while still shipping `target/config/lab-macvlan.env.example`.
 The install plan also makes the copied lab profile package-owned and readable
 before testing package `status` or `start`.
