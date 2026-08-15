@@ -168,3 +168,14 @@ Expected bridge-linked result:
 ```text
 Result: ISOLATED BRIDGE PROBE COMPLETE. No production interface was attached.
 ```
+
+Validated in Virtual DSM:
+
+- isolated bridge creation with `brctl addbr lxcbrlab0`
+- bridge-linked veth container config loading
+- bridge-linked veth container startup through the probe path
+- successful cleanup: `lxcbrlab0` absent after cleanup
+
+The isolated bridge gate is considered complete. Do not proceed from this result
+directly to LAN connectivity; production bridge, `eth0`, DHCP, static IP and
+firewall/NAT behavior remain separate future gates.
