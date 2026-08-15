@@ -281,3 +281,23 @@ third-party lab package cannot simply request root execution in
 privilege file and makes Package Center `start`/`stop` fail fast with a clear
 root-lifecycle diagnostic. The known-good privileged lifecycle remains available
 only as an explicit root command, pending a Resource Worker design.
+
+`0.1.0-0009` installed successfully in Virtual DSM. Package Center `start`
+failed as expected with script exit `1`, while the explicit root package
+wrapper path succeeded:
+
+```text
+sh /var/packages/lxc-on-dsm/scripts/start-stop-status start
+container_ip=10.26.88.214
+dhcp_status=OK
+shim_created=1
+route_added=1
+
+sh /var/packages/lxc-on-dsm/scripts/start-stop-status stop
+container_stopped=YES
+shim_absent=YES
+```
+
+This is the current validated boundary: installable management SPK plus manual
+root lifecycle. Automatic Package Center lifecycle requires the next design
+gate.

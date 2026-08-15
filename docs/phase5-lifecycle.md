@@ -250,3 +250,36 @@ route_present=NO_RUNTIME_IP
 
 Result: MACVLAN DOCTOR PASS. No container was started and no networking was changed.
 ```
+
+## Validated installed-package root lifecycle
+
+Validated in Virtual DSM through the installed `lxc-on-dsm` package scripts
+as root:
+
+```text
+profile=/var/packages/lxc-on-dsm/etc/lab-macvlan.env
+container=alpine-macvlanlab
+parent_if=eth0
+shim_if=lxcshim0
+host_cidr=10.26.88.237/26
+container_ip=10.26.88.214
+gateway=10.26.88.199
+dhcp_status=OK
+shim_created=1
+route_added=1
+runtime_state=/volume1/@lxc/lab/containers/alpine-macvlanlab/lifecycle-state.env
+log=/var/packages/lxc-on-dsm/var/artifacts/lxc-lifecycle-start-alpine-macvlanlab-20260815T212321Z.log
+```
+
+The package-owned doctor reported the container running, runtime state present,
+the shim present and the `/32` lifecycle route present. The package-owned stop
+wrapper then stopped the container and removed the lifecycle-owned shim:
+
+```text
+container_stopped=YES
+shim_absent=YES
+```
+
+This validates the installed root wrapper path. It does not validate Package
+Center `start`, which remains intentionally blocked for unsigned DSM 7 packages
+until a Resource Worker or another reviewed privileged helper design exists.
