@@ -58,14 +58,12 @@ if [ -r "${tmp_dir}/INFO" ]; then
 fi
 
 if [ -r "${tmp_dir}/conf/privilege" ]; then
-    grep -q '"run-as": "package"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package privilege run-as declaration' || { printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'; missing=$((missing + 1)); }
-    if grep -q '"ctrl-script"' "${tmp_dir}/conf/privilege" &&
-       grep -q '"action": "start"' "${tmp_dir}/conf/privilege" &&
-       grep -q '"run-as": "root"' "${tmp_dir}/conf/privilege"; then
-        printf '%s\n' 'OK: package start/stop root ctrl-script declaration'
-    else
-        printf '%s\n' 'MISSING: package start/stop root ctrl-script declaration'
+    grep -q '"run-as": "root"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package root run-as declaration' || { printf '%s\n' 'MISSING: DSM 7 package root run-as declaration'; missing=$((missing + 1)); }
+    if grep -q '"ctrl-script"' "${tmp_dir}/conf/privilege"; then
+        printf '%s\n' 'BLOCKED: package ctrl-script attributes are not used in the lab skeleton'
         missing=$((missing + 1))
+    else
+        printf '%s\n' 'OK: package avoids ctrl-script attribute rewrites'
     fi
     if grep -q '"tool"' "${tmp_dir}/conf/privilege"; then
         printf '%s\n' 'BLOCKED: package privilege tool attributes are not used in the lab skeleton'

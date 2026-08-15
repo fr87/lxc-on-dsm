@@ -8,7 +8,7 @@ usage() {
 }
 
 package_name=lxc-on-dsm
-spk_file=build/spk/lxc-on-dsm-0.1.0-0007.spk
+spk_file=build/spk/lxc-on-dsm-0.1.0-0008.spk
 profile_file=config/lab-macvlan.env
 output_dir=artifacts
 
@@ -55,7 +55,7 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '%s\n' '4. `scripts/check-spk-archive.sh` reports the archive is OK.'
     printf '%s\n' '5. The package is not already installed, or uninstall/reinstall is explicitly planned.'
     printf '%s\n' '6. Container autostart remains disabled.'
-    printf '%s\n' '7. Package installation and package lifecycle start are separate gates; this lab package uses root ctrl-script for start/stop and package-user status.'
+    printf '%s\n' '7. Package installation and package lifecycle start are separate gates; this lab package runs lifecycle scripts as root.'
     printf '\n'
     printf '%s\n' '## Pre-install read-only checks'
     printf '\n'

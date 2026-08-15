@@ -73,14 +73,12 @@ if ! grep -q '/var/packages/${PACKAGE}/var/artifacts' "${payload_dir}/scripts/st
     printf '%s\n' 'MISSING: package wrapper does not reference package-owned artifact path'
     missing=$((missing + 1))
 fi
-if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
-    printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
+if ! grep -q '"run-as": "root"' "${payload_dir}/conf/privilege"; then
+    printf '%s\n' 'MISSING: DSM 7 package root run-as declaration'
     missing=$((missing + 1))
 fi
-if ! grep -q '"ctrl-script"' "${payload_dir}/conf/privilege" ||
-   ! grep -q '"action": "start"' "${payload_dir}/conf/privilege" ||
-   ! grep -q '"run-as": "root"' "${payload_dir}/conf/privilege"; then
-    printf '%s\n' 'MISSING: DSM package start/stop root ctrl-script declaration'
+if grep -q '"ctrl-script"' "${payload_dir}/conf/privilege"; then
+    printf '%s\n' 'BLOCKED: package ctrl-script attributes are not used in the lab skeleton'
     missing=$((missing + 1))
 fi
 if grep -q '"tool"' "${payload_dir}/conf/privilege"; then

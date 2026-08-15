@@ -15,10 +15,9 @@ The package skeleton currently maps DSM package lifecycle concepts to project
 scripts, but packaging, signing, installation and upgrade handling are still
 future gates.
 
-DSM 7 package validation requires a package privilege declaration. The skeleton
-therefore keeps the default as `run-as: package`, but declares package
-`start`/`stop` as root `ctrl-script` actions for the experimental LXC lifecycle.
-Package `status` remains package-user read-only.
+DSM 7 package validation requires a package privilege declaration. The
+experimental lab package runs package lifecycle scripts as root because native
+LXC startup needs privileged rootfs, cgroup and network operations on DSM.
 
 ## Proposed package paths
 

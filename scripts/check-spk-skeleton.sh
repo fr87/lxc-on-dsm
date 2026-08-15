@@ -52,14 +52,12 @@ if ! grep -q '^os_min_ver="7\.0-40000"$' spk/INFO.template; then
     printf '%s\n' 'MISSING: DSM 7 compatible os_min_ver metadata'
     missing=$((missing + 1))
 fi
-if ! grep -q '"run-as": "package"' spk/conf/privilege.template; then
-    printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
+if ! grep -q '"run-as": "root"' spk/conf/privilege.template; then
+    printf '%s\n' 'MISSING: DSM 7 package root run-as declaration'
     missing=$((missing + 1))
 fi
-if ! grep -q '"ctrl-script"' spk/conf/privilege.template ||
-   ! grep -q '"action": "start"' spk/conf/privilege.template ||
-   ! grep -q '"run-as": "root"' spk/conf/privilege.template; then
-    printf '%s\n' 'MISSING: DSM package start/stop root ctrl-script declaration'
+if grep -q '"ctrl-script"' spk/conf/privilege.template; then
+    printf '%s\n' 'BLOCKED: package ctrl-script attributes are not used in the lab skeleton'
     missing=$((missing + 1))
 fi
 if grep -q '"tool"' spk/conf/privilege.template; then
