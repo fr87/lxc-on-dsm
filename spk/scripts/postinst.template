@@ -1,0 +1,6 @@
+#!/bin/sh
+# Template only. Future implementation must create package-owned config only.
+set -eu
+
+printf '%s\n' 'LXC on DSM postinst template: no action implemented.'
+printf '%s\n' 'Future postinst must not autostart containers.'

@@ -20,6 +20,8 @@ After every DSM update:
    implemented.
 8. Use `scripts/doctor-macvlan-profile.sh` for read-only status checks before
    any manual repair after an interrupted start/stop or DSM update.
+9. Treat `spk/` as a template skeleton until package payload assembly and
+   install/upgrade guards are implemented and tested.
 
 After a clean manual stop, the expected idle state is:
 

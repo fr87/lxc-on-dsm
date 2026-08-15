@@ -1,0 +1,6 @@
+#!/bin/sh
+# Template only. Future implementation must verify before any start.
+set -eu
+
+printf '%s\n' 'LXC on DSM postupgrade template: no action implemented.'
+printf '%s\n' 'Future postupgrade must run compatibility/profile checks and keep autostart disabled.'

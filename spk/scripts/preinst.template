@@ -1,0 +1,6 @@
+#!/bin/sh
+# Template only. Future implementation must remain conservative.
+set -eu
+
+printf '%s\n' 'LXC on DSM preinst template: no action implemented.'
+printf '%s\n' 'Future preinst must not start containers or change networking.'

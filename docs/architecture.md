@@ -18,6 +18,7 @@ scripts/compare-reports.sh   compare hardware and Virtual DSM reports
 scripts/evaluate-report.sh   turn one report into a preflight decision
 config/lxc/                  project-owned LXC defaults
 config/lab-macvlan.env       local lab lifecycle profile, generated on DSM
+spk/                         DSM package skeleton templates, not installable yet
 artifacts/                   local reports, not committed by default
 ```
 
