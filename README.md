@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 4 in Virtual DSM erreicht: `empty`-Netznamespace, veth-Lifecycle, isolierte Lab-Bridge und macvlan-DHCP-LAN funktionieren; Host-zu-Container-Erreichbarkeit bleibt separat zu testen.
+> **Status:** Phase 4 in Virtual DSM erreicht: `empty`-Netznamespace, veth-Lifecycle, isolierte Lab-Bridge und macvlan-DHCP-LAN funktionieren; direkte DSM-Host-zu-macvlan-Container-Erreichbarkeit ist ohne Host-Shim erwartungsgemäß nicht gegeben.
 
 ## Analyse ausfuehren
 
@@ -113,4 +113,5 @@ sh scripts/create-netlab-container.sh --prefix /volume1/@lxc/lab/opt --name alpi
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
 sh scripts/run-macvlan-dhcp-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
 sh scripts/run-macvlan-host-reachability-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
+sh scripts/plan-macvlan-host-shim.sh --parent-if eth0
 ```

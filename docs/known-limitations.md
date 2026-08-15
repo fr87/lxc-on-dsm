@@ -74,9 +74,9 @@ Current handling:
 - Do not treat empty `net_devices=` by itself as evidence that the network
   namespace lacks interfaces.
 
-## Macvlan host-to-container communication not yet tested
+## Macvlan host-to-container communication fails without host shim
 
-Status: open, non-blocking for outbound LAN validation.
+Status: observed, non-blocking for outbound LAN validation.
 
 Observed in Virtual DSM:
 
@@ -84,17 +84,22 @@ Observed in Virtual DSM:
 dhcp_status=OK
 gateway_ping=OK
 internet_ping=OK
+ip_plain=10.26.88.237
+host_ping=FAIL
 ```
 
 Current interpretation:
 
 - The container can reach the LAN and internet via macvlan on `eth0`.
-- This does not prove that the DSM host itself can directly reach the macvlan
-  container IP. Host-to-child communication is a known macvlan design caveat on
-  Linux-style networking.
+- The DSM host does not directly reach the macvlan container IP through the
+  parent interface in the current Virtual DSM test.
+- This is expected Linux/macvlan behavior and is not evidence that container
+  outbound networking is broken.
 
 Current handling:
 
 - Treat macvlan as validated for outbound container connectivity.
-- Treat DSM host-to-container reachability as a separate future gate.
-- Use `scripts/run-macvlan-host-reachability-probe.sh` to test this explicitly.
+- Treat DSM host-to-container reachability as requiring a separate design.
+- Use an external LAN client for service reachability tests, or generate a
+  reviewable host-side macvlan shim plan with
+  `scripts/plan-macvlan-host-shim.sh` if DSM itself must reach the container.

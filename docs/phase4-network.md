@@ -253,3 +253,26 @@ Interpretation:
 - `host_ping=FAIL`: expected on many Linux/macvlan setups; use an external LAN
   client or a dedicated host-side macvlan shim if host-to-container access is
   required.
+
+Validated in Virtual DSM:
+
+```text
+dhcp_status=OK
+ip_plain=10.26.88.237
+gateway=10.26.88.199
+host_ping=FAIL
+```
+
+This does not contradict the successful DHCP/gateway/internet result from
+inside the container.
+
+If host-to-container access is required, generate a reviewable host-side shim
+plan:
+
+```sh
+sh scripts/plan-macvlan-host-shim.sh --parent-if eth0
+```
+
+The generated plan still performs no network changes by itself. It requires
+choosing a free LAN IP/CIDR for the host-side macvlan shim before any manual
+commands are run.

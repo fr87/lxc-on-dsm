@@ -39,6 +39,18 @@ internet_ping=OK
 
 This proves DHCP, an IPv4 address, a default route, gateway reachability and
 outbound ICMP reachability from inside the container.
+- Direct DSM host-to-container reachability over the macvlan parent interface
+  fails without an additional host-side macvlan shim:
+
+```text
+dhcp_status=OK
+ip_plain=10.26.88.237
+gateway=10.26.88.199
+host_ping=FAIL
+```
+
+This is expected macvlan behavior on Linux-style networking and does not
+invalidate the outbound LAN result.
 
 ## Current boundary
 
@@ -49,10 +61,8 @@ The following has not been tested and remains out of scope for this phase:
 - static IP assignment
 - host-managed route changes
 - firewall/NAT rules
-- host-to-container connectivity over macvlan
+- host-side macvlan shim for DSM host-to-container connectivity
 - long-running LAN container behavior
 
-Macvlan commonly has host-to-child communication caveats; external LAN
-connectivity succeeding does not by itself prove that DSM can directly reach the
-container IP. Treat that as a separate future gate if required by the target
-workloads.
+Use `scripts/plan-macvlan-host-shim.sh` to generate a reviewable manual plan if
+DSM host-to-container access is required by the target workloads.
