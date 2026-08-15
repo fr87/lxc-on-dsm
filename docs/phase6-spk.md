@@ -64,3 +64,40 @@ preuninst   -> stop managed runtime state, preserve data by default
 The next packaging gate should create a local build plan that assembles a dry
 run payload directory from project-owned files. It should still avoid producing
 or installing an `.spk` until the payload layout has been reviewed.
+
+## Validated skeleton gate
+
+Validated in Virtual DSM:
+
+```text
+Result: SPK SKELETON OK. No package was built or installed.
+```
+
+## Dry-run payload assembly
+
+Assemble a local review tree under `build/`:
+
+```sh
+sh scripts/assemble-spk-payload.sh
+```
+
+Expected result:
+
+```text
+Result: SPK PAYLOAD ASSEMBLED. No .spk was built or installed.
+```
+
+Then validate the assembled tree:
+
+```sh
+sh scripts/check-spk-payload.sh
+```
+
+Expected result:
+
+```text
+Result: SPK PAYLOAD OK. No .spk was built or installed.
+```
+
+This dry-run tree is intentionally ignored by Git and must be reviewed before
+adding a real `.spk` builder.
