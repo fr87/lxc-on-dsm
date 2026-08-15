@@ -34,6 +34,7 @@ target/scripts/stop-macvlan-profile.sh
 target/scripts/doctor-macvlan-profile.sh
 target/scripts/verify-macvlan-profile.sh
 target/scripts/print-lxc-env.sh
+target/scripts/prepare-package-access.sh
 "
 
 missing=0
@@ -77,6 +78,10 @@ if grep -q '"tool"' "${payload_dir}/conf/privilege"; then
 fi
 if ! grep -q 'doctor-macvlan-profile.sh' "${payload_dir}/scripts/start-stop-status"; then
     printf '%s\n' 'MISSING: status wrapper does not call doctor'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGE ACCESS PLAN READY' "${payload_dir}/target/scripts/prepare-package-access.sh"; then
+    printf '%s\n' 'MISSING: package access script dry-run guard'
     missing=$((missing + 1))
 fi
 if find "$payload_dir" -name '*.spk' | grep -q .; then

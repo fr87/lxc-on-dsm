@@ -136,6 +136,6 @@ sh scripts/assemble-spk-payload.sh
 sh scripts/check-spk-payload.sh
 sh scripts/plan-spk-build.sh
 sh scripts/build-spk.sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0003.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0004.spk
 sh scripts/plan-spk-install.sh
 ```

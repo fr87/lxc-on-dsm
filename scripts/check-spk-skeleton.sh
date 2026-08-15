@@ -15,6 +15,7 @@ spk/scripts/preupgrade.template
 spk/scripts/postupgrade.template
 spk/scripts/preuninst.template
 spk/scripts/postuninst.template
+scripts/prepare-package-access.sh
 "
 
 missing=0

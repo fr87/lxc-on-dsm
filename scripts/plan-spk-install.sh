@@ -8,7 +8,7 @@ usage() {
 }
 
 package_name=lxc-on-dsm
-spk_file=build/spk/lxc-on-dsm-0.1.0-0003.spk
+spk_file=build/spk/lxc-on-dsm-0.1.0-0004.spk
 profile_file=config/lab-macvlan.env
 output_dir=artifacts
 
@@ -97,8 +97,11 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf 'chown lxc_on_dsm:lxc_on_dsm /var/packages/%s/etc/lab-macvlan.env\n' "$package_name"
     printf 'chmod 0640 /var/packages/%s/etc/lab-macvlan.env\n' "$package_name"
     printf 'su -s /bin/sh lxc_on_dsm -c '"'"'test -r /var/packages/%s/etc/lab-macvlan.env; echo profile_read=$?'"'"'\n' "$package_name"
+    printf 'sh /var/packages/%s/target/scripts/prepare-package-access.sh --profile /var/packages/%s/etc/lab-macvlan.env --user lxc_on_dsm\n' "$package_name" "$package_name"
+    printf 'sh /var/packages/%s/target/scripts/prepare-package-access.sh --profile /var/packages/%s/etc/lab-macvlan.env --user lxc_on_dsm --apply\n' "$package_name" "$package_name"
     printf 'sh /var/packages/%s/target/scripts/verify-macvlan-profile.sh --profile /var/packages/%s/etc/lab-macvlan.env\n' "$package_name" "$package_name"
     printf 'sh /var/packages/%s/target/scripts/doctor-macvlan-profile.sh --profile /var/packages/%s/etc/lab-macvlan.env\n' "$package_name" "$package_name"
+    printf 'su -s /bin/sh lxc_on_dsm -c '"'"'/var/packages/%s/scripts/start-stop-status status; echo status_exit=$?'"'"'\n' "$package_name"
     printf '```\n'
     printf '\n'
     printf '%s\n' '## Package lifecycle smoke test'

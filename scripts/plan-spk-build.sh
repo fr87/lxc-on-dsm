@@ -77,7 +77,7 @@ plan_file="${output_dir}/spk-build-plan-${stamp}.md"
     printf 'sh scripts/check-spk-payload.sh --payload %s\n' "$payload_dir"
     printf 'cd %s\n' "$payload_dir"
     printf 'tar -czf package.tgz -C target .\n'
-    printf 'tar -cf ../../%s-0.1.0-0003.spk INFO conf scripts package.tgz\n' "$package_name"
+    printf 'tar -cf ../../%s-0.1.0-0004.spk INFO conf scripts package.tgz\n' "$package_name"
     printf '```\n'
     printf '\n'
     printf '%s\n' '## Required future checks'

@@ -72,7 +72,7 @@ postuninst  -> preserve data by default
 The package metadata must satisfy DSM 7's early package validation before any
 package directory is created under `/var/packages`:
 
-- `version` uses numeric parts only, for example `0.1.0-0003`
+- `version` uses numeric parts only, for example `0.1.0-0004`
 - `os_min_ver` is set to `7.0-40000`
 - the SPK archive contains top-level `conf/privilege`
 - `conf/privilege` declares `"run-as": "package"`
@@ -163,7 +163,7 @@ Result: SPK BUILT. No package was installed and no package scripts were executed
 Then inspect the archive before any install attempt:
 
 ```sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0003.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0004.spk
 ```
 
 Expected result:
@@ -186,7 +186,7 @@ Result: SPK ARCHIVE OK. No package was installed and no package scripts were exe
 The first local artifact is:
 
 ```text
-build/spk/lxc-on-dsm-0.1.0-0003.spk
+build/spk/lxc-on-dsm-0.1.0-0004.spk
 ```
 
 The next gate must be an installation plan for Virtual DSM only. It should
@@ -241,3 +241,11 @@ keeps `conf/privilege` minimal and moves target permission repair into
 `postinst`, while still shipping `target/config/lab-macvlan.env.example`.
 The install plan also makes the copied lab profile package-owned and readable
 before testing package `status` or `start`.
+
+The `0.1.0-0003` package then installed successfully and the package user could
+execute the wrapper, but the doctor could not read the existing lab container
+because `/volume1/@lxc/lab/containers` and the container directory were
+`0700 root:root`, with `config` at `0600 root:root`. The `0.1.0-0004` gate adds
+`prepare-package-access.sh`, a dry-run-first script that sets only the minimal
+container-state access needed by the package user: traverse on the state and
+container directories plus read access on the LXC config.

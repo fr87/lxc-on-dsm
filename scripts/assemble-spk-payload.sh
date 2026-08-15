@@ -48,6 +48,7 @@ cp scripts/stop-macvlan-profile.sh "${target_dir}/scripts/"
 cp scripts/doctor-macvlan-profile.sh "${target_dir}/scripts/"
 cp scripts/verify-macvlan-profile.sh "${target_dir}/scripts/"
 cp scripts/print-lxc-env.sh "${target_dir}/scripts/"
+cp scripts/prepare-package-access.sh "${target_dir}/scripts/"
 cp config/lab-macvlan.env.example "${etc_dir}/lab-macvlan.env.example"
 cp config/lab-macvlan.env.example "${target_dir}/config/lab-macvlan.env.example"
 
@@ -64,7 +65,8 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/stop-macvlan-profile.sh" \
     "${target_dir}/scripts/doctor-macvlan-profile.sh" \
     "${target_dir}/scripts/verify-macvlan-profile.sh" \
-    "${target_dir}/scripts/print-lxc-env.sh"
+    "${target_dir}/scripts/print-lxc-env.sh" \
+    "${target_dir}/scripts/prepare-package-access.sh"
 chmod 0644 "${etc_dir}/lab-macvlan.env.example" \
     "${target_dir}/config/lab-macvlan.env.example"
 

@@ -155,6 +155,38 @@ file, an orphaned shim or a missing lifecycle route, it returns non-zero and
 prints a `PROBLEM:` line. Run the stop script only when the lifecycle state
 claims ownership of the shim; otherwise inspect manually.
 
+## Package-user access preparation
+
+When the lifecycle is driven through an installed DSM package, the package user
+must be able to traverse the lab container directory and read the LXC config.
+The access-prep script is conservative and dry-run by default:
+
+```sh
+sh scripts/prepare-package-access.sh \
+  --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env \
+  --user lxc_on_dsm
+```
+
+It only plans these changes:
+
+```text
+chmod 0711 LXC_LAB_STATE_DIR
+chmod 0711 LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER
+chmod 0644 LXC_LAB_STATE_DIR/LXC_LAB_CONTAINER/config
+```
+
+Apply explicitly only after reviewing the plan:
+
+```sh
+sh scripts/prepare-package-access.sh \
+  --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env \
+  --user lxc_on_dsm \
+  --apply
+```
+
+The script does not recurse into the container rootfs and does not change
+networking or start containers.
+
 ## Validated lifecycle result
 
 Validated in Virtual DSM:
