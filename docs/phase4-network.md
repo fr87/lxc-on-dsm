@@ -63,3 +63,33 @@ Result: EMPTY NETWORK PROBE COMPLETE. No host interface or bridge was configured
 
 This still does not create a veth pair, does not attach a bridge, and does not
 change DSM networking.
+
+## Detached veth gate
+
+Only after the empty network namespace gate passes, create a separate veth lab
+container. This still does not attach to a bridge:
+
+```sh
+sh scripts/create-netlab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-vethlab --network-type veth --host-veth lxcveth0
+sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-vethlab
+```
+
+Then run the veth lifecycle probe:
+
+```sh
+sh scripts/run-veth-network-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-vethlab
+```
+
+The probe checks that the host-side veth appears while the detached container is
+running and disappears again after stop. It also runs a foreground container
+probe to capture container-side network evidence.
+
+Expected result:
+
+```text
+Result: VETH PROBE COMPLETE. No bridge was configured.
+```
+
+If the probe reports that the host veth still exists after stop, do not proceed
+to bridge testing until the leftover interface has been investigated and
+removed.
