@@ -112,4 +112,5 @@ Der erste echte LAN-Test nutzt macvlan statt Host-Bridge-Umbau:
 sh scripts/create-netlab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab --network-type macvlan --parent-if eth0
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
 sh scripts/run-macvlan-dhcp-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
+sh scripts/run-macvlan-host-reachability-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
 ```

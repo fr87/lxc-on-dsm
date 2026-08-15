@@ -227,3 +227,29 @@ internet_ping=OK
 This validates real outbound LAN connectivity through macvlan. It does not
 validate direct DSM host-to-container communication, which is a separate macvlan
 behavior question.
+
+## Macvlan host reachability gate
+
+After outbound macvlan LAN connectivity succeeds, check whether DSM can reach
+the macvlan container IP:
+
+```sh
+sh scripts/run-macvlan-host-reachability-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
+```
+
+This starts the macvlan container detached, lets it obtain DHCP, writes its IP
+evidence into the container rootfs, pings that IP from the DSM host, then stops
+the container.
+
+Expected script result:
+
+```text
+Result: MACVLAN HOST REACHABILITY PROBE COMPLETE. Container was stopped.
+```
+
+Interpretation:
+
+- `host_ping=OK`: DSM host can reach the macvlan child directly.
+- `host_ping=FAIL`: expected on many Linux/macvlan setups; use an external LAN
+  client or a dedicated host-side macvlan shim if host-to-container access is
+  required.

@@ -97,3 +97,4 @@ Current handling:
 
 - Treat macvlan as validated for outbound container connectivity.
 - Treat DSM host-to-container reachability as a separate future gate.
+- Use `scripts/run-macvlan-host-reachability-probe.sh` to test this explicitly.
