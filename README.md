@@ -75,3 +75,12 @@ Der erste Phase-4-Schritt ist weiterhin read-only:
 ```sh
 sh scripts/check-network-prereqs.sh
 ```
+
+Der erste Runtime-Netzwerktest bleibt isoliert und nutzt einen separaten
+Container:
+
+```sh
+sh scripts/create-netlab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-netlab
+sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-netlab
+sh scripts/run-empty-network-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-netlab
+```

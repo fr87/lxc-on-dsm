@@ -31,3 +31,35 @@ Result: NETWORK PREFLIGHT COMPLETE. No networking was changed.
 
 Do not attach LXC directly to DSM's production network stack until the earlier
 gates have produced reproducible logs and a rollback note.
+
+## Empty network namespace gate
+
+Create a separate network lab container. This reuses the Alpine minirootfs but
+does not modify the known-good `alpine-lab` baseline:
+
+```sh
+sh scripts/create-netlab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-netlab
+sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-netlab
+```
+
+The generated config contains:
+
+```text
+lxc.net.0.type = empty
+lxc.start.auto = 0
+```
+
+If the config loads, run the foreground probe:
+
+```sh
+sh scripts/run-empty-network-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-netlab
+```
+
+Expected result:
+
+```text
+Result: EMPTY NETWORK PROBE COMPLETE. No host interface or bridge was configured.
+```
+
+This still does not create a veth pair, does not attach a bridge, and does not
+change DSM networking.
