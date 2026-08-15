@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 6 begonnen: Phase-5-Lab-Lifecycle ist validiert; ein konservativer DSM-SPK-Skeleton ist als Review-Gate angelegt.
+> **Status:** Phase 6 in Virtual DSM erreicht: Phase-5-Lab-Lifecycle ist validiert; ein konservatives experimentelles `.spk` kann lokal gebaut und geprueft werden, wurde aber noch nicht installiert.
 
 ## Analyse ausfuehren
 

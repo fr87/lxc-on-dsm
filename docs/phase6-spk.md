@@ -156,3 +156,21 @@ Result: SPK ARCHIVE OK. No package was installed and no package scripts were exe
 This gate creates a local `.spk` artifact under `build/`, which is ignored by
 Git. It still does not install the package and does not execute any package
 script.
+
+Validated in Virtual DSM:
+
+```text
+Result: SPK BUILT. No package was installed and no package scripts were executed.
+Result: SPK ARCHIVE OK. No package was installed and no package scripts were executed.
+```
+
+The first local artifact is:
+
+```text
+build/spk/lxc-on-dsm-0.1.0-lab.spk
+```
+
+The next gate must be an installation plan for Virtual DSM only. It should
+include pre-install doctor/status checks, package installation, package status,
+package start, package stop, post-stop doctor checks, and uninstall/recovery
+notes before any installation is attempted.

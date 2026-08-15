@@ -22,6 +22,8 @@ After every DSM update:
    any manual repair after an interrupted start/stop or DSM update.
 9. Treat `spk/` as a template skeleton until package payload assembly and
    install/upgrade guards are implemented and tested.
+10. Treat a built `.spk` as an artifact only until the Virtual DSM installation
+    plan has been reviewed; do not install it directly after archive creation.
 
 After a clean manual stop, the expected idle state is:
 
