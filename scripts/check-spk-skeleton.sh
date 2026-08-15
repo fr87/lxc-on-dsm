@@ -55,6 +55,10 @@ if ! grep -q '"run-as": "package"' spk/conf/privilege.template; then
     printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
     missing=$((missing + 1))
 fi
+if ! grep -q '"relpath": "scripts"' spk/conf/privilege.template; then
+    printf '%s\n' 'MISSING: package privilege target scripts directory permission'
+    missing=$((missing + 1))
+fi
 if ! grep -q 'doctor-macvlan-profile.sh' spk/scripts/start-stop-status.template; then
     printf '%s\n' 'MISSING: status wrapper does not call doctor'
     missing=$((missing + 1))

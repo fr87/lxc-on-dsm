@@ -3,5 +3,46 @@
         "run-as": "package"
     },
     "username": "lxc_on_dsm",
-    "groupname": "lxc_on_dsm"
+    "groupname": "lxc_on_dsm",
+    "tool": [{
+        "relpath": "config",
+        "user": "package",
+        "group": "package",
+        "permission": "0755"
+    }, {
+        "relpath": "config/lab-macvlan.env.example",
+        "user": "package",
+        "group": "package",
+        "permission": "0644"
+    }, {
+        "relpath": "scripts",
+        "user": "package",
+        "group": "package",
+        "permission": "0755"
+    }, {
+        "relpath": "scripts/doctor-macvlan-profile.sh",
+        "user": "package",
+        "group": "package",
+        "permission": "0755"
+    }, {
+        "relpath": "scripts/print-lxc-env.sh",
+        "user": "package",
+        "group": "package",
+        "permission": "0755"
+    }, {
+        "relpath": "scripts/start-macvlan-profile.sh",
+        "user": "package",
+        "group": "package",
+        "permission": "0755"
+    }, {
+        "relpath": "scripts/stop-macvlan-profile.sh",
+        "user": "package",
+        "group": "package",
+        "permission": "0755"
+    }, {
+        "relpath": "scripts/verify-macvlan-profile.sh",
+        "user": "package",
+        "group": "package",
+        "permission": "0755"
+    }]
 }

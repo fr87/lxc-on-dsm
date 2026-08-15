@@ -1,6 +1,18 @@
 #!/bin/sh
-# Template only. Future implementation must create package-owned config only.
+# Template only. Create package-owned example config only; never autostart.
 set -eu
 
-printf '%s\n' 'LXC on DSM postinst template: no action implemented.'
-printf '%s\n' 'Future postinst must not autostart containers.'
+package=${SYNOPKG_PKGNAME:-lxc-on-dsm}
+pkg_dest=${SYNOPKG_PKGDEST:-/var/packages/${package}/target}
+pkg_etc="/var/packages/${package}/etc"
+
+example_src="${pkg_dest}/config/lab-macvlan.env.example"
+example_dst="${pkg_etc}/lab-macvlan.env.example"
+
+if [ -r "$example_src" ] && [ ! -e "$example_dst" ]; then
+    cp "$example_src" "$example_dst"
+    chmod 0644 "$example_dst"
+fi
+
+printf '%s\n' 'LXC on DSM postinst: package example config prepared if missing.'
+printf '%s\n' 'postinst did not autostart containers.'

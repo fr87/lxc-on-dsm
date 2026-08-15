@@ -59,13 +59,19 @@ fi
 
 if [ -r "${tmp_dir}/conf/privilege" ]; then
     grep -q '"run-as": "package"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package privilege run-as declaration' || { printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'; missing=$((missing + 1)); }
+    grep -q '"relpath": "scripts"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package privilege target scripts permission declaration' || { printf '%s\n' 'MISSING: package privilege target scripts permission declaration'; missing=$((missing + 1)); }
 fi
 
 if [ -r "${tmp_dir}/package.tgz" ]; then
     tar -tf "${tmp_dir}/package.tgz" | sort >"${tmp_dir}/package-files.txt"
+    mkdir -p "${tmp_dir}/package"
+    tar -xzf "${tmp_dir}/package.tgz" -C "${tmp_dir}/package"
+    [ -x "${tmp_dir}/package/scripts" ] && printf '%s\n' 'OK: target scripts directory is traversable' || { printf '%s\n' 'MISSING: target scripts directory is not traversable'; missing=$((missing + 1)); }
+    [ -x "${tmp_dir}/package/config" ] && printf '%s\n' 'OK: target config directory is traversable' || { printf '%s\n' 'MISSING: target config directory is not traversable'; missing=$((missing + 1)); }
     grep -q 'scripts/start-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target start script present' || { printf '%s\n' 'MISSING: target start script'; missing=$((missing + 1)); }
     grep -q 'scripts/stop-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target stop script present' || { printf '%s\n' 'MISSING: target stop script'; missing=$((missing + 1)); }
     grep -q 'scripts/doctor-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target doctor script present' || { printf '%s\n' 'MISSING: target doctor script'; missing=$((missing + 1)); }
+    grep -q 'config/lab-macvlan.env.example' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target profile example present' || { printf '%s\n' 'MISSING: target profile example'; missing=$((missing + 1)); }
     if grep -q 'volume1/@lxc\|lifecycle-state.env\|rootfs' "${tmp_dir}/package-files.txt"; then
         printf '%s\n' 'BLOCKED: archive appears to contain runtime/container data'
         missing=$((missing + 1))

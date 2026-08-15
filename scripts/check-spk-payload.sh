@@ -21,6 +21,7 @@ INFO
 PAYLOAD-MANIFEST.txt
 conf/privilege
 etc/lab-macvlan.env.example
+target/config/lab-macvlan.env.example
 scripts/start-stop-status
 scripts/preinst
 scripts/postinst
@@ -68,6 +69,10 @@ if ! grep -q '/var/packages/${PACKAGE}/etc/lab-macvlan.env' "${payload_dir}/scri
 fi
 if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
     printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"relpath": "scripts"' "${payload_dir}/conf/privilege"; then
+    printf '%s\n' 'MISSING: package privilege target scripts directory permission'
     missing=$((missing + 1))
 fi
 if ! grep -q 'doctor-macvlan-profile.sh' "${payload_dir}/scripts/start-stop-status"; then
