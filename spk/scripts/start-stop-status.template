@@ -6,16 +6,17 @@ set -eu
 PACKAGE=%%PACKAGE_NAME%%
 TARGET="/var/packages/${PACKAGE}/target"
 PROFILE="/var/packages/${PACKAGE}/etc/lab-macvlan.env"
+OUTPUT="/var/packages/${PACKAGE}/var/artifacts"
 
 export PATH="${TARGET}/bin:${TARGET}/sbin:/opt/bin:/opt/sbin:${PATH}"
 export LD_LIBRARY_PATH="${TARGET}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 case "$1" in
     start)
-        exec sh "${TARGET}/scripts/start-macvlan-profile.sh" --profile "$PROFILE"
+        exec sh "${TARGET}/scripts/start-macvlan-profile.sh" --profile "$PROFILE" --output "$OUTPUT"
         ;;
     stop)
-        exec sh "${TARGET}/scripts/stop-macvlan-profile.sh" --profile "$PROFILE"
+        exec sh "${TARGET}/scripts/stop-macvlan-profile.sh" --profile "$PROFILE" --output "$OUTPUT"
         ;;
     status)
         exec sh "${TARGET}/scripts/doctor-macvlan-profile.sh" --profile "$PROFILE"

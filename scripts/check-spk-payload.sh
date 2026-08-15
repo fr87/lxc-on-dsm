@@ -68,6 +68,11 @@ if ! grep -q '/var/packages/${PACKAGE}/etc/lab-macvlan.env' "${payload_dir}/scri
     printf '%s\n' 'MISSING: package wrapper does not reference package-owned profile path'
     missing=$((missing + 1))
 fi
+if ! grep -q '/var/packages/${PACKAGE}/var/artifacts' "${payload_dir}/scripts/start-stop-status" &&
+   ! grep -q '/var/packages/lxc-on-dsm/var/artifacts' "${payload_dir}/scripts/start-stop-status"; then
+    printf '%s\n' 'MISSING: package wrapper does not reference package-owned artifact path'
+    missing=$((missing + 1))
+fi
 if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
     printf '%s\n' 'MISSING: DSM 7 package privilege run-as declaration'
     missing=$((missing + 1))

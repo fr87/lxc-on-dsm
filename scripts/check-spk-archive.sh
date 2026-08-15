@@ -84,6 +84,10 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
     fi
 fi
 
+if [ -r "${tmp_dir}/scripts/start-stop-status" ]; then
+    grep -q '/var/packages/${PACKAGE}/var/artifacts' "${tmp_dir}/scripts/start-stop-status" && printf '%s\n' 'OK: wrapper uses package-owned artifact path' || { printf '%s\n' 'MISSING: wrapper package-owned artifact path'; missing=$((missing + 1)); }
+fi
+
 if grep -RIn 'silent_install="yes"\|silent_upgrade="yes"\|silent_uninstall="yes"' "$tmp_dir" >/tmp/lxc-on-dsm-archive-check.$$ 2>/dev/null; then
     cat /tmp/lxc-on-dsm-archive-check.$$
     rm -f /tmp/lxc-on-dsm-archive-check.$$

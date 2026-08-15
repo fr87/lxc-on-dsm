@@ -8,7 +8,7 @@ usage() {
 }
 
 package_name=lxc-on-dsm
-spk_file=build/spk/lxc-on-dsm-0.1.0-0004.spk
+spk_file=build/spk/lxc-on-dsm-0.1.0-0005.spk
 profile_file=config/lab-macvlan.env
 output_dir=artifacts
 
