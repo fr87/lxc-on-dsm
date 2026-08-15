@@ -101,3 +101,27 @@ Result: SPK PAYLOAD OK. No .spk was built or installed.
 
 This dry-run tree is intentionally ignored by Git and must be reviewed before
 adding a real `.spk` builder.
+
+Validated in Virtual DSM:
+
+```text
+Result: SPK PAYLOAD ASSEMBLED. No .spk was built or installed.
+Result: SPK PAYLOAD OK. No .spk was built or installed.
+```
+
+## Build plan
+
+Generate a reviewable build plan before adding a real SPK builder:
+
+```sh
+sh scripts/plan-spk-build.sh
+```
+
+Expected result:
+
+```text
+Result: SPK BUILD PLAN GENERATED. No .spk was built or installed.
+```
+
+The build plan records the intended archive layout and future manual commands,
+but deliberately does not create an `.spk`.

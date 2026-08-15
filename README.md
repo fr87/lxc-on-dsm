@@ -134,4 +134,5 @@ Der erste DSM-Paket-Schritt ist ein reines Skeleton-Gate:
 sh scripts/check-spk-skeleton.sh
 sh scripts/assemble-spk-payload.sh
 sh scripts/check-spk-payload.sh
+sh scripts/plan-spk-build.sh
 ```
