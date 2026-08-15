@@ -52,8 +52,8 @@ if ! grep -q '^os_min_ver="7\.0-40000"$' spk/INFO.template; then
     printf '%s\n' 'MISSING: DSM 7 compatible os_min_ver metadata'
     missing=$((missing + 1))
 fi
-if ! grep -q '"run-as": "root"' spk/conf/privilege.template; then
-    printf '%s\n' 'MISSING: DSM 7 package root run-as declaration'
+if ! grep -q '"run-as": "package"' spk/conf/privilege.template; then
+    printf '%s\n' 'MISSING: DSM 7 package run-as declaration'
     missing=$((missing + 1))
 fi
 if grep -q '"ctrl-script"' spk/conf/privilege.template; then
@@ -74,6 +74,10 @@ if ! grep -q 'start-macvlan-profile.sh' spk/scripts/start-stop-status.template; 
 fi
 if ! grep -q 'stop-macvlan-profile.sh' spk/scripts/start-stop-status.template; then
     printf '%s\n' 'MISSING: stop wrapper does not call profile lifecycle stop'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'requires root on DSM' spk/scripts/start-stop-status.template; then
+    printf '%s\n' 'MISSING: start/stop wrapper does not explain root lifecycle gate'
     missing=$((missing + 1))
 fi
 

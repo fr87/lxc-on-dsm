@@ -26,8 +26,10 @@ The package design must keep these constraints:
 - package uninstall must not delete container data unless explicitly requested
 - DSM production bridges and `eth0` must not be reconfigured
 - DSM 7 package metadata must stay compatible with Synology validation rules
-- DSM 7 `conf/privilege` uses root `run-as` for this experimental privileged
-  LXC lifecycle
+- DSM 7 `conf/privilege` uses `run-as: package` so the unsigned third-party SPK
+  remains installable
+- Package Center `start`/`stop` intentionally block until a reviewed Resource
+  Worker or root lifecycle design exists
 
 ## Skeleton files
 
@@ -72,10 +74,10 @@ postuninst  -> preserve data by default
 The package metadata must satisfy DSM 7's early package validation before any
 package directory is created under `/var/packages`:
 
-- `version` uses numeric parts only, for example `0.1.0-0008`
+- `version` uses numeric parts only, for example `0.1.0-0009`
 - `os_min_ver` is set to `7.0-40000`
 - the SPK archive contains top-level `conf/privilege`
-- `conf/privilege` declares `"run-as": "root"`
+- `conf/privilege` declares `"run-as": "package"`
 - `conf/privilege` does not use `tool` or `ctrl-script` attribute rewrites
 
 The old local artifact name `lxc-on-dsm-0.1.0-lab.spk` is intentionally treated
@@ -164,7 +166,7 @@ Result: SPK BUILT. No package was installed and no package scripts were executed
 Then inspect the archive before any install attempt:
 
 ```sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0008.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0009.spk
 ```
 
 Expected result:
@@ -187,7 +189,7 @@ Result: SPK ARCHIVE OK. No package was installed and no package scripts were exe
 The first local artifact is:
 
 ```text
-build/spk/lxc-on-dsm-0.1.0-0008.spk
+build/spk/lxc-on-dsm-0.1.0-0009.spk
 ```
 
 The next gate must be an installation plan for Virtual DSM only. It should
@@ -272,3 +274,10 @@ The `0.1.0-0007` gate tried root `ctrl-script` actions, but DSM rejected the
 privilege file with error `319` (`invalid package privilege content`). The
 `0.1.0-0008` gate removes `ctrl-script` entirely and uses a minimal root
 `defaults.run-as` privilege file for the experimental package lifecycle.
+
+DSM rejected `0.1.0-0008` as well with error `319`, proving that this unsigned
+third-party lab package cannot simply request root execution in
+`conf/privilege`. The `0.1.0-0009` gate returns to a valid `run-as: package`
+privilege file and makes Package Center `start`/`stop` fail fast with a clear
+root-lifecycle diagnostic. The known-good privileged lifecycle remains available
+only as an explicit root command, pending a Resource Worker design.

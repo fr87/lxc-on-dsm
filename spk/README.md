@@ -16,8 +16,10 @@ scripts, but packaging, signing, installation and upgrade handling are still
 future gates.
 
 DSM 7 package validation requires a package privilege declaration. The
-experimental lab package runs package lifecycle scripts as root because native
-LXC startup needs privileged rootfs, cgroup and network operations on DSM.
+experimental lab package uses `run-as: package` so it remains installable as an
+unsigned third-party SPK. Native LXC startup still needs privileged rootfs,
+cgroup and network operations, so Package Center `start`/`stop` intentionally
+block until a Resource Worker or another reviewed root lifecycle design exists.
 
 ## Proposed package paths
 

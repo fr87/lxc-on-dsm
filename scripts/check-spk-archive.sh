@@ -58,7 +58,7 @@ if [ -r "${tmp_dir}/INFO" ]; then
 fi
 
 if [ -r "${tmp_dir}/conf/privilege" ]; then
-    grep -q '"run-as": "root"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package root run-as declaration' || { printf '%s\n' 'MISSING: DSM 7 package root run-as declaration'; missing=$((missing + 1)); }
+    grep -q '"run-as": "package"' "${tmp_dir}/conf/privilege" && printf '%s\n' 'OK: package run-as declaration' || { printf '%s\n' 'MISSING: DSM 7 package run-as declaration'; missing=$((missing + 1)); }
     if grep -q '"ctrl-script"' "${tmp_dir}/conf/privilege"; then
         printf '%s\n' 'BLOCKED: package ctrl-script attributes are not used in the lab skeleton'
         missing=$((missing + 1))
@@ -94,6 +94,7 @@ fi
 
 if [ -r "${tmp_dir}/scripts/start-stop-status" ]; then
     grep -q '/var/packages/${PACKAGE}/var/artifacts' "${tmp_dir}/scripts/start-stop-status" && printf '%s\n' 'OK: wrapper uses package-owned artifact path' || { printf '%s\n' 'MISSING: wrapper package-owned artifact path'; missing=$((missing + 1)); }
+    grep -q 'requires root on DSM' "${tmp_dir}/scripts/start-stop-status" && printf '%s\n' 'OK: wrapper explains root lifecycle gate' || { printf '%s\n' 'MISSING: wrapper root lifecycle gate explanation'; missing=$((missing + 1)); }
 fi
 
 if grep -RIn 'silent_install="yes"\|silent_upgrade="yes"\|silent_uninstall="yes"' "$tmp_dir" >/tmp/lxc-on-dsm-archive-check.$$ 2>/dev/null; then

@@ -73,8 +73,8 @@ if ! grep -q '/var/packages/${PACKAGE}/var/artifacts' "${payload_dir}/scripts/st
     printf '%s\n' 'MISSING: package wrapper does not reference package-owned artifact path'
     missing=$((missing + 1))
 fi
-if ! grep -q '"run-as": "root"' "${payload_dir}/conf/privilege"; then
-    printf '%s\n' 'MISSING: DSM 7 package root run-as declaration'
+if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
+    printf '%s\n' 'MISSING: DSM 7 package run-as declaration'
     missing=$((missing + 1))
 fi
 if grep -q '"ctrl-script"' "${payload_dir}/conf/privilege"; then
@@ -87,6 +87,10 @@ if grep -q '"tool"' "${payload_dir}/conf/privilege"; then
 fi
 if ! grep -q 'doctor-macvlan-profile.sh' "${payload_dir}/scripts/start-stop-status"; then
     printf '%s\n' 'MISSING: status wrapper does not call doctor'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'requires root on DSM' "${payload_dir}/scripts/start-stop-status"; then
+    printf '%s\n' 'MISSING: start/stop wrapper does not explain root lifecycle gate'
     missing=$((missing + 1))
 fi
 if ! grep -q 'PACKAGE ACCESS PLAN READY' "${payload_dir}/target/scripts/prepare-package-access.sh"; then

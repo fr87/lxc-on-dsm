@@ -1,5 +1,7 @@
 {
     "defaults": {
-        "run-as": "root"
-    }
+        "run-as": "package"
+    },
+    "username": "lxc_on_dsm",
+    "groupname": "lxc_on_dsm"
 }

@@ -8,7 +8,7 @@ usage() {
 }
 
 package_name=lxc-on-dsm
-spk_file=build/spk/lxc-on-dsm-0.1.0-0008.spk
+spk_file=build/spk/lxc-on-dsm-0.1.0-0009.spk
 profile_file=config/lab-macvlan.env
 output_dir=artifacts
 
@@ -55,7 +55,7 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '%s\n' '4. `scripts/check-spk-archive.sh` reports the archive is OK.'
     printf '%s\n' '5. The package is not already installed, or uninstall/reinstall is explicitly planned.'
     printf '%s\n' '6. Container autostart remains disabled.'
-    printf '%s\n' '7. Package installation and package lifecycle start are separate gates; this lab package runs lifecycle scripts as root.'
+    printf '%s\n' '7. Package installation and root lifecycle start are separate gates; Package Center start/stop is expected to block until a Resource Worker design exists.'
     printf '\n'
     printf '%s\n' '## Pre-install read-only checks'
     printf '\n'
@@ -104,19 +104,27 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf 'su -s /bin/sh lxc_on_dsm -c '"'"'/var/packages/%s/scripts/start-stop-status status; echo status_exit=$?'"'"'\n' "$package_name"
     printf '```\n'
     printf '\n'
-    printf '%s\n' '## Package lifecycle smoke test'
+    printf '%s\n' '## Package lifecycle gate'
+    printf '\n'
+    printf '%s\n' 'Package `status` is expected to work as the package user. Package `start` is expected to fail fast with an explanatory root-lifecycle message.'
     printf '\n'
     printf '```sh\n'
     printf 'synopkg status %s\n' "$package_name"
     printf 'synopkg start %s\n' "$package_name"
     printf 'synopkg status %s\n' "$package_name"
+    printf 'find /var/packages/%s/var/artifacts -maxdepth 1 -type f | sort\n' "$package_name"
+    printf '```\n'
+    printf '\n'
+    printf '%s\n' 'Manual root lifecycle smoke test, only after reviewing the package start blocker and confirming the lab state is clean:'
+    printf '\n'
+    printf '```sh\n'
+    printf 'sh /var/packages/%s/scripts/start-stop-status start\n' "$package_name"
     printf 'sh /var/packages/%s/target/scripts/doctor-macvlan-profile.sh --profile /var/packages/%s/etc/lab-macvlan.env\n' "$package_name" "$package_name"
-    printf 'synopkg stop %s\n' "$package_name"
+    printf 'sh /var/packages/%s/scripts/start-stop-status stop\n' "$package_name"
     printf 'sh /var/packages/%s/target/scripts/doctor-macvlan-profile.sh --profile /var/packages/%s/etc/lab-macvlan.env\n' "$package_name" "$package_name"
     printf '```\n'
     printf '\n'
     printf '%s\n' 'Expected post-stop doctor state: container stopped, no runtime state, no shim and no lifecycle route.'
-    printf '%s\n' 'If package `start` fails, inspect package-owned lifecycle and LXC debug logs before retrying.'
     printf '\n'
     printf '%s\n' '## Rollback / uninstall'
     printf '\n'
