@@ -103,3 +103,6 @@ Current handling:
 - Use an external LAN client for service reachability tests, or generate a
   reviewable host-side macvlan shim plan with
   `scripts/plan-macvlan-host-shim.sh` if DSM itself must reach the container.
+- After choosing a free LAN IP/CIDR for the shim, use
+  `scripts/run-macvlan-host-shim-probe.sh` to validate the workaround. The probe
+  creates and removes the shim during one run.

@@ -276,3 +276,30 @@ sh scripts/plan-macvlan-host-shim.sh --parent-if eth0
 The generated plan still performs no network changes by itself. It requires
 choosing a free LAN IP/CIDR for the host-side macvlan shim before any manual
 commands are run.
+
+After choosing a free shim address, run the temporary shim probe:
+
+```sh
+sh scripts/run-macvlan-host-shim-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab --host-cidr FREE_LAN_IP/CIDR
+```
+
+Scope:
+
+- creates a temporary host-side macvlan interface
+- adds a `/32` host route only for the detected container IP
+- pings the container from DSM through the shim
+- stops the container
+- removes the route and shim interface
+
+Expected result:
+
+```text
+Result: MACVLAN HOST SHIM PROBE COMPLETE. Container was stopped and shim was removed.
+```
+
+Success criteria:
+
+- `dhcp_status=OK`
+- `container_ip=` is present
+- `shim_ping=OK`
+- `cleanup=OK`

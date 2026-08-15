@@ -114,4 +114,5 @@ sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-ma
 sh scripts/run-macvlan-dhcp-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
 sh scripts/run-macvlan-host-reachability-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
 sh scripts/plan-macvlan-host-shim.sh --parent-if eth0
+sh scripts/run-macvlan-host-shim-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab --host-cidr FREE_LAN_IP/CIDR
 ```
