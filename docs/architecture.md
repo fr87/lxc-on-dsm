@@ -17,7 +17,10 @@ scripts/analyze-dsm.sh       collect read-only host evidence
 scripts/compare-reports.sh   compare hardware and Virtual DSM reports
 scripts/evaluate-report.sh   turn one report into a preflight decision
 config/lxc/                  project-owned LXC defaults
+config/lab-macvlan.env       local lab lifecycle profile, generated on DSM
 artifacts/                   local reports, not committed by default
 ```
 
-The next implementation phase should add a userspace build manifest before installing anything on DSM. The manifest should pin upstream versions, source URLs and checksums for LXC and companion tools such as `lxcfs`.
+Lifecycle scripts should read project-owned profiles instead of hard-coding DSM
+state. Generated profiles are intentionally small and reviewable so they can be
+recreated after DSM updates.

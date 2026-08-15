@@ -1,5 +1,6 @@
 /artifacts/
 /build/
+/config/lab-macvlan.env
 *.tar.gz
 *.spk
 .DS_Store

@@ -54,7 +54,7 @@ sh scripts/create-lab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
 
 Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
 
@@ -115,4 +115,11 @@ sh scripts/run-macvlan-dhcp-probe.sh --prefix /volume1/@lxc/lab/opt --name alpin
 sh scripts/run-macvlan-host-reachability-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab
 sh scripts/plan-macvlan-host-shim.sh --parent-if eth0
 sh scripts/run-macvlan-host-shim-probe.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab --host-cidr FREE_LAN_IP/CIDR
+```
+
+Danach wird ein lokales Lifecycle-Profil erzeugt und read-only geprueft:
+
+```sh
+sh scripts/write-macvlan-profile.sh --prefix /volume1/@lxc/lab/opt --name alpine-macvlanlab --parent-if eth0 --host-cidr FREE_LAN_IP/CIDR
+sh scripts/verify-macvlan-profile.sh --profile config/lab-macvlan.env
 ```

@@ -13,3 +13,5 @@ After every DSM update:
 3. Run `scripts/evaluate-report.sh` against the new report.
 4. Keep all container autostart disabled until the preflight has no blocker.
 5. Reinstall or repair only project-owned files under the package and container data locations.
+6. Regenerate or verify the local lifecycle profile with
+   `scripts/verify-macvlan-profile.sh` before starting any networked container.
