@@ -125,3 +125,34 @@ Result: SPK BUILD PLAN GENERATED. No .spk was built or installed.
 
 The build plan records the intended archive layout and future manual commands,
 but deliberately does not create an `.spk`.
+
+## Experimental SPK archive build
+
+Only after the skeleton, payload and build-plan gates pass, build a local SPK
+archive:
+
+```sh
+sh scripts/build-spk.sh
+```
+
+Expected result:
+
+```text
+Result: SPK BUILT. No package was installed and no package scripts were executed.
+```
+
+Then inspect the archive before any install attempt:
+
+```sh
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-lab.spk
+```
+
+Expected result:
+
+```text
+Result: SPK ARCHIVE OK. No package was installed and no package scripts were executed.
+```
+
+This gate creates a local `.spk` artifact under `build/`, which is ignored by
+Git. It still does not install the package and does not execute any package
+script.
