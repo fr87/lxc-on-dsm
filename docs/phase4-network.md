@@ -158,6 +158,11 @@ config, it switches to isolated-bridge reporting. It then checks whether the
 host veth appears as a bridge port while the container is running and disappears
 again after stop.
 
+If the configured bridge does not exist, the script refuses to start the
+container. Recreate the isolated lab bridge from the generated plan first, or
+remove `lxc.net.0.link` from the container config to return to detached veth
+mode.
+
 Expected bridge-linked result:
 
 ```text

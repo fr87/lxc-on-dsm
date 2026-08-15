@@ -106,6 +106,11 @@ if host_link_exists; then
     printf 'Host veth already exists, refusing to reuse it: %s\n' "$host_veth" >&2
     exit 1
 fi
+if [ "$bridge_mode" -eq 1 ] && ! bridge_link_exists; then
+    printf 'Configured bridge does not exist, refusing to start container: %s\n' "$bridge_link" >&2
+    printf 'Create the isolated lab bridge first or remove lxc.net.0.link from: %s\n' "$config_file" >&2
+    exit 1
+fi
 
 printf '%s\n' '# LXC veth network probe'
 printf '\n'
