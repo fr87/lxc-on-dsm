@@ -75,3 +75,52 @@ this profile and remain reversible:
 - write runtime evidence under `artifacts/`
 - stop the container
 - remove the shim and route
+
+## Manual lifecycle start
+
+After the profile verifies, start the lab container through the profile:
+
+```sh
+sh scripts/start-macvlan-profile.sh --profile config/lab-macvlan.env
+```
+
+The start script:
+
+- starts the container detached
+- obtains DHCP inside the container
+- records container IP evidence
+- creates a host-side macvlan shim only if `LXC_LAB_HOST_SHIM_CIDR` is set
+- refuses to create a shim if the shim IP equals the detected container IP
+- adds a `/32` host route only for the detected container IP
+- writes runtime ownership state to the container directory
+
+Expected result:
+
+```text
+Result: MACVLAN LIFECYCLE STARTED. Stop with scripts/stop-macvlan-profile.sh.
+```
+
+## Manual lifecycle stop
+
+Stop and clean up through the same profile:
+
+```sh
+sh scripts/stop-macvlan-profile.sh --profile config/lab-macvlan.env
+```
+
+The stop script:
+
+- removes the lifecycle-owned `/32` route
+- removes the lifecycle-owned shim interface
+- stops the container
+- archives the runtime state file
+
+Expected result:
+
+```text
+Result: MACVLAN LIFECYCLE STOPPED. Container stopped and lifecycle-owned shim removed.
+```
+
+If a shim interface exists but no runtime state claims ownership, the stop
+script warns instead of deleting an unknown interface. In that case, inspect
+the host manually before continuing.
