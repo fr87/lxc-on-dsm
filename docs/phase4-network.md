@@ -213,3 +213,17 @@ Success criteria for real connectivity are stricter than script completion:
 - `gateway_ping=OK`
 
 `internet_ping=OK` is useful evidence but may fail if upstream ICMP is blocked.
+
+Validated in Virtual DSM:
+
+```text
+dhcp_status=OK
+addr_after=13: eth0 inet 10.26.88.230/26 brd 10.26.88.255 scope global eth0
+gateway=10.26.88.199
+gateway_ping=OK
+internet_ping=OK
+```
+
+This validates real outbound LAN connectivity through macvlan. It does not
+validate direct DSM host-to-container communication, which is a separate macvlan
+behavior question.

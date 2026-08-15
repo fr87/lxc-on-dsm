@@ -73,3 +73,27 @@ Current handling:
   available.
 - Do not treat empty `net_devices=` by itself as evidence that the network
   namespace lacks interfaces.
+
+## Macvlan host-to-container communication not yet tested
+
+Status: open, non-blocking for outbound LAN validation.
+
+Observed in Virtual DSM:
+
+```text
+dhcp_status=OK
+gateway_ping=OK
+internet_ping=OK
+```
+
+Current interpretation:
+
+- The container can reach the LAN and internet via macvlan on `eth0`.
+- This does not prove that the DSM host itself can directly reach the macvlan
+  container IP. Host-to-child communication is a known macvlan design caveat on
+  Linux-style networking.
+
+Current handling:
+
+- Treat macvlan as validated for outbound container connectivity.
+- Treat DSM host-to-container reachability as a separate future gate.

@@ -1,8 +1,8 @@
-# Phase 4 results: network namespace and isolated bridge gates
+# Phase 4 results: network namespace, isolated bridge and macvlan LAN gates
 
-Phase 4 has been validated in Virtual DSM through the isolated bridge gate. The
-tests intentionally avoided DSM production interfaces and did not connect any
-container to the LAN.
+Phase 4 has been validated in Virtual DSM through the macvlan DHCP LAN gate.
+The bridge tests intentionally avoided DSM production interfaces. The LAN test
+used macvlan on `eth0` without moving the host interface into a bridge.
 
 Validated results:
 
@@ -26,6 +26,19 @@ The later repeated bridge-linked probe failed only because the temporary bridge
 had already been removed while the container config still referenced it. This is
 expected and is now handled by the probe script with a pre-start bridge
 existence check.
+- Macvlan on `eth0` starts and obtains LAN connectivity:
+
+```text
+dhcp_status=OK
+addr_after=13: eth0 inet 10.26.88.230/26 brd 10.26.88.255 scope global eth0
+routes_after=default via 10.26.88.199 dev eth0  metric 213 |10.26.88.192/26 dev eth0 scope link  src 10.26.88.230 |
+gateway=10.26.88.199
+gateway_ping=OK
+internet_ping=OK
+```
+
+This proves DHCP, an IPv4 address, a default route, gateway reachability and
+outbound ICMP reachability from inside the container.
 
 ## Current boundary
 
@@ -33,11 +46,13 @@ The following has not been tested and remains out of scope for this phase:
 
 - attaching LXC veth to `eth0`
 - attaching LXC veth to a DSM production bridge
-- DHCP from the LAN
 - static IP assignment
-- route changes
+- host-managed route changes
 - firewall/NAT rules
-- macvlan
+- host-to-container connectivity over macvlan
+- long-running LAN container behavior
 
-The next phase should treat LAN connectivity as a separate opt-in experiment
-with an explicit rollback plan.
+Macvlan commonly has host-to-child communication caveats; external LAN
+connectivity succeeding does not by itself prove that DSM can directly reach the
+container IP. Treat that as a separate future gate if required by the target
+workloads.
