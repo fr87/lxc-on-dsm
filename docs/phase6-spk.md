@@ -174,3 +174,22 @@ The next gate must be an installation plan for Virtual DSM only. It should
 include pre-install doctor/status checks, package installation, package status,
 package start, package stop, post-stop doctor checks, and uninstall/recovery
 notes before any installation is attempted.
+
+## Virtual DSM installation plan
+
+Generate a reviewable install plan before attempting package installation:
+
+```sh
+sh scripts/plan-spk-install.sh
+```
+
+Expected result:
+
+```text
+Result: SPK INSTALL PLAN GENERATED. No package was installed and no package scripts were executed.
+```
+
+The generated plan is intentionally manual and Virtual DSM-only. It includes
+pre-install doctor/archive checks, package install options, package-owned
+profile placement, package start/stop smoke testing, post-stop doctor checks
+and rollback notes.

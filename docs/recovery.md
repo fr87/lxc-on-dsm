@@ -24,6 +24,8 @@ After every DSM update:
    install/upgrade guards are implemented and tested.
 10. Treat a built `.spk` as an artifact only until the Virtual DSM installation
     plan has been reviewed; do not install it directly after archive creation.
+11. For the first package installation, use only the generated Virtual DSM plan
+    from `scripts/plan-spk-install.sh`.
 
 After a clean manual stop, the expected idle state is:
 
