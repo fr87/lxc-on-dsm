@@ -98,3 +98,10 @@ Vor Bridge-Experimenten erst read-only pruefen:
 ```sh
 sh scripts/check-bridge-prereqs.sh
 ```
+
+Wenn keine geeignete Bridge existiert, nur einen manuellen isolierten
+Bridge-Plan erzeugen:
+
+```sh
+sh scripts/plan-isolated-bridge-probe.sh
+```

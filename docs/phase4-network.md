@@ -127,3 +127,28 @@ Result: BRIDGE PREFLIGHT COMPLETE. No networking was changed.
 Do not attach an LXC veth to a DSM production bridge until this report has been
 reviewed. Prefer a dedicated throwaway lab bridge for the first bridge
 experiment if DSM allows that safely.
+
+## Isolated bridge plan
+
+If bridge preflight shows no DSM bridge or only production interfaces, generate
+a manual plan for a dedicated throwaway bridge:
+
+```sh
+sh scripts/plan-isolated-bridge-probe.sh
+```
+
+This does not change networking. It writes a reviewable command plan under
+`artifacts/`.
+
+The planned bridge experiment is intentionally isolated:
+
+- no `eth0`
+- no DSM production bridge
+- no DHCP
+- no IP address
+- no route changes
+- no firewall changes
+
+Only run the generated commands after reviewing the plan and keeping the VM
+snapshot ready. The cleanup section of the generated plan must be run even if
+the probe fails.
