@@ -83,9 +83,19 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
     grep -q 'scripts/stop-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target stop script present' || { printf '%s\n' 'MISSING: target stop script'; missing=$((missing + 1)); }
     grep -q 'scripts/doctor-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target doctor script present' || { printf '%s\n' 'MISSING: target doctor script'; missing=$((missing + 1)); }
     grep -q 'scripts/prepare-package-access.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target package access script present' || { printf '%s\n' 'MISSING: target package access script'; missing=$((missing + 1)); }
+    grep -q 'scripts/lxc-on-dsm-root-helper.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target root helper present' || { printf '%s\n' 'MISSING: target root helper'; missing=$((missing + 1)); }
     grep -q 'config/lab-macvlan.env.example' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target profile example present' || { printf '%s\n' 'MISSING: target profile example'; missing=$((missing + 1)); }
     grep -q -- '--logfile' "${tmp_dir}/package/scripts/start-macvlan-profile.sh" && printf '%s\n' 'OK: start script captures LXC debug logfile' || { printf '%s\n' 'MISSING: start script LXC debug logfile capture'; missing=$((missing + 1)); }
     grep -q '0730' "${tmp_dir}/package/scripts/prepare-package-access.sh" && printf '%s\n' 'OK: package access can allow lifecycle-state writes' || { printf '%s\n' 'MISSING: package access lifecycle-state write permission'; missing=$((missing + 1)); }
+    if [ -r "${tmp_dir}/package/scripts/lxc-on-dsm-root-helper.sh" ]; then
+        grep -q 'ROOT HELPER DRY RUN COMPLETE' "${tmp_dir}/package/scripts/lxc-on-dsm-root-helper.sh" && printf '%s\n' 'OK: root helper dry-run guard present' || { printf '%s\n' 'MISSING: root helper dry-run guard'; missing=$((missing + 1)); }
+        helper_mode=$(ls -l "${tmp_dir}/package/scripts/lxc-on-dsm-root-helper.sh" 2>/dev/null | awk '{ print $1 }' | sed -n '1p')
+        case "$helper_mode" in
+            -rwxr-xr-x) printf '%s\n' 'OK: root helper is executable without setuid' ;;
+            *s*) printf 'BLOCKED: root helper appears to have setuid/setgid mode: %s\n' "$helper_mode"; missing=$((missing + 1)) ;;
+            *) printf 'BLOCKED: root helper has unexpected mode: %s\n' "$helper_mode"; missing=$((missing + 1)) ;;
+        esac
+    fi
     if grep -q 'volume1/@lxc\|lifecycle-state.env\|rootfs' "${tmp_dir}/package-files.txt"; then
         printf '%s\n' 'BLOCKED: archive appears to contain runtime/container data'
         missing=$((missing + 1))
@@ -95,6 +105,7 @@ fi
 if [ -r "${tmp_dir}/scripts/start-stop-status" ]; then
     grep -q '/var/packages/${PACKAGE}/var/artifacts' "${tmp_dir}/scripts/start-stop-status" && printf '%s\n' 'OK: wrapper uses package-owned artifact path' || { printf '%s\n' 'MISSING: wrapper package-owned artifact path'; missing=$((missing + 1)); }
     grep -q 'requires root on DSM' "${tmp_dir}/scripts/start-stop-status" && printf '%s\n' 'OK: wrapper explains root lifecycle gate' || { printf '%s\n' 'MISSING: wrapper root lifecycle gate explanation'; missing=$((missing + 1)); }
+    grep -q 'lxc-on-dsm-root-helper.sh' "${tmp_dir}/scripts/start-stop-status" && printf '%s\n' 'OK: wrapper points to installed root helper' || { printf '%s\n' 'MISSING: wrapper installed root helper hint'; missing=$((missing + 1)); }
 fi
 
 if grep -RIn 'silent_install="yes"\|silent_upgrade="yes"\|silent_uninstall="yes"' "$tmp_dir" >/tmp/lxc-on-dsm-archive-check.$$ 2>/dev/null; then

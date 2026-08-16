@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 7 in Virtual DSM vorbereitet: `0.1.0-0009` bleibt das stabile installierbare Lab-SPK. Package Center `start` blockt erwartungsgemaess am Root-Lifecycle-Gate; der manuelle Root-Start/Stop ueber die installierten Paket-Skripte ist validiert. Als naechstes wird ein DSM-7-konformer Resource-Worker beziehungsweise Helper-Pfad untersucht.
+> **Status:** Phase 7 in Virtual DSM vorbereitet: `0.1.0-0009` bleibt das stabile installierbare Lab-SPK. Der Root-Helper-Prototyp ist validiert; `0.1.0-0010` nimmt ihn als normales Paket-Tool auf, ohne setuid, sudoers oder `run-as=root`.
 
 ## Analyse ausfuehren
 
@@ -136,13 +136,13 @@ sh scripts/assemble-spk-payload.sh
 sh scripts/check-spk-payload.sh
 sh scripts/plan-spk-build.sh
 sh scripts/build-spk.sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0009.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 sh scripts/plan-spk-install.sh
 ```
 
-Danach bleibt `0.1.0-0009` der stabile Paketstand. Der naechste Schritt ist
-kein neues Privilege-Experiment, sondern ein read-only Plan fuer den
-DSM-konformen Root-Lifecycle-Pfad:
+`0.1.0-0009` bleibt der validierte Ausgangsstand ohne installierten Helper.
+`0.1.0-0010` nimmt den Helper als normales Paket-Tool auf. Der
+Resource-Worker-/Helper-Pfad bleibt ueber Gates dokumentiert:
 
 ```sh
 sh scripts/plan-resource-worker.sh

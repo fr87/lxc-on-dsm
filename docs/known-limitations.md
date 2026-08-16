@@ -152,3 +152,5 @@ Current handling:
   macvlan lifecycle operations.
 - The first experimental helper validates explicit root execution only; it does
   not yet solve Package Center delegation or install a privileged component.
+- `0.1.0-0010` ships the helper as a normal package tool only. It still does
+  not grant Package Center root lifecycle execution.

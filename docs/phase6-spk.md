@@ -166,7 +166,7 @@ Result: SPK BUILT. No package was installed and no package scripts were executed
 Then inspect the archive before any install attempt:
 
 ```sh
-sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0009.spk
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 ```
 
 Expected result:
@@ -190,6 +190,12 @@ The first local artifact is:
 
 ```text
 build/spk/lxc-on-dsm-0.1.0-0009.spk
+```
+
+The next helper package-tool gate produces:
+
+```text
+build/spk/lxc-on-dsm-0.1.0-0010.spk
 ```
 
 The next gate must be an installation plan for Virtual DSM only. It should
@@ -305,8 +311,8 @@ gate.
 ## Phase 7 handoff
 
 Do not continue by trying additional broad `conf/privilege` variants. The
-validated package is `0.1.0-0009`, and it should remain the stable base for the
-next investigation.
+validated package is `0.1.0-0009`, and it remains the stable base for the helper
+package-tool investigation. The next package artifact is `0.1.0-0010`.
 
 The next gate is read-only:
 

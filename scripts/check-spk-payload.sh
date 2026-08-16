@@ -35,6 +35,7 @@ target/scripts/doctor-macvlan-profile.sh
 target/scripts/verify-macvlan-profile.sh
 target/scripts/print-lxc-env.sh
 target/scripts/prepare-package-access.sh
+target/scripts/lxc-on-dsm-root-helper.sh
 "
 
 missing=0
@@ -93,6 +94,20 @@ if ! grep -q 'requires root on DSM' "${payload_dir}/scripts/start-stop-status"; 
     printf '%s\n' 'MISSING: start/stop wrapper does not explain root lifecycle gate'
     missing=$((missing + 1))
 fi
+if ! grep -q 'lxc-on-dsm-root-helper.sh' "${payload_dir}/scripts/start-stop-status"; then
+    printf '%s\n' 'MISSING: start/stop wrapper does not point to installed root helper'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'ROOT HELPER DRY RUN COMPLETE' "${payload_dir}/target/scripts/lxc-on-dsm-root-helper.sh"; then
+    printf '%s\n' 'MISSING: installed helper dry-run guard'
+    missing=$((missing + 1))
+fi
+helper_mode=$(ls -l "${payload_dir}/target/scripts/lxc-on-dsm-root-helper.sh" 2>/dev/null | awk '{ print $1 }' | sed -n '1p')
+case "$helper_mode" in
+    -rwxr-xr-x) printf '%s\n' 'OK: installed helper is executable without setuid' ;;
+    *s*) printf 'BLOCKED: installed helper appears to have setuid/setgid mode: %s\n' "$helper_mode"; missing=$((missing + 1)) ;;
+    *) printf 'BLOCKED: installed helper has unexpected mode: %s\n' "$helper_mode"; missing=$((missing + 1)) ;;
+esac
 if ! grep -q 'PACKAGE ACCESS PLAN READY' "${payload_dir}/target/scripts/prepare-package-access.sh"; then
     printf '%s\n' 'MISSING: package access script dry-run guard'
     missing=$((missing + 1))

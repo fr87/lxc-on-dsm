@@ -4,16 +4,23 @@ This document defines the first non-installed root helper prototype. The helper
 is a policy boundary for the existing package lifecycle scripts; it is not a
 general-purpose privileged command runner.
 
-## Prototype status
+## Prototype and package-tool status
 
-The prototype lives outside the DSM package payload:
+The first prototype lives outside the DSM package payload:
 
 ```text
 scripts/experimental/lxc-on-dsm-root-helper.sh
 ```
 
-It is not copied into `package.tgz`, does not change `conf/privilege`, does not
-set a setuid bit and is not called by Package Center.
+After successful dry-run and real root validation, the `0.1.0-0010` package gate
+also ships the same helper as a normal package tool:
+
+```text
+/var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh
+```
+
+It does not change `conf/privilege`, does not set a setuid bit and is not called
+by Package Center for non-root lifecycle execution.
 
 ## Allowed contract
 
@@ -141,9 +148,10 @@ not yet validate Package Center delegation or helper installation.
 
 ## Package Center handoff
 
-Package Center `start` must not call this helper yet. A later gate must first
-decide how the helper is installed or invoked on DSM without creating a broad
-root execution surface.
+Package Center `start` still must not run privileged lifecycle actions as the
+package user. In `0.1.0-0010`, the Package Center wrapper may point an
+administrator at the installed helper path, but non-root `start`/`stop` remains
+blocked.
 
 Generate the handoff plan:
 
@@ -155,4 +163,30 @@ Expected result:
 
 ```text
 Result: HELPER HANDOFF PLAN GENERATED. No DSM package was changed.
+```
+
+## `0.1.0-0010` package-tool gate
+
+The accepted handoff option is to ship the helper as a normal package file,
+while still requiring explicit root execution:
+
+```text
+target/scripts/lxc-on-dsm-root-helper.sh
+```
+
+Archive checks must prove:
+
+- the helper is present in `package.tgz`
+- the helper has an executable non-setuid mode
+- Package Center `start`/`stop` still explain the root lifecycle gate
+- the wrapper points to the installed helper path for manual root use
+
+After installing `0.1.0-0010`, validate manually:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh --dry-run start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
+sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh status --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
+sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
+sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh stop --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
+sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh status --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
 ```

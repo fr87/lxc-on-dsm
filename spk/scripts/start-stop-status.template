@@ -7,6 +7,7 @@ PACKAGE=%%PACKAGE_NAME%%
 TARGET="/var/packages/${PACKAGE}/target"
 PROFILE="/var/packages/${PACKAGE}/etc/lab-macvlan.env"
 OUTPUT="/var/packages/${PACKAGE}/var/artifacts"
+HELPER="${TARGET}/scripts/lxc-on-dsm-root-helper.sh"
 
 export PATH="${TARGET}/bin:${TARGET}/sbin:/opt/bin:/opt/sbin:${PATH}"
 export LD_LIBRARY_PATH="${TARGET}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
@@ -15,19 +16,19 @@ require_root_lifecycle() {
     if [ "$(id -u)" -ne 0 ]; then
         printf '%s\n' 'LXC lifecycle start/stop requires root on DSM.' >&2
         printf '%s\n' 'DSM 7 rejects root run-as in this unsigned lab SPK, so Package Center start/stop is intentionally blocked.' >&2
-        printf 'Run explicitly as root after review: sh %s/scripts/%s --profile %s --output %s\n' "$TARGET" "$1" "$PROFILE" "$OUTPUT" >&2
+        printf 'Run explicitly as root after review: sh %s %s --profile %s --output %s\n' "$HELPER" "$1" "$PROFILE" "$OUTPUT" >&2
         exit 1
     fi
 }
 
 case "$1" in
     start)
-        require_root_lifecycle start-macvlan-profile.sh
-        exec sh "${TARGET}/scripts/start-macvlan-profile.sh" --profile "$PROFILE" --output "$OUTPUT"
+        require_root_lifecycle start
+        exec sh "$HELPER" start --profile "$PROFILE" --output "$OUTPUT"
         ;;
     stop)
-        require_root_lifecycle stop-macvlan-profile.sh
-        exec sh "${TARGET}/scripts/stop-macvlan-profile.sh" --profile "$PROFILE" --output "$OUTPUT"
+        require_root_lifecycle stop
+        exec sh "$HELPER" stop --profile "$PROFILE" --output "$OUTPUT"
         ;;
     status)
         exec sh "${TARGET}/scripts/doctor-macvlan-profile.sh" --profile "$PROFILE"
