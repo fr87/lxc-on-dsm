@@ -58,6 +58,7 @@ scripts/analyze-dsm.sh
 scripts/compare-reports.sh
 scripts/evaluate-report.sh
 scripts/check-lxc-runtime-bundle.sh
+scripts/check-lxc-runtime-deps.sh
 scripts/restore-lxc-runtime-bundle.sh
 scripts/check-package-recovery.sh
 scripts/create-recovery-bundle.sh
@@ -119,6 +120,7 @@ fi
 
 if [ -r "${bundle_dir}/MANIFEST.txt" ]; then
     grep -q 'restore-lxc-runtime-bundle.sh --bundle' "${bundle_dir}/MANIFEST.txt" && ok "manifest includes runtime restore command" || problem "manifest missing runtime restore command"
+    grep -q 'check-lxc-runtime-deps.sh --prefix' "${bundle_dir}/MANIFEST.txt" && ok "manifest includes runtime dependency gate command" || problem "manifest missing runtime dependency gate command"
     grep -q 'synopkg install' "${bundle_dir}/MANIFEST.txt" && ok "manifest includes SPK install command" || problem "manifest missing SPK install command"
 fi
 

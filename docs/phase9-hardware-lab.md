@@ -6,6 +6,20 @@ The important boundary: `0.1.0-0010` is a management/helper SPK. It does not
 yet install the LXC userspace itself. The hardware NAS therefore needs a
 validated LXC runtime prefix before the package can start a container.
 
+Important hardware finding: the first Virtual DSM runtime bundle was built with
+the Entware toolchain and its LXC binaries use the ELF interpreter
+`/opt/lib/ld-linux-x86-64.so.2`. That is acceptable inside the Virtual DSM lab
+where Entware was installed manually, but it is not acceptable for the physical
+DS224+ target if Entware must not be installed there. The hardware path is
+therefore blocked until the runtime is rebuilt as DSM-native or otherwise made
+independent from an Entware `/opt` interpreter.
+
+Generate the plan for that next runtime path with:
+
+```sh
+sh scripts/plan-dsm-native-runtime.sh
+```
+
 ## LXC runtime bundle gate
 
 Create a portable runtime bundle from the validated Virtual DSM prefix:
@@ -60,6 +74,17 @@ Expected result:
 Result: LXC RUNTIME RESTORED. No container or network state was changed.
 ```
 
+After any restore, run the host dependency gate before trying `lxc-start` or
+installing/starting the SPK lifecycle:
+
+```sh
+sh scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt
+```
+
+If the result reports an `/opt` interpreter on the physical NAS, do not proceed
+to container creation. That runtime is a Virtual DSM/Entware lab artifact, not a
+hardware-ready runtime.
+
 Validated Virtual DSM evidence:
 
 - `artifacts/lxc-runtime-bundle-20260816T115837Z.tar.gz`
@@ -71,6 +96,9 @@ Validated Virtual DSM evidence:
 - no SPK artifact detected
 - restore gate validated the bundle and refused to overwrite the existing
   non-empty Virtual DSM prefix `/volume1/@lxc/lab/opt`
+- later physical DS224+ probing showed the restored runtime expects
+  `/opt/lib/ld-linux-x86-64.so.2`; with the project decision to avoid Entware on
+  the physical NAS, this bundle is not hardware-ready
 
 ## Hardware handoff bundle
 
@@ -123,10 +151,13 @@ The first real DS224+ test should be gated in this order:
 7. Dry-run the LXC runtime bundle restore on the physical NAS.
 8. Install or restore the LXC runtime prefix on the physical NAS only after the
    report comparison and restore dry-run are acceptable.
-9. Install `lxc-on-dsm-0.1.0-0010.spk` on the physical NAS.
-10. Run `scripts/check-package-recovery.sh`.
-11. Run the installed helper with `--dry-run`.
-12. Create a hardware recovery bundle.
-13. Only then consider a single macvlan lifecycle start/stop test.
+9. Run `scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt`.
+10. Continue only if the restored runtime does not require the Entware
+    `/opt/lib/ld-linux-x86-64.so.2` interpreter.
+11. Install `lxc-on-dsm-0.1.0-0010.spk` on the physical NAS.
+12. Run `scripts/check-package-recovery.sh`.
+13. Run the installed helper with `--dry-run`.
+14. Create a hardware recovery bundle.
+15. Only then consider a single macvlan lifecycle start/stop test.
 
 Package Center `start` remains intentionally blocked for the package user.

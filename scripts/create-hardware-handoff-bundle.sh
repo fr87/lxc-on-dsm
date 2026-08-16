@@ -34,6 +34,7 @@ for required in \
     scripts/compare-reports.sh \
     scripts/evaluate-report.sh \
     scripts/check-lxc-runtime-bundle.sh \
+    scripts/check-lxc-runtime-deps.sh \
     scripts/restore-lxc-runtime-bundle.sh \
     scripts/check-package-recovery.sh \
     scripts/create-recovery-bundle.sh \
@@ -66,6 +67,7 @@ for script in \
     compare-reports.sh \
     evaluate-report.sh \
     check-lxc-runtime-bundle.sh \
+    check-lxc-runtime-deps.sh \
     restore-lxc-runtime-bundle.sh \
     check-package-recovery.sh \
     create-recovery-bundle.sh \
@@ -100,6 +102,8 @@ done
     printf 'sh scripts/restore-lxc-runtime-bundle.sh --bundle %s --target /volume1/@lxc/lab/opt\n' "runtime/${runtime_base}"
     printf '%s\n' '# install only after reviewing the dry-run result:'
     printf 'sh scripts/restore-lxc-runtime-bundle.sh --bundle %s --target /volume1/@lxc/lab/opt --install\n' "runtime/${runtime_base}"
+    printf '%s\n' '# continue only if this dependency gate passes on the physical NAS:'
+    printf '%s\n' 'sh scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt'
     printf 'synopkg install %s\n' "packages/${spk_base}"
 } >"${bundle_dir}/MANIFEST.txt"
 

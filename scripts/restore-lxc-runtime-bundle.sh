@@ -77,6 +77,21 @@ has_exec_bit() {
     esac
 }
 
+detect_interpreter() {
+    binary=$1
+    if command -v readelf >/dev/null 2>&1; then
+        interpreter=$(readelf -l "$binary" 2>/dev/null | sed -n 's/.*interpreter: \([^]]*\).*/\1/p' | sed -n '1p')
+        [ -n "$interpreter" ] && { printf '%s\n' "$interpreter"; return; }
+        interpreter=$(readelf -l "$binary" 2>/dev/null | sed -n 's/.*Requesting program interpreter: \([^]]*\).*/\1/p' | sed -n '1p')
+        [ -n "$interpreter" ] && { printf '%s\n' "$interpreter"; return; }
+    fi
+    if command -v file >/dev/null 2>&1; then
+        file "$binary" 2>/dev/null | sed -n 's/.*interpreter \([^,]*\).*/\1/p' | sed -n '1p'
+        return
+    fi
+    printf '%s\n' unknown
+}
+
 required_files="
 MANIFEST.txt
 runtime/bin/lxc-start
@@ -113,6 +128,21 @@ for binary in lxc-start lxc-info lxc-ls lxc-stop lxc-checkconfig; do
     else
         problem "runtime/bin/${binary} lacks executable mode bits"
     fi
+    interpreter=$(detect_interpreter "${bundle_dir}/runtime/bin/${binary}")
+    case "$interpreter" in
+        /opt/*)
+            problem "runtime/bin/${binary} depends on Entware /opt interpreter: $interpreter"
+            ;;
+        /lib/*|/lib64/*)
+            ok "runtime/bin/${binary} uses system interpreter: $interpreter"
+            ;;
+        unknown|'')
+            warn "runtime/bin/${binary} interpreter could not be determined"
+            ;;
+        *)
+            warn "runtime/bin/${binary} uses unexpected interpreter: $interpreter"
+            ;;
+    esac
 done
 
 if find "${bundle_dir}/runtime" -path '*/containers' -o -path '*/containers/*' -o -path '*/containers/*/rootfs' -o -path '*/containers/*/rootfs/*' | grep -q .; then
