@@ -183,4 +183,5 @@ erstellt werden:
 
 ```sh
 sh scripts/create-recovery-bundle.sh
+sh scripts/check-recovery-bundle.sh artifacts/recovery-bundle-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
 ```

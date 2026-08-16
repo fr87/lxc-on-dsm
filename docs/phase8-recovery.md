@@ -123,6 +123,18 @@ scripts, the lab profile, the LXC container config, path observations, helper
 dry-run/status output, package recovery check output and checksums. It
 intentionally excludes container rootfs data.
 
+Validate the bundle:
+
+```sh
+sh scripts/check-recovery-bundle.sh artifacts/recovery-bundle-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
+```
+
+Expected result:
+
+```text
+Result: RECOVERY BUNDLE CHECK PASS. No restore action was performed.
+```
+
 ## First recovery bundle result
 
 Validated in Virtual DSM:
@@ -148,4 +160,10 @@ container/alpine-macvlanlab/config
 observations/helper-status.txt
 observations/package-recovery-check.txt
 SHA256SUMS
+```
+
+The first bundle check also passed:
+
+```text
+Result: RECOVERY BUNDLE CHECK PASS. No restore action was performed.
 ```
