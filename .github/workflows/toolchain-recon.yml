@@ -60,6 +60,7 @@ jobs:
             --toolkit-version "${TOOLKIT_VERSION}" \
             --platform "${SYNO_PLATFORM}" \
             --toolchain-file "${TOOLCHAIN_FILE}" \
+            --toolchain-platform-dir 'Intel%20x86%20Linux%204.4.302%20%28GeminiLake%29' \
             --toolchain-md5 bc93d88359a055b398d8e78965bc95cc \
             --toolkit-base-md5 fd0862fa44189606bd64cc32138f3302 \
             --toolkit-dev-md5 cb6221764494afdbec7aa1a22ea3ad6a \

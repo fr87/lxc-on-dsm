@@ -12,6 +12,7 @@ dsm_version=7.3-86009
 toolkit_version=7.3
 platform=geminilake
 toolchain_file=geminilake-gcc1220_glibc236_x86_64-GPL.txz
+toolchain_platform_dir='Intel%20x86%20Linux%204.4.302%20%28GeminiLake%29'
 toolchain_md5=bc93d88359a055b398d8e78965bc95cc
 toolkit_base_md5=fd0862fa44189606bd64cc32138f3302
 toolkit_dev_md5=cb6221764494afdbec7aa1a22ea3ad6a
@@ -26,6 +27,7 @@ while [ "$#" -gt 0 ]; do
         --toolkit-version) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_version=$2; shift 2 ;;
         --platform) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; platform=$2; shift 2 ;;
         --toolchain-file) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolchain_file=$2; shift 2 ;;
+        --toolchain-platform-dir) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolchain_platform_dir=$2; shift 2 ;;
         --toolchain-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolchain_md5=$2; shift 2 ;;
         --toolkit-base-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_base_md5=$2; shift 2 ;;
         --toolkit-dev-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_dev_md5=$2; shift 2 ;;
@@ -42,6 +44,7 @@ case "$dsm_version" in *[!A-Za-z0-9._-]*|'') printf 'Invalid DSM version: %s\n' 
 case "$toolkit_version" in *[!A-Za-z0-9._-]*|'') printf 'Invalid toolkit version: %s\n' "$toolkit_version" >&2; exit 2 ;; esac
 case "$platform" in *[!A-Za-z0-9._-]*|'') printf 'Invalid platform: %s\n' "$platform" >&2; exit 2 ;; esac
 case "$toolchain_file" in *[!A-Za-z0-9._+-]*|'') printf 'Invalid toolchain file: %s\n' "$toolchain_file" >&2; exit 2 ;; esac
+case "$toolchain_platform_dir" in *[!A-Za-z0-9._%+-]*|'') printf 'Invalid toolchain platform dir: %s\n' "$toolchain_platform_dir" >&2; exit 2 ;; esac
 for checksum in "$toolchain_md5" "$toolkit_base_md5" "$toolkit_dev_md5" "$toolkit_env_md5"; do
     case "$checksum" in
         [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) ;;
@@ -54,10 +57,10 @@ stamp=$(date -u +%Y%m%dT%H%M%SZ)
 mkdir -p "$output_dir"
 
 download_base_url=https://global.synologydownload.com/download
-toolchain_url="${download_base_url}/ToolChain/toolchain/${dsm_version}/${toolchain_file}"
-toolkit_base_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/base_env-${toolkit_version}.txz"
-toolkit_dev_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/ds.${platform}-${toolkit_version}.dev.txz"
-toolkit_env_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/ds.${platform}-${toolkit_version}.env.txz"
+toolchain_url="${download_base_url}/ToolChain/toolchain/${dsm_version}/${toolchain_platform_dir}/${toolchain_file}"
+toolkit_base_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/base/base_env-${toolkit_version}.txz"
+toolkit_dev_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/${platform}/ds.${platform}-${toolkit_version}.dev.txz"
+toolkit_env_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/${platform}/ds.${platform}-${toolkit_version}.env.txz"
 
 manifest="${output_dir}/toolchain-recon-${stamp}.env"
 report="${output_dir}/toolchain-recon-${stamp}.md"
@@ -68,6 +71,7 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf 'toolkit_version=%s\n' "$toolkit_version"
     printf 'platform=%s\n' "$platform"
     printf 'toolchain_file=%s\n' "$toolchain_file"
+    printf 'toolchain_platform_dir=%s\n' "$toolchain_platform_dir"
     printf 'download_base_url=%s\n' "$download_base_url"
     printf 'toolchain_url=%s\n' "$toolchain_url"
     printf 'toolkit_base_url=%s\n' "$toolkit_base_url"
