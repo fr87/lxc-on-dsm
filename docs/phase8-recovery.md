@@ -103,3 +103,49 @@ Result: PACKAGE RECOVERY CHECK PASS. No package or runtime state was changed.
 
 The repair cleared the previous `startFailed` marker and preserved the installed
 helper, profile, package links and clean stopped runtime state.
+
+## Recovery bundle gate
+
+Create a portable evidence bundle before DSM updates or larger repair tests:
+
+```sh
+sh scripts/create-recovery-bundle.sh
+```
+
+Expected result:
+
+```text
+Result: RECOVERY BUNDLE CREATED. No container or network state was changed.
+```
+
+The bundle includes package metadata, privilege/resource files, wrapper/helper
+scripts, the lab profile, the LXC container config, path observations, helper
+dry-run/status output, package recovery check output and checksums. It
+intentionally excludes container rootfs data.
+
+## First recovery bundle result
+
+Validated in Virtual DSM:
+
+```text
+sh scripts/create-recovery-bundle.sh --output artifacts
+
+bundle_dir=artifacts/recovery-bundle-lxc-on-dsm-20260816T114037Z
+archive=artifacts/recovery-bundle-lxc-on-dsm-20260816T114037Z.tar.gz
+Result: RECOVERY BUNDLE CREATED. No container or network state was changed.
+```
+
+Archive inspection confirmed that the bundle contains package files, profile,
+container config and observations, but no `rootfs/` tree:
+
+```text
+package/INFO
+package/conf/privilege
+package/scripts/start-stop-status
+package/target/scripts/lxc-on-dsm-root-helper.sh
+profile/lab-macvlan.env
+container/alpine-macvlanlab/config
+observations/helper-status.txt
+observations/package-recovery-check.txt
+SHA256SUMS
+```

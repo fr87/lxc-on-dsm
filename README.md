@@ -177,3 +177,10 @@ sh scripts/check-package-recovery.sh
 
 In Virtual DSM validiert dieses Gate `0.1.0-0010` mit installiertem Helper und
 sauber gestopptem Runtime-Zustand.
+
+Vor DSM-Updates oder groesseren Reparaturtests kann ein Wiederherstellungsbundle
+erstellt werden:
+
+```sh
+sh scripts/create-recovery-bundle.sh
+```

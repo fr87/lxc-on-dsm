@@ -26,6 +26,9 @@ After every DSM update:
     plan has been reviewed; do not install it directly after archive creation.
 11. For the first package installation, use only the generated Virtual DSM plan
     from `scripts/plan-spk-install.sh`.
+12. Before DSM updates or larger repair tests, create a recovery evidence bundle
+    with `scripts/create-recovery-bundle.sh`. The bundle intentionally excludes
+    container rootfs data.
 
 After a clean manual stop, the expected idle state is:
 
