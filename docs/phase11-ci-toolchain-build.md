@@ -114,3 +114,9 @@ It accepts:
 With downloads disabled, it only records the selected URLs and uploads a small
 reconnaissance artifact. With downloads enabled, it downloads the selected
 toolchain/toolkit tarballs and records checksums. It still does not build LXC.
+
+GitHub Actions note: a newly added `workflow_dispatch` workflow may not be
+startable through the GitHub API until the workflow file exists on the
+repository default branch. Until then, validate the workflow file through the
+normal PR checks and trigger it after merge or after the workflow has otherwise
+landed on the default branch.
