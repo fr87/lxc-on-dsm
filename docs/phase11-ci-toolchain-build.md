@@ -105,7 +105,8 @@ Linux build runner.
 The first workflow is `.github/workflows/toolchain-recon.yml`.
 
 It runs automatically on PR/push with downloads disabled. That gives CI evidence
-for the selected platform metadata without pulling large toolchain archives.
+for the selected platform metadata and URL reachability without pulling large
+toolchain archives.
 The same workflow is also manually startable with `workflow_dispatch` for the
 later download-enabled reconnaissance.
 
@@ -127,8 +128,9 @@ ec544e4e943da80f8b18163516c4ba46  ds.geminilake-7.3.env.txz
 ```
 
 With downloads disabled, it only records the selected URLs and uploads a small
-reconnaissance artifact. With downloads enabled, it downloads the selected
-toolchain/toolkit tarballs and records checksums. It still does not build LXC.
+reconnaissance artifact plus HTTP header probes. With downloads enabled, it
+downloads the selected toolchain/toolkit tarballs and records checksums. It
+still does not build LXC.
 
 GitHub Actions note: a newly added `workflow_dispatch` workflow may not be
 startable through the GitHub API until the workflow file exists on the

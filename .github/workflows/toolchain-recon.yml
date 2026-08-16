@@ -65,6 +65,7 @@ jobs:
             --toolkit-dev-md5 cb6221764494afdbec7aa1a22ea3ad6a \
             --toolkit-env-md5 ec544e4e943da80f8b18163516c4ba46 \
             --output artifacts/ci-toolchain-recon \
+            --probe-urls \
             $args
 
       - name: Upload reconnaissance artifact

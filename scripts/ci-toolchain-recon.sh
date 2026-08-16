@@ -17,6 +17,7 @@ toolkit_base_md5=fd0862fa44189606bd64cc32138f3302
 toolkit_dev_md5=cb6221764494afdbec7aa1a22ea3ad6a
 toolkit_env_md5=ec544e4e943da80f8b18163516c4ba46
 download=0
+probe_urls=0
 output_dir=artifacts/ci-toolchain-recon
 
 while [ "$#" -gt 0 ]; do
@@ -29,6 +30,7 @@ while [ "$#" -gt 0 ]; do
         --toolkit-base-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_base_md5=$2; shift 2 ;;
         --toolkit-dev-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_dev_md5=$2; shift 2 ;;
         --toolkit-env-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_env_md5=$2; shift 2 ;;
+        --probe-urls) probe_urls=1; shift ;;
         --download) download=1; shift ;;
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_dir=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
@@ -73,6 +75,7 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf 'toolkit_base_md5=%s\n' "$toolkit_base_md5"
     printf 'toolkit_dev_md5=%s\n' "$toolkit_dev_md5"
     printf 'toolkit_env_md5=%s\n' "$toolkit_env_md5"
+    printf 'probe_urls=%s\n' "$probe_urls"
     printf 'download=%s\n' "$download"
 } >"$manifest"
 
@@ -109,6 +112,27 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf '%s  %s\n' "$toolkit_env_md5" "ds.${platform}-${toolkit_version}.env.txz"
     printf '```\n'
 } >"$report"
+
+if [ "$probe_urls" -eq 1 ]; then
+    command -v curl >/dev/null 2>&1 || { printf 'Missing curl for --probe-urls\n' >&2; exit 1; }
+    probe_file="${output_dir}/url-probe-${stamp}.txt"
+    : >"$probe_file"
+    for url in "$toolchain_url" "$toolkit_base_url" "$toolkit_dev_url" "$toolkit_env_url"; do
+        {
+            printf '### %s\n' "$url"
+            curl -fIL --max-time 60 "$url"
+            printf '\n'
+        } >>"$probe_file" 2>&1
+    done
+    {
+        printf '\n'
+        printf '%s\n' '## URL probe'
+        printf '\n'
+        printf '```text\n'
+        cat "$probe_file"
+        printf '```\n'
+    } >>"$report"
+fi
 
 if [ "$download" -eq 1 ]; then
     command -v curl >/dev/null 2>&1 || { printf 'Missing curl for --download\n' >&2; exit 1; }
@@ -169,6 +193,7 @@ printf '%s\n' '# CI Synology toolchain reconnaissance'
 printf '\n'
 printf 'manifest=%s\n' "$manifest"
 printf 'report=%s\n' "$report"
+printf 'probe_urls=%s\n' "$probe_urls"
 printf 'download=%s\n' "$download"
 printf '\n'
 printf '%s\n' 'Result: CI TOOLCHAIN RECON COMPLETE. No LXC build was performed.'
