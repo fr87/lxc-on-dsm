@@ -153,3 +153,32 @@ GitHub Actions note: a newly added `workflow_dispatch` workflow may not be
 startable through the GitHub API until the workflow file exists on the
 repository default branch. The automatic PR/push trigger exists so the workflow
 can still be validated before that merge.
+
+## Validated download reconnaissance
+
+GitHub Actions run `31952595034` validated the first `geminilake` DSM 7.3
+candidate without using either Virtual DSM or the physical DS224+ as a build
+host.
+
+The workflow downloaded all four selected Synology archives, verified their MD5
+checksums against the pinned Synology archive metadata and discarded the
+downloaded tarballs before artifact upload.
+
+Verified files:
+
+```text
+geminilake-gcc1220_glibc236_x86_64-GPL.txz: OK
+base_env-7.3.txz: OK
+ds.geminilake-7.3.dev.txz: OK
+ds.geminilake-7.3.env.txz: OK
+```
+
+The uploaded artifact contains only:
+
+- reconnaissance manifest
+- URL probe output
+- expected MD5 file
+- observed MD5/SHA256 checksum files
+- expected MD5 verification output
+
+It does not contain the downloaded Synology tarballs.

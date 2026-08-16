@@ -5,7 +5,7 @@
 set -eu
 
 usage() {
-    printf '%s\n' "Usage: $0 [--dsm-version VERSION] [--toolkit-version VERSION] [--platform PLATFORM] [--toolchain-file FILE] [--download] [--output DIRECTORY]"
+    printf '%s\n' "Usage: $0 [--dsm-version VERSION] [--toolkit-version VERSION] [--platform PLATFORM] [--toolchain-file FILE] [--download] [--inspect-archives] [--output DIRECTORY]"
 }
 
 dsm_version=7.3-86009
@@ -18,6 +18,7 @@ toolkit_base_md5=fd0862fa44189606bd64cc32138f3302
 toolkit_dev_md5=cb6221764494afdbec7aa1a22ea3ad6a
 toolkit_env_md5=ec544e4e943da80f8b18163516c4ba46
 download=0
+inspect_archives=0
 probe_urls=0
 discard_downloads=0
 output_dir=artifacts/ci-toolchain-recon
@@ -35,6 +36,7 @@ while [ "$#" -gt 0 ]; do
         --toolkit-env-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_env_md5=$2; shift 2 ;;
         --probe-urls) probe_urls=1; shift ;;
         --download) download=1; shift ;;
+        --inspect-archives) inspect_archives=1; download=1; shift ;;
         --discard-downloads) discard_downloads=1; shift ;;
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_dir=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
@@ -85,6 +87,7 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf 'toolkit_env_md5=%s\n' "$toolkit_env_md5"
     printf 'probe_urls=%s\n' "$probe_urls"
     printf 'download=%s\n' "$download"
+    printf 'inspect_archives=%s\n' "$inspect_archives"
     printf 'discard_downloads=%s\n' "$discard_downloads"
 } >"$manifest"
 
@@ -104,6 +107,7 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf '%s\n' '- does not install Entware'
     printf '%s\n' '- does not touch any DSM host'
     printf '%s\n' '- does not create runtime bundles'
+    printf '%s\n' '- does not extract toolchain archives unless a later build step explicitly does so'
     printf '\n'
     printf '%s\n' '## URLs'
     printf '\n'
@@ -164,6 +168,31 @@ if [ "$download" -eq 1 ]; then
         } >"${output_dir}/expected.md5"
         ( cd "$download_dir" && md5sum -c "../expected.md5" ) >"${output_dir}/expected-md5-check.txt"
     fi
+    if [ "$inspect_archives" -eq 1 ]; then
+        command -v tar >/dev/null 2>&1 || { printf 'Missing tar for --inspect-archives\n' >&2; exit 1; }
+        layout_dir="${output_dir}/archive-layout"
+        mkdir -p "$layout_dir"
+        : >"${output_dir}/archive-layout-summary.txt"
+        for file in "$download_dir"/*.txz; do
+            base=$(basename "$file")
+            sample_file="${layout_dir}/${base}.sample.txt"
+            hints_file="${layout_dir}/${base}.hints.txt"
+            top_file="${layout_dir}/${base}.top-level.txt"
+            tar -tf "$file" | sed -n '1,400p' >"$sample_file"
+            tar -tf "$file" | sed 's#^\./##; s#/.*##' | sed '/^$/d' | sort -u >"$top_file"
+            {
+                tar -tf "$file" | grep -E '(^|/)(gcc|g\+\+|ld|as|strip|sysroot|libc\.so|ld-linux|pkg-config|pkgconf|cmake|meson|ninja)(/|$|[.-])' || true
+            } | sed -n '1,400p' >"$hints_file"
+            {
+                printf '### %s\n' "$base"
+                printf 'entries=%s\n' "$(tar -tf "$file" | wc -l | tr -d ' ')"
+                printf 'top_level=%s\n' "$(tr '\n' ' ' <"$top_file" | sed 's/[ ]*$//')"
+                printf 'sample_file=%s\n' "$(basename "$sample_file")"
+                printf 'hints_file=%s\n' "$(basename "$hints_file")"
+                printf '\n'
+            } >>"${output_dir}/archive-layout-summary.txt"
+        done
+    fi
     {
         printf '\n'
         printf '%s\n' '## Downloaded files'
@@ -195,6 +224,14 @@ if [ "$download" -eq 1 ]; then
             cat "${output_dir}/expected-md5-check.txt"
             printf '```\n'
         fi
+        if [ -r "${output_dir}/archive-layout-summary.txt" ]; then
+            printf '\n'
+            printf '%s\n' '## Archive layout summary'
+            printf '\n'
+            printf '```text\n'
+            cat "${output_dir}/archive-layout-summary.txt"
+            printf '```\n'
+        fi
     } >>"$report"
     if [ "$discard_downloads" -eq 1 ]; then
         rm -rf "$download_dir"
@@ -216,6 +253,7 @@ printf 'manifest=%s\n' "$manifest"
 printf 'report=%s\n' "$report"
 printf 'probe_urls=%s\n' "$probe_urls"
 printf 'download=%s\n' "$download"
+printf 'inspect_archives=%s\n' "$inspect_archives"
 printf 'discard_downloads=%s\n' "$discard_downloads"
 printf '\n'
 printf '%s\n' 'Result: CI TOOLCHAIN RECON COMPLETE. No LXC build was performed.'

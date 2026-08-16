@@ -53,7 +53,7 @@ jobs:
         run: |
           args=""
           if [ "${DOWNLOAD_TOOLCHAIN}" = "true" ]; then
-            args="--download --discard-downloads"
+            args="--download --inspect-archives --discard-downloads"
           fi
           sh scripts/ci-toolchain-recon.sh \
             --dsm-version "${DSM_VERSION}" \
