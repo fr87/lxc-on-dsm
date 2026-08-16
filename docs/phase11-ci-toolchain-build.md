@@ -101,9 +101,14 @@ Linux build runner.
 
 ## Initial workflow
 
-The first manual workflow is `.github/workflows/toolchain-recon.yml`.
+The first workflow is `.github/workflows/toolchain-recon.yml`.
 
-It accepts:
+It runs automatically on PR/push with downloads disabled. That gives CI evidence
+for the selected platform metadata without pulling large toolchain archives.
+The same workflow is also manually startable with `workflow_dispatch` for the
+later download-enabled reconnaissance.
+
+Manual runs accept:
 
 - DSM toolchain version, default `7.3-86009`
 - toolkit version, default `7.3`
@@ -117,6 +122,5 @@ toolchain/toolkit tarballs and records checksums. It still does not build LXC.
 
 GitHub Actions note: a newly added `workflow_dispatch` workflow may not be
 startable through the GitHub API until the workflow file exists on the
-repository default branch. Until then, validate the workflow file through the
-normal PR checks and trigger it after merge or after the workflow has otherwise
-landed on the default branch.
+repository default branch. The automatic PR/push trigger exists so the workflow
+can still be validated before that merge.

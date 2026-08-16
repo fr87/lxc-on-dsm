@@ -1,6 +1,10 @@
 name: toolchain-recon
 
 on:
+  push:
+    branches:
+      - "**"
+  pull_request:
   workflow_dispatch:
     inputs:
       dsm_version:
@@ -31,6 +35,12 @@ permissions:
 jobs:
   recon:
     runs-on: ubuntu-latest
+    env:
+      DSM_VERSION: ${{ inputs.dsm_version || '7.3-86009' }}
+      TOOLKIT_VERSION: ${{ inputs.toolkit_version || '7.3' }}
+      SYNO_PLATFORM: ${{ inputs.platform || 'apollolake' }}
+      TOOLCHAIN_FILE: ${{ inputs.toolchain_file || 'apollolake-gcc1220_glibc236_x86_64-GPL.txz' }}
+      DOWNLOAD_TOOLCHAIN: ${{ inputs.download_toolchain || false }}
     steps:
       - uses: actions/checkout@v4
 
@@ -42,20 +52,20 @@ jobs:
       - name: Record Synology toolchain metadata
         run: |
           args=""
-          if [ "${{ inputs.download_toolchain }}" = "true" ]; then
+          if [ "${DOWNLOAD_TOOLCHAIN}" = "true" ]; then
             args="--download"
           fi
           sh scripts/ci-toolchain-recon.sh \
-            --dsm-version "${{ inputs.dsm_version }}" \
-            --toolkit-version "${{ inputs.toolkit_version }}" \
-            --platform "${{ inputs.platform }}" \
-            --toolchain-file "${{ inputs.toolchain_file }}" \
+            --dsm-version "${DSM_VERSION}" \
+            --toolkit-version "${TOOLKIT_VERSION}" \
+            --platform "${SYNO_PLATFORM}" \
+            --toolchain-file "${TOOLCHAIN_FILE}" \
             --output artifacts/ci-toolchain-recon \
             $args
 
       - name: Upload reconnaissance artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ci-toolchain-recon-${{ inputs.platform }}-${{ inputs.dsm_version }}
+          name: ci-toolchain-recon-${{ env.SYNO_PLATFORM }}-${{ env.DSM_VERSION }}
           path: artifacts/ci-toolchain-recon
           if-no-files-found: error
