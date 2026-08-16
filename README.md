@@ -154,3 +154,10 @@ zeigt, folgt nur ein weiteres Plan-Gate fuer einen schmalen Lab-Helper:
 ```sh
 sh scripts/plan-root-helper.sh
 ```
+
+Der erste Helper-Prototyp bleibt ausserhalb des SPK-Payloads und wird zunaechst
+nur im Dry-run geprueft:
+
+```sh
+sh scripts/experimental/lxc-on-dsm-root-helper.sh --dry-run start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
+```

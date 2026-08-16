@@ -157,6 +157,9 @@ Expected result:
 Result: ROOT HELPER PLAN GENERATED. No DSM package was changed.
 ```
 
+The resulting prototype contract is documented in
+[Phase 7 Root Helper](phase7-root-helper.md).
+
 ## Handoff
 
 Phase 7 is complete only when one of these outcomes is documented:
