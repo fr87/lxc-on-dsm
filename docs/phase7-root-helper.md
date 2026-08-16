@@ -234,6 +234,35 @@ route_present=NO_RUNTIME_IP
 Result: MACVLAN DOCTOR PASS
 ```
 
-This validates the installed helper's status and stop/cleanup path. A fresh
-installed-helper `start` from the final clean stopped state remains the next
-optional runtime gate before considering any further integration.
+The installed helper was then validated for a fresh start from clean stopped
+state and a clean stop:
+
+```text
+installed helper start:
+container_ip=10.26.88.249
+gateway=10.26.88.199
+dhcp_status=OK
+shim_created=1
+route_added=1
+Result: MACVLAN LIFECYCLE STARTED
+
+installed helper running status:
+container_state=RUNNING
+runtime_state_present=YES
+runtime_container_ip=10.26.88.249
+runtime_dhcp_status=OK
+runtime_shim_created=1
+runtime_route_added=1
+shim_present=YES
+route_present=YES
+Result: MACVLAN DOCTOR PASS
+
+installed helper stop:
+container_stopped=YES
+shim_absent=YES
+Result: MACVLAN LIFECYCLE STOPPED
+```
+
+This validates `0.1.0-0010` as an installed helper package-tool for explicit
+manual root lifecycle. It still does not validate Package Center root
+delegation.

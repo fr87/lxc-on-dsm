@@ -328,5 +328,5 @@ root package.
 `0.1.0-0010` installed successfully in Virtual DSM as the package-tool handoff
 gate. It ships `target/scripts/lxc-on-dsm-root-helper.sh` as a normal executable
 package file without setuid/setgid, keeps Package Center `start` blocked for the
-package user, and validates installed-helper status plus stop/cleanup for an
-already-running lifecycle.
+package user, and validates installed-helper manual root start, status and
+stop/cleanup for the macvlan lifecycle.
