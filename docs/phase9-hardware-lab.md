@@ -20,6 +20,23 @@ Generate the plan for that next runtime path with:
 sh scripts/plan-dsm-native-runtime.sh
 ```
 
+Then collect the read-only toolchain reconnaissance on both Virtual DSM and the
+physical DS224+:
+
+```sh
+sh scripts/check-dsm-native-toolchain.sh
+```
+
+Validated Virtual DSM native-runtime reconnaissance:
+
+- `artifacts/dsm-native-toolchain-20260816T132539Z.md`
+- DSM system loader observed: `/lib64/ld-linux-x86-64.so.2`
+- Entware `/opt` loader observed on the VM, as expected from the lab bootstrap
+- without Entware on `PATH`, native build tools such as `cc`, `gcc`, `meson`,
+  `ninja` and `pkg-config` were not observed
+- decision hint: Virtual DSM itself does not look ready for an on-device
+  DSM-native source build without an external/non-Entware toolchain
+
 ## LXC runtime bundle gate
 
 Create a portable runtime bundle from the validated Virtual DSM prefix:

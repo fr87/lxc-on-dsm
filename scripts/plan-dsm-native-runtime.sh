@@ -75,12 +75,17 @@ Do not install Entware on the physical NAS.
 
 Next implementation step:
 
-1. Add an interpreter/dependency report to runtime bundle creation.
-2. Build or obtain a non-Entware runtime candidate.
-3. Validate the candidate with \`check-lxc-runtime-bundle.sh\`.
-4. Dry-run restore on the physical NAS.
-5. Run \`check-lxc-runtime-deps.sh\`.
-6. Only then continue with SPK/helper dry-runs.
+1. Run \`scripts/check-dsm-native-toolchain.sh\` on Virtual DSM and the
+   physical DS224+.
+2. Compare the reports and decide whether an on-device DSM-native build,
+   external Synology-compatible toolchain build or relocatable private runtime
+   is the better candidate.
+3. Add an interpreter/dependency report to runtime bundle creation.
+4. Build or obtain a non-Entware runtime candidate.
+5. Validate the candidate with \`check-lxc-runtime-bundle.sh\`.
+6. Dry-run restore on the physical NAS.
+7. Run \`check-lxc-runtime-deps.sh\`.
+8. Only then continue with SPK/helper dry-runs.
 
 ## Current decision
 

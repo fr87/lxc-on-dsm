@@ -55,6 +55,7 @@ problem() {
 required_files="
 MANIFEST.txt
 scripts/analyze-dsm.sh
+scripts/check-dsm-native-toolchain.sh
 scripts/compare-reports.sh
 scripts/evaluate-report.sh
 scripts/check-lxc-runtime-bundle.sh

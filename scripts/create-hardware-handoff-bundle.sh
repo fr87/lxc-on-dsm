@@ -31,6 +31,7 @@ case "$runtime_bundle" in *.tar.gz|*.tgz) ;; *) printf 'Runtime bundle must end 
 
 for required in \
     scripts/analyze-dsm.sh \
+    scripts/check-dsm-native-toolchain.sh \
     scripts/compare-reports.sh \
     scripts/evaluate-report.sh \
     scripts/check-lxc-runtime-bundle.sh \
@@ -64,6 +65,7 @@ cp "$runtime_bundle" "${bundle_dir}/runtime/${runtime_base}"
 
 for script in \
     analyze-dsm.sh \
+    check-dsm-native-toolchain.sh \
     compare-reports.sh \
     evaluate-report.sh \
     check-lxc-runtime-bundle.sh \
@@ -98,6 +100,7 @@ done
     printf '\n'
     printf '%s\n' '## Suggested first hardware commands'
     printf '%s\n' 'sh scripts/analyze-dsm.sh'
+    printf '%s\n' 'sh scripts/check-dsm-native-toolchain.sh'
     printf 'sh scripts/check-lxc-runtime-bundle.sh %s\n' "runtime/${runtime_base}"
     printf 'sh scripts/restore-lxc-runtime-bundle.sh --bundle %s --target /volume1/@lxc/lab/opt\n' "runtime/${runtime_base}"
     printf '%s\n' '# install only after reviewing the dry-run result:'
