@@ -82,10 +82,10 @@ Phase 11 must not:
 ## Initial implementation sequence
 
 1. Add a manual GitHub Actions workflow skeleton.
-2. In the first workflow version, download/list the selected Synology toolchain
-   only; do not build LXC yet.
+2. In the first workflow version, record the selected Synology toolchain URLs
+   and optionally download the toolchain/toolkit tarballs; do not build LXC yet.
 3. Add a CI artifact manifest that records toolchain URL, platform, DSM version
-   and checksums.
+   and checksums when downloads are enabled.
 4. Add an LXC configure/build step only after the selected platform has been
    confirmed.
 5. Package only the installed runtime prefix into a runtime bundle.
@@ -98,3 +98,19 @@ Phase 11 must not:
 No further local VM or physical NAS build environment is required. The next
 runtime candidate should be produced by CI or an equivalent disposable external
 Linux build runner.
+
+## Initial workflow
+
+The first manual workflow is `.github/workflows/toolchain-recon.yml`.
+
+It accepts:
+
+- DSM toolchain version, default `7.3-86009`
+- toolkit version, default `7.3`
+- platform, default `apollolake`
+- toolchain filename, default `apollolake-gcc1220_glibc236_x86_64-GPL.txz`
+- `download_toolchain`, default `false`
+
+With downloads disabled, it only records the selected URLs and uploads a small
+reconnaissance artifact. With downloads enabled, it downloads the selected
+toolchain/toolkit tarballs and records checksums. It still does not build LXC.

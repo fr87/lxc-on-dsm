@@ -199,6 +199,7 @@ sh scripts/plan-dsm-native-runtime.sh
 sh scripts/check-dsm-native-toolchain.sh
 sh scripts/check-runtime-package-boundary.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
 sh scripts/plan-ci-toolchain-build.sh
+sh scripts/ci-toolchain-recon.sh
 sh scripts/create-hardware-handoff-bundle.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk --runtime-bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
 sh scripts/check-hardware-handoff-bundle.sh artifacts/hardware-handoff-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
 ```

@@ -1,0 +1,61 @@
+name: toolchain-recon
+
+on:
+  workflow_dispatch:
+    inputs:
+      dsm_version:
+        description: "DSM toolchain version"
+        required: true
+        default: "7.3-86009"
+      toolkit_version:
+        description: "DSM toolkit version"
+        required: true
+        default: "7.3"
+      platform:
+        description: "Synology platform"
+        required: true
+        default: "apollolake"
+      toolchain_file:
+        description: "Synology toolchain archive filename"
+        required: true
+        default: "apollolake-gcc1220_glibc236_x86_64-GPL.txz"
+      download_toolchain:
+        description: "Download toolchain/toolkit tarballs"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check scripts
+        run: |
+          sh -n scripts/ci-toolchain-recon.sh
+          sh -n scripts/plan-ci-toolchain-build.sh
+
+      - name: Record Synology toolchain metadata
+        run: |
+          args=""
+          if [ "${{ inputs.download_toolchain }}" = "true" ]; then
+            args="--download"
+          fi
+          sh scripts/ci-toolchain-recon.sh \
+            --dsm-version "${{ inputs.dsm_version }}" \
+            --toolkit-version "${{ inputs.toolkit_version }}" \
+            --platform "${{ inputs.platform }}" \
+            --toolchain-file "${{ inputs.toolchain_file }}" \
+            --output artifacts/ci-toolchain-recon \
+            $args
+
+      - name: Upload reconnaissance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-toolchain-recon-${{ inputs.platform }}-${{ inputs.dsm_version }}
+          path: artifacts/ci-toolchain-recon
+          if-no-files-found: error
