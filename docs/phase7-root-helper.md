@@ -92,8 +92,67 @@ sh scripts/experimental/lxc-on-dsm-root-helper.sh status --profile /var/packages
 The expected post-stop state is unchanged from Phase 5: container stopped, no
 lifecycle runtime state, no shim and no lifecycle route.
 
+## Validated Virtual DSM result
+
+The first real root helper test succeeded in Virtual DSM:
+
+```text
+helper status before start:
+container_state=STOPPED
+runtime_state_present=NO
+shim_present=NO
+route_present=NO_RUNTIME_IP
+Result: MACVLAN DOCTOR PASS
+
+helper start:
+container_ip=10.26.88.217
+gateway=10.26.88.199
+dhcp_status=OK
+shim_created=1
+route_added=1
+Result: MACVLAN LIFECYCLE STARTED
+
+helper status while running:
+container_state=RUNNING
+runtime_state_present=YES
+runtime_container_ip=10.26.88.217
+runtime_dhcp_status=OK
+runtime_shim_created=1
+runtime_route_added=1
+shim_present=YES
+route_present=YES
+Result: MACVLAN DOCTOR PASS
+
+helper stop:
+container_stopped=YES
+shim_absent=YES
+Result: MACVLAN LIFECYCLE STOPPED
+
+helper status after stop:
+container_state=STOPPED
+runtime_state_present=NO
+shim_present=NO
+route_present=NO_RUNTIME_IP
+Result: MACVLAN DOCTOR PASS
+```
+
+This validates the helper as a policy gate for explicit root execution. It does
+not yet validate Package Center delegation or helper installation.
+
 ## Package Center handoff
 
 Package Center `start` must not call this helper yet. A later gate must first
 decide how the helper is installed or invoked on DSM without creating a broad
 root execution surface.
+
+Generate the handoff plan:
+
+```sh
+sh scripts/plan-helper-handoff.sh
+```
+
+Expected result:
+
+```text
+Result: HELPER HANDOFF PLAN GENERATED. No DSM package was changed.
+```

@@ -150,3 +150,5 @@ Current handling:
 - The first Resource Worker reconnaissance showed only the package's default
   `systemd-unit` resource and no concrete worker for LXC rootfs, cgroup or
   macvlan lifecycle operations.
+- The first experimental helper validates explicit root execution only; it does
+  not yet solve Package Center delegation or install a privileged component.

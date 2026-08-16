@@ -161,3 +161,10 @@ nur im Dry-run geprueft:
 ```sh
 sh scripts/experimental/lxc-on-dsm-root-helper.sh --dry-run start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
 ```
+
+Nach einem validierten echten Root-Test erzeugt das naechste Gate nur den
+Handoff-Plan fuer eine moegliche Paketaufnahme:
+
+```sh
+sh scripts/plan-helper-handoff.sh
+```
