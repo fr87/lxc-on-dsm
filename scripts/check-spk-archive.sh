@@ -100,6 +100,16 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
         printf '%s\n' 'BLOCKED: archive appears to contain runtime/container data'
         missing=$((missing + 1))
     fi
+    for blocked_tool in gcc g++ cc c++ make meson ninja pkg-config pkgconf opkg; do
+        if grep -qx "$blocked_tool" "${tmp_dir}/package-files.txt" || grep -q "/${blocked_tool}$" "${tmp_dir}/package-files.txt"; then
+            printf 'BLOCKED: archive contains build/package-manager tool: %s\n' "$blocked_tool"
+            missing=$((missing + 1))
+        fi
+    done
+    if grep -q 'build.ninja\|meson-private\|meson-info\|/build/work/\|/build/sources/' "${tmp_dir}/package-files.txt"; then
+        printf '%s\n' 'BLOCKED: archive contains build intermediates or source/build trees'
+        missing=$((missing + 1))
+    fi
 fi
 
 if [ -r "${tmp_dir}/scripts/start-stop-status" ]; then

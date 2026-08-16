@@ -41,3 +41,12 @@ Phase 7 investigates whether the privileged lifecycle can be mapped to a
 documented DSM Resource Worker. If not, any future helper must be narrow,
 auditable and limited to reviewed lifecycle verbs rather than exposing a generic
 root execution path.
+
+## Build versus runtime boundary
+
+Build tools must stay outside the physical NAS runtime package. The final
+hardware package should contain an already-built LXC runtime plus lifecycle and
+diagnostic scripts; it must not install Entware and must not carry compilers,
+Meson, Ninja, pkg-config, source trees or build intermediates.
+
+See `docs/phase10-runtime-packaging.md` for the current packaging rule.
