@@ -147,3 +147,6 @@ Current handling:
 - Phase 7 investigates whether a documented DSM Resource Worker can cover the
   privileged operations; if not, a narrow lab-only root helper must be designed
   separately before any automatic Package Center lifecycle is attempted.
+- The first Resource Worker reconnaissance showed only the package's default
+  `systemd-unit` resource and no concrete worker for LXC rootfs, cgroup or
+  macvlan lifecycle operations.

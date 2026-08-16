@@ -111,6 +111,52 @@ The generated plan is meant to be reviewed and then executed manually in the
 Virtual DSM lab. It must not modify package metadata, start containers, create
 interfaces or call `synopkghelper update`.
 
+## Virtual DSM reconnaissance result
+
+The first Virtual DSM reconnaissance run showed:
+
+```text
+synopkg status lxc-on-dsm
+status=start_failed
+
+/var/packages/lxc-on-dsm/conf/privilege
+run-as=package
+username=lxc_on_dsm
+groupname=lxc_on_dsm
+
+/var/packages/lxc-on-dsm/conf/resource
+{"systemd-unit":{}}
+
+/usr/syno/sbin/synopkghelper --help
+update <package> <resource-id>
+update-all-package <resource-id>
+```
+
+Current interpretation:
+
+- The installed package has only the default `systemd-unit` resource state.
+- `synopkghelper` exposes update entry points, but no direct lifecycle helper
+  surface for LXC rootfs, cgroup or macvlan operations.
+- No concrete built-in Resource Worker has been identified that maps to the
+  required LXC lifecycle.
+- The project should not add a speculative `conf/resource` entry without a
+  matching documented worker.
+
+This moves the next lab gate to a narrow helper design, while keeping manual
+root lifecycle as the known-good fallback.
+
+Generate the helper plan:
+
+```sh
+sh scripts/plan-root-helper.sh
+```
+
+Expected result:
+
+```text
+Result: ROOT HELPER PLAN GENERATED. No DSM package was changed.
+```
+
 ## Handoff
 
 Phase 7 is complete only when one of these outcomes is documented:

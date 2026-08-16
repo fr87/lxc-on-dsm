@@ -147,3 +147,10 @@ DSM-konformen Root-Lifecycle-Pfad:
 ```sh
 sh scripts/plan-resource-worker.sh
 ```
+
+Wenn die Resource-Worker-Reconnaissance keinen passenden offiziellen Worker
+zeigt, folgt nur ein weiteres Plan-Gate fuer einen schmalen Lab-Helper:
+
+```sh
+sh scripts/plan-root-helper.sh
+```
