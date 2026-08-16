@@ -301,3 +301,20 @@ shim_absent=YES
 This is the current validated boundary: installable management SPK plus manual
 root lifecycle. Automatic Package Center lifecycle requires the next design
 gate.
+
+## Phase 7 handoff
+
+Do not continue by trying additional broad `conf/privilege` variants. The
+validated package is `0.1.0-0009`, and it should remain the stable base for the
+next investigation.
+
+The next gate is read-only:
+
+```sh
+sh scripts/plan-resource-worker.sh
+```
+
+That plan investigates whether DSM Resource Workers can provide a documented
+privileged boundary for the LXC lifecycle. If no suitable official worker exists,
+the alternative is a separate narrow lab-only root helper design, not a generic
+root package.

@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 6 in Virtual DSM erreicht: `0.1.0-0009` ist als DSM-7-kompatibles Lab-SPK installierbar. Package Center `start` blockt erwartungsgemaess am Root-Lifecycle-Gate; der manuelle Root-Start/Stop ueber die installierten Paket-Skripte ist validiert.
+> **Status:** Phase 7 in Virtual DSM vorbereitet: `0.1.0-0009` bleibt das stabile installierbare Lab-SPK. Package Center `start` blockt erwartungsgemaess am Root-Lifecycle-Gate; der manuelle Root-Start/Stop ueber die installierten Paket-Skripte ist validiert. Als naechstes wird ein DSM-7-konformer Resource-Worker beziehungsweise Helper-Pfad untersucht.
 
 ## Analyse ausfuehren
 
@@ -54,7 +54,7 @@ sh scripts/create-lab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Phase 7 Resource Worker](docs/phase7-resource-worker.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
 
 Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
 
@@ -138,4 +138,12 @@ sh scripts/plan-spk-build.sh
 sh scripts/build-spk.sh
 sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0009.spk
 sh scripts/plan-spk-install.sh
+```
+
+Danach bleibt `0.1.0-0009` der stabile Paketstand. Der naechste Schritt ist
+kein neues Privilege-Experiment, sondern ein read-only Plan fuer den
+DSM-konformen Root-Lifecycle-Pfad:
+
+```sh
+sh scripts/plan-resource-worker.sh
 ```

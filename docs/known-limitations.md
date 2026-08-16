@@ -109,3 +109,41 @@ Current handling:
 - The validated shim probe used `host_cidr=10.26.88.237/26` while the container
   received `10.26.88.216`; this proves the workaround path, not that
   `10.26.88.237` is always safe to reuse.
+
+## Package Center lifecycle cannot yet run privileged LXC
+
+Status: confirmed, expected for the current unsigned DSM 7 lab package.
+
+Observed in Virtual DSM:
+
+```text
+synopkg start lxc-on-dsm
+start_failed
+```
+
+Earlier package gates also showed:
+
+```text
+error code 319: invalid package privilege content
+Permission denied - Failed to pin rootfs
+legacy cgroup hierarchies were not writable
+```
+
+Current interpretation:
+
+- The installable package must use DSM 7-compatible `run-as: package`
+  privilege metadata.
+- LXC startup, cgroup handling, rootfs pinning and macvlan shim/route setup need
+  privileges that the package user `lxc_on_dsm` does not have.
+- Unsigned attempts to make the package lifecycle run as root through
+  `conf/privilege` were rejected by DSM package validation.
+
+Current handling:
+
+- `0.1.0-0009` keeps Package Center `start`/`stop` blocked by an explicit
+  root-lifecycle gate.
+- Manual root execution of the installed package wrapper is the validated lab
+  lifecycle path.
+- Phase 7 investigates whether a documented DSM Resource Worker can cover the
+  privileged operations; if not, a narrow lab-only root helper must be designed
+  separately before any automatic Package Center lifecycle is attempted.

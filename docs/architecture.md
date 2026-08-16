@@ -25,3 +25,19 @@ artifacts/                   local reports, not committed by default
 Lifecycle scripts should read project-owned profiles instead of hard-coding DSM
 state. Generated profiles are intentionally small and reviewable so they can be
 recreated after DSM updates.
+
+## DSM package privilege boundary
+
+The current package architecture is split deliberately:
+
+- the installable SPK remains a low-privilege DSM 7 package
+- package `status` is a management/doctor operation
+- Package Center `start`/`stop` block until a reviewed privileged boundary
+  exists
+- explicit root execution of the installed package wrapper is the validated lab
+  lifecycle fallback
+
+Phase 7 investigates whether the privileged lifecycle can be mapped to a
+documented DSM Resource Worker. If not, any future helper must be narrow,
+auditable and limited to reviewed lifecycle verbs rather than exposing a generic
+root execution path.
