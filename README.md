@@ -54,7 +54,7 @@ sh scripts/create-lab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Phase 7 Resource Worker](docs/phase7-resource-worker.md), [Phase 8 Recovery](docs/phase8-recovery.md), [Phase 9 Hardware Lab](docs/phase9-hardware-lab.md), [Phase 10 Runtime Packaging](docs/phase10-runtime-packaging.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Phase 7 Resource Worker](docs/phase7-resource-worker.md), [Phase 8 Recovery](docs/phase8-recovery.md), [Phase 9 Hardware Lab](docs/phase9-hardware-lab.md), [Phase 10 Runtime Packaging](docs/phase10-runtime-packaging.md), [Phase 11 CI Toolchain Build](docs/phase11-ci-toolchain-build.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
 
 Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
 
@@ -198,6 +198,7 @@ sh scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt
 sh scripts/plan-dsm-native-runtime.sh
 sh scripts/check-dsm-native-toolchain.sh
 sh scripts/check-runtime-package-boundary.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
+sh scripts/plan-ci-toolchain-build.sh
 sh scripts/create-hardware-handoff-bundle.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk --runtime-bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
 sh scripts/check-hardware-handoff-bundle.sh artifacts/hardware-handoff-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
 ```

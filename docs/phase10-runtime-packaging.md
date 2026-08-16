@@ -39,6 +39,11 @@ Acceptable build locations include:
 - an external Linux build host using a Synology-compatible toolchain
 - a CI/build container that produces a reviewed runtime bundle
 
+Given the current project constraint, the physical DS224+ must not be used as a
+build host and no additional user-managed VM is required. The preferred next
+build location is GitHub Actions or an equivalent disposable external Linux CI
+runner. See `docs/phase11-ci-toolchain-build.md`.
+
 The output must pass the runtime gates before it becomes a hardware candidate:
 
 ```sh
