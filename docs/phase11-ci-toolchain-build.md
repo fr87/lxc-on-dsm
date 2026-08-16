@@ -138,6 +138,17 @@ reconnaissance artifact plus HTTP header probes. With downloads enabled, it
 downloads the selected toolchain/toolkit tarballs and records checksums. It
 still does not build LXC.
 
+To avoid uploading multi-gigabyte toolchain archives, the workflow discards
+downloaded tarballs after checksum verification. The artifact keeps only the
+manifest, reports and checksum evidence.
+
+On push events, a full download/checksum reconnaissance runs only when the head
+commit message contains:
+
+```text
+[download-toolchain]
+```
+
 GitHub Actions note: a newly added `workflow_dispatch` workflow may not be
 startable through the GitHub API until the workflow file exists on the
 repository default branch. The automatic PR/push trigger exists so the workflow

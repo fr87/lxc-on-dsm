@@ -19,6 +19,7 @@ toolkit_dev_md5=cb6221764494afdbec7aa1a22ea3ad6a
 toolkit_env_md5=ec544e4e943da80f8b18163516c4ba46
 download=0
 probe_urls=0
+discard_downloads=0
 output_dir=artifacts/ci-toolchain-recon
 
 while [ "$#" -gt 0 ]; do
@@ -34,6 +35,7 @@ while [ "$#" -gt 0 ]; do
         --toolkit-env-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_env_md5=$2; shift 2 ;;
         --probe-urls) probe_urls=1; shift ;;
         --download) download=1; shift ;;
+        --discard-downloads) discard_downloads=1; shift ;;
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_dir=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
@@ -83,6 +85,7 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf 'toolkit_env_md5=%s\n' "$toolkit_env_md5"
     printf 'probe_urls=%s\n' "$probe_urls"
     printf 'download=%s\n' "$download"
+    printf 'discard_downloads=%s\n' "$discard_downloads"
 } >"$manifest"
 
 {
@@ -193,6 +196,18 @@ if [ "$download" -eq 1 ]; then
             printf '```\n'
         fi
     } >>"$report"
+    if [ "$discard_downloads" -eq 1 ]; then
+        rm -rf "$download_dir"
+        printf 'downloads_discarded=1\n' >>"$manifest"
+        {
+            printf '\n'
+            printf '%s\n' '## Download retention'
+            printf '\n'
+            printf '%s\n' 'Downloaded tarballs were discarded after checksum verification.'
+        } >>"$report"
+    else
+        printf 'downloads_discarded=0\n' >>"$manifest"
+    fi
 fi
 
 printf '%s\n' '# CI Synology toolchain reconnaissance'
@@ -201,5 +216,6 @@ printf 'manifest=%s\n' "$manifest"
 printf 'report=%s\n' "$report"
 printf 'probe_urls=%s\n' "$probe_urls"
 printf 'download=%s\n' "$download"
+printf 'discard_downloads=%s\n' "$discard_downloads"
 printf '\n'
 printf '%s\n' 'Result: CI TOOLCHAIN RECON COMPLETE. No LXC build was performed.'

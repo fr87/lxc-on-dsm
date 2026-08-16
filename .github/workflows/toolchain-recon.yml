@@ -40,7 +40,7 @@ jobs:
       TOOLKIT_VERSION: ${{ inputs.toolkit_version || '7.3' }}
       SYNO_PLATFORM: ${{ inputs.platform || 'geminilake' }}
       TOOLCHAIN_FILE: ${{ inputs.toolchain_file || 'geminilake-gcc1220_glibc236_x86_64-GPL.txz' }}
-      DOWNLOAD_TOOLCHAIN: ${{ inputs.download_toolchain || false }}
+      DOWNLOAD_TOOLCHAIN: ${{ inputs.download_toolchain || contains(github.event.head_commit.message, '[download-toolchain]') || false }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +53,7 @@ jobs:
         run: |
           args=""
           if [ "${DOWNLOAD_TOOLCHAIN}" = "true" ]; then
-            args="--download"
+            args="--download --discard-downloads"
           fi
           sh scripts/ci-toolchain-recon.sh \
             --dsm-version "${DSM_VERSION}" \
