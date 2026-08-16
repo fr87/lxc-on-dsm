@@ -54,7 +54,7 @@ sh scripts/create-lab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Phase 7 Resource Worker](docs/phase7-resource-worker.md), [Phase 8 Recovery](docs/phase8-recovery.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Phase 7 Resource Worker](docs/phase7-resource-worker.md), [Phase 8 Recovery](docs/phase8-recovery.md), [Phase 9 Hardware Lab](docs/phase9-hardware-lab.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
 
 Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
 
@@ -184,4 +184,12 @@ erstellt werden:
 ```sh
 sh scripts/create-recovery-bundle.sh
 sh scripts/check-recovery-bundle.sh artifacts/recovery-bundle-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
+```
+
+Fuer den ersten Hardware-Lab-Kandidaten muss zusaetzlich der LXC-Userspace als
+eigenes Runtime-Bundle gesichert und geprueft werden:
+
+```sh
+sh scripts/create-lxc-runtime-bundle.sh --prefix /volume1/@lxc/lab/opt
+sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
 ```
