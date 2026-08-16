@@ -46,7 +46,7 @@ repair/reinstall can be tested in Virtual DSM:
 
 ```sh
 sh scripts/check-package-recovery.sh
-synopkg install build/spk/lxc-on-dsm-0.1.0-0010.spk
+/usr/syno/bin/synopkg install build/spk/lxc-on-dsm-0.1.0-0010.spk
 sh scripts/check-package-recovery.sh
 sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh --dry-run start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
 ```
@@ -75,3 +75,31 @@ Result: PACKAGE RECOVERY CHECK PASS WITH 1 WARNING(S). No package or runtime sta
 The warning is accepted for this gate because Package Center `start` is
 intentionally blocked for the package user. The installed helper remains the
 validated manual root lifecycle path.
+
+## First repair gate result
+
+Validated in Virtual DSM over SSH:
+
+```text
+pre-repair:
+Result: PACKAGE RECOVERY CHECK PASS WITH 1 WARNING(S). No package or runtime state was changed.
+
+repair:
+/usr/syno/bin/synopkg install build/spk/lxc-on-dsm-0.1.0-0010.spk
+action=repair
+last_stage=postupgrade
+stage=installed_and_stopped
+success=true
+version=0.1.0-0010
+
+post-repair:
+installed_version=0.1.0-0010
+OK: installed helper is executable without setuid
+OK: Package Center startFailed marker is absent
+Result: ROOT HELPER DRY RUN COMPLETE. No lifecycle action was executed.
+Result: MACVLAN DOCTOR PASS. No container was started and no networking was changed.
+Result: PACKAGE RECOVERY CHECK PASS. No package or runtime state was changed.
+```
+
+The repair cleared the previous `startFailed` marker and preserved the installed
+helper, profile, package links and clean stopped runtime state.

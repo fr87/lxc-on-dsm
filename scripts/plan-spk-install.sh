@@ -74,7 +74,7 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '%s\n' 'CLI alternative, only after reviewing the preconditions:'
     printf '\n'
     printf '```sh\n'
-    printf 'synopkg install %s\n' "$spk_file"
+    printf '/usr/syno/bin/synopkg install %s\n' "$spk_file"
     printf '```\n'
     printf '\n'
     printf '%s\n' 'Do not start the package automatically after install.'
@@ -83,7 +83,7 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '%s\n' '## Post-install checks before start'
     printf '\n'
     printf '```sh\n'
-    printf 'synopkg status %s\n' "$package_name"
+    printf '/usr/syno/bin/synopkg status %s\n' "$package_name"
     printf 'ls -la /var/packages/%s\n' "$package_name"
     printf 'ls -la /var/packages/%s/target\n' "$package_name"
     printf 'ls -la /var/packages/%s/etc\n' "$package_name"
@@ -109,9 +109,9 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '%s\n' 'Package `status` is expected to work as the package user. Package `start` is expected to fail fast with an explanatory root-lifecycle message.'
     printf '\n'
     printf '```sh\n'
-    printf 'synopkg status %s\n' "$package_name"
-    printf 'synopkg start %s\n' "$package_name"
-    printf 'synopkg status %s\n' "$package_name"
+    printf '/usr/syno/bin/synopkg status %s\n' "$package_name"
+    printf '/usr/syno/bin/synopkg start %s\n' "$package_name"
+    printf '/usr/syno/bin/synopkg status %s\n' "$package_name"
     printf 'find /var/packages/%s/var/artifacts -maxdepth 1 -type f | sort\n' "$package_name"
     printf '```\n'
     printf '\n'
@@ -131,9 +131,9 @@ plan_file="${output_dir}/spk-install-plan-${stamp}.md"
     printf '%s\n' 'Only after confirming the package is stopped:'
     printf '\n'
     printf '```sh\n'
-    printf 'synopkg stop %s\n' "$package_name"
+    printf '/usr/syno/bin/synopkg stop %s\n' "$package_name"
     printf 'sh /var/packages/%s/target/scripts/doctor-macvlan-profile.sh --profile /var/packages/%s/etc/lab-macvlan.env\n' "$package_name" "$package_name"
-    printf 'synopkg uninstall %s\n' "$package_name"
+    printf '/usr/syno/bin/synopkg uninstall %s\n' "$package_name"
     printf '```\n'
     printf '\n'
     printf '%s\n' 'If any lifecycle-owned shim or route remains, do not uninstall blindly; inspect before manual cleanup.'
