@@ -127,6 +127,9 @@ cb6221764494afdbec7aa1a22ea3ad6a  ds.geminilake-7.3.dev.txz
 ec544e4e943da80f8b18163516c4ba46  ds.geminilake-7.3.env.txz
 ```
 
+The workflow uses the direct `global.synologydownload.com/download/...` artifact
+URLs referenced by the Synology archive index, rather than the archive UI path.
+
 With downloads disabled, it only records the selected URLs and uploads a small
 reconnaissance artifact plus HTTP header probes. With downloads enabled, it
 downloads the selected toolchain/toolkit tarballs and records checksums. It

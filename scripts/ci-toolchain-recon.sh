@@ -53,10 +53,11 @@ done
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 mkdir -p "$output_dir"
 
-toolchain_url="https://archive.synology.com/download/ToolChain/toolchain/${dsm_version}/${toolchain_file}"
-toolkit_base_url="https://archive.synology.com/download/ToolChain/toolkit/${toolkit_version}/base_env-${toolkit_version}.txz"
-toolkit_dev_url="https://archive.synology.com/download/ToolChain/toolkit/${toolkit_version}/ds.${platform}-${toolkit_version}.dev.txz"
-toolkit_env_url="https://archive.synology.com/download/ToolChain/toolkit/${toolkit_version}/ds.${platform}-${toolkit_version}.env.txz"
+download_base_url=https://global.synologydownload.com/download
+toolchain_url="${download_base_url}/ToolChain/toolchain/${dsm_version}/${toolchain_file}"
+toolkit_base_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/base_env-${toolkit_version}.txz"
+toolkit_dev_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/ds.${platform}-${toolkit_version}.dev.txz"
+toolkit_env_url="${download_base_url}/ToolChain/toolkit/${toolkit_version}/ds.${platform}-${toolkit_version}.env.txz"
 
 manifest="${output_dir}/toolchain-recon-${stamp}.env"
 report="${output_dir}/toolchain-recon-${stamp}.md"
@@ -67,6 +68,7 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf 'toolkit_version=%s\n' "$toolkit_version"
     printf 'platform=%s\n' "$platform"
     printf 'toolchain_file=%s\n' "$toolchain_file"
+    printf 'download_base_url=%s\n' "$download_base_url"
     printf 'toolchain_url=%s\n' "$toolchain_url"
     printf 'toolkit_base_url=%s\n' "$toolkit_base_url"
     printf 'toolkit_dev_url=%s\n' "$toolkit_dev_url"
