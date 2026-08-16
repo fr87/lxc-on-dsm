@@ -194,4 +194,6 @@ sh scripts/create-lxc-runtime-bundle.sh --prefix /volume1/@lxc/lab/opt
 sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
 sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz --target /volume1/@lxc/lab/opt
 sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz --target /volume1/@lxc/lab/opt --install
+sh scripts/create-hardware-handoff-bundle.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk --runtime-bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
+sh scripts/check-hardware-handoff-bundle.sh artifacts/hardware-handoff-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
 ```

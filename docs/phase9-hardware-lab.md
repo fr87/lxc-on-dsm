@@ -72,21 +72,61 @@ Validated Virtual DSM evidence:
 - restore gate validated the bundle and refused to overwrite the existing
   non-empty Virtual DSM prefix `/volume1/@lxc/lab/opt`
 
+## Hardware handoff bundle
+
+After the SPK and LXC runtime bundle have both passed their gates, create one
+portable handoff archive for the physical NAS:
+
+```sh
+sh scripts/create-hardware-handoff-bundle.sh \
+  --spk build/spk/lxc-on-dsm-0.1.0-0010.spk \
+  --runtime-bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
+```
+
+Validate it before copying it to the hardware NAS:
+
+```sh
+sh scripts/check-hardware-handoff-bundle.sh artifacts/hardware-handoff-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
+```
+
+Expected result:
+
+```text
+Result: HARDWARE HANDOFF BUNDLE CHECK PASS. No install or restore action was performed.
+```
+
+The handoff bundle contains the SPK, the runtime bundle, the read-only DSM
+analysis tools, the runtime restore gate, the recovery gates and the Phase 9
+runbook. It is still inert: unpacking or checking it must not install packages,
+restore runtime files, start containers or change networking.
+
+Validated Virtual DSM handoff evidence:
+
+- `artifacts/hardware-handoff-lxc-on-dsm-20260816T121036Z.tar.gz`
+- size: approximately 12 MiB
+- exactly one SPK present
+- exactly one LXC runtime bundle present
+- embedded runtime bundle lists `lxc-start`, `lxc-stop` and runtime libraries
+- no container state directories detected
+- checksum verification passed
+
 ## Hardware candidate order
 
 The first real DS224+ test should be gated in this order:
 
 1. Create and verify a Virtual DSM recovery bundle.
 2. Create and verify a Virtual DSM LXC runtime bundle.
-3. Run `scripts/analyze-dsm.sh` on the physical NAS.
-4. Compare the physical NAS report with the Virtual DSM report.
-5. Dry-run the LXC runtime bundle restore on the physical NAS.
-6. Install or restore the LXC runtime prefix on the physical NAS only after the
+3. Create and verify a hardware handoff bundle.
+4. Copy the handoff bundle to the physical NAS and unpack it in a lab directory.
+5. Run `scripts/analyze-dsm.sh` on the physical NAS.
+6. Compare the physical NAS report with the Virtual DSM report.
+7. Dry-run the LXC runtime bundle restore on the physical NAS.
+8. Install or restore the LXC runtime prefix on the physical NAS only after the
    report comparison and restore dry-run are acceptable.
-7. Install `lxc-on-dsm-0.1.0-0010.spk` on the physical NAS.
-8. Run `scripts/check-package-recovery.sh`.
-9. Run the installed helper with `--dry-run`.
-10. Create a hardware recovery bundle.
-11. Only then consider a single macvlan lifecycle start/stop test.
+9. Install `lxc-on-dsm-0.1.0-0010.spk` on the physical NAS.
+10. Run `scripts/check-package-recovery.sh`.
+11. Run the installed helper with `--dry-run`.
+12. Create a hardware recovery bundle.
+13. Only then consider a single macvlan lifecycle start/stop test.
 
 Package Center `start` remains intentionally blocked for the package user.
