@@ -324,3 +324,9 @@ That plan investigates whether DSM Resource Workers can provide a documented
 privileged boundary for the LXC lifecycle. If no suitable official worker exists,
 the alternative is a separate narrow lab-only root helper design, not a generic
 root package.
+
+`0.1.0-0010` installed successfully in Virtual DSM as the package-tool handoff
+gate. It ships `target/scripts/lxc-on-dsm-root-helper.sh` as a normal executable
+package file without setuid/setgid, keeps Package Center `start` blocked for the
+package user, and validates installed-helper status plus stop/cleanup for an
+already-running lifecycle.

@@ -190,3 +190,50 @@ sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh start --pro
 sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh stop --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
 sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh status --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
 ```
+
+The first installed-helper Virtual DSM check confirmed the package-tool handoff:
+
+```text
+/var/packages/lxc-on-dsm/INFO
+version="0.1.0-0010"
+
+/var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh
+-rwxr-xr-x lxc_on_dsm lxc_on_dsm
+
+Package Center start:
+start_failed
+
+installed helper dry-run:
+Result: ROOT HELPER DRY RUN COMPLETE. No lifecycle action was executed.
+```
+
+The installed helper then successfully handled an already-running lifecycle and
+clean shutdown:
+
+```text
+installed helper status:
+container_state=RUNNING
+runtime_container_ip=10.26.88.203
+runtime_dhcp_status=OK
+runtime_shim_created=1
+runtime_route_added=1
+shim_present=YES
+route_present=YES
+Result: MACVLAN DOCTOR PASS
+
+installed helper stop:
+container_stopped=YES
+shim_absent=YES
+Result: MACVLAN LIFECYCLE STOPPED
+
+installed helper final status:
+container_state=STOPPED
+runtime_state_present=NO
+shim_present=NO
+route_present=NO_RUNTIME_IP
+Result: MACVLAN DOCTOR PASS
+```
+
+This validates the installed helper's status and stop/cleanup path. A fresh
+installed-helper `start` from the final clean stopped state remains the next
+optional runtime gate before considering any further integration.

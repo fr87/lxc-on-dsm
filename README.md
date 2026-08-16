@@ -2,7 +2,7 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 7 in Virtual DSM vorbereitet: `0.1.0-0009` bleibt das stabile installierbare Lab-SPK. Der Root-Helper-Prototyp ist validiert; `0.1.0-0010` nimmt ihn als normales Paket-Tool auf, ohne setuid, sudoers oder `run-as=root`.
+> **Status:** Phase 7 in Virtual DSM erreicht: `0.1.0-0010` installiert den validierten Root-Helper als normales Paket-Tool, ohne setuid, sudoers oder `run-as=root`. Package Center `start` bleibt fuer den Paketnutzer blockiert; installierter Helper-Status und Stop/Cleanup sind validiert.
 
 ## Analyse ausfuehren
 
