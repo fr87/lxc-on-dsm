@@ -120,7 +120,7 @@ if [ "$probe_urls" -eq 1 ]; then
     for url in "$toolchain_url" "$toolkit_base_url" "$toolkit_dev_url" "$toolkit_env_url"; do
         {
             printf '### %s\n' "$url"
-            curl -fIL --max-time 60 "$url"
+            curl -sSIL --max-time 60 "$url" || printf 'WARN: header probe command failed\n'
             printf '\n'
         } >>"$probe_file" 2>&1
     done
