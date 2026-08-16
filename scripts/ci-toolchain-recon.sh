@@ -10,8 +10,12 @@ usage() {
 
 dsm_version=7.3-86009
 toolkit_version=7.3
-platform=apollolake
-toolchain_file=apollolake-gcc1220_glibc236_x86_64-GPL.txz
+platform=geminilake
+toolchain_file=geminilake-gcc1220_glibc236_x86_64-GPL.txz
+toolchain_md5=bc93d88359a055b398d8e78965bc95cc
+toolkit_base_md5=fd0862fa44189606bd64cc32138f3302
+toolkit_dev_md5=cb6221764494afdbec7aa1a22ea3ad6a
+toolkit_env_md5=ec544e4e943da80f8b18163516c4ba46
 download=0
 output_dir=artifacts/ci-toolchain-recon
 
@@ -21,6 +25,10 @@ while [ "$#" -gt 0 ]; do
         --toolkit-version) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_version=$2; shift 2 ;;
         --platform) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; platform=$2; shift 2 ;;
         --toolchain-file) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolchain_file=$2; shift 2 ;;
+        --toolchain-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolchain_md5=$2; shift 2 ;;
+        --toolkit-base-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_base_md5=$2; shift 2 ;;
+        --toolkit-dev-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_dev_md5=$2; shift 2 ;;
+        --toolkit-env-md5) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; toolkit_env_md5=$2; shift 2 ;;
         --download) download=1; shift ;;
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_dir=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
@@ -32,6 +40,13 @@ case "$dsm_version" in *[!A-Za-z0-9._-]*|'') printf 'Invalid DSM version: %s\n' 
 case "$toolkit_version" in *[!A-Za-z0-9._-]*|'') printf 'Invalid toolkit version: %s\n' "$toolkit_version" >&2; exit 2 ;; esac
 case "$platform" in *[!A-Za-z0-9._-]*|'') printf 'Invalid platform: %s\n' "$platform" >&2; exit 2 ;; esac
 case "$toolchain_file" in *[!A-Za-z0-9._+-]*|'') printf 'Invalid toolchain file: %s\n' "$toolchain_file" >&2; exit 2 ;; esac
+for checksum in "$toolchain_md5" "$toolkit_base_md5" "$toolkit_dev_md5" "$toolkit_env_md5"; do
+    case "$checksum" in
+        [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) ;;
+        '') ;;
+        *) printf 'Invalid MD5 checksum: %s\n' "$checksum" >&2; exit 2 ;;
+    esac
+done
 
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 mkdir -p "$output_dir"
@@ -54,6 +69,10 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf 'toolkit_base_url=%s\n' "$toolkit_base_url"
     printf 'toolkit_dev_url=%s\n' "$toolkit_dev_url"
     printf 'toolkit_env_url=%s\n' "$toolkit_env_url"
+    printf 'toolchain_md5=%s\n' "$toolchain_md5"
+    printf 'toolkit_base_md5=%s\n' "$toolkit_base_md5"
+    printf 'toolkit_dev_md5=%s\n' "$toolkit_dev_md5"
+    printf 'toolkit_env_md5=%s\n' "$toolkit_env_md5"
     printf 'download=%s\n' "$download"
 } >"$manifest"
 
@@ -80,6 +99,15 @@ report="${output_dir}/toolchain-recon-${stamp}.md"
     printf -- '- toolkit base: %s\n' "$toolkit_base_url"
     printf -- '- toolkit dev: %s\n' "$toolkit_dev_url"
     printf -- '- toolkit env: %s\n' "$toolkit_env_url"
+    printf '\n'
+    printf '%s\n' '## Expected MD5 from Synology archive'
+    printf '\n'
+    printf '```text\n'
+    printf '%s  %s\n' "$toolchain_md5" "$toolchain_file"
+    printf '%s  %s\n' "$toolkit_base_md5" "base_env-${toolkit_version}.txz"
+    printf '%s  %s\n' "$toolkit_dev_md5" "ds.${platform}-${toolkit_version}.dev.txz"
+    printf '%s  %s\n' "$toolkit_env_md5" "ds.${platform}-${toolkit_version}.env.txz"
+    printf '```\n'
 } >"$report"
 
 if [ "$download" -eq 1 ]; then
@@ -95,6 +123,13 @@ if [ "$download" -eq 1 ]; then
     fi
     if command -v md5sum >/dev/null 2>&1; then
         ( cd "$download_dir" && md5sum * ) >"${output_dir}/downloads.md5"
+        {
+            [ -n "$toolchain_md5" ] && printf '%s  %s\n' "$toolchain_md5" "$toolchain_file"
+            [ -n "$toolkit_base_md5" ] && printf '%s  %s\n' "$toolkit_base_md5" "base_env-${toolkit_version}.txz"
+            [ -n "$toolkit_dev_md5" ] && printf '%s  %s\n' "$toolkit_dev_md5" "ds.${platform}-${toolkit_version}.dev.txz"
+            [ -n "$toolkit_env_md5" ] && printf '%s  %s\n' "$toolkit_env_md5" "ds.${platform}-${toolkit_version}.env.txz"
+        } >"${output_dir}/expected.md5"
+        ( cd "$download_dir" && md5sum -c "../expected.md5" ) >"${output_dir}/expected-md5-check.txt"
     fi
     {
         printf '\n'
@@ -117,6 +152,14 @@ if [ "$download" -eq 1 ]; then
             printf '\n'
             printf '```text\n'
             cat "${output_dir}/downloads.md5"
+            printf '```\n'
+        fi
+        if [ -r "${output_dir}/expected-md5-check.txt" ]; then
+            printf '\n'
+            printf '%s\n' '## Expected MD5 verification'
+            printf '\n'
+            printf '```text\n'
+            cat "${output_dir}/expected-md5-check.txt"
             printf '```\n'
         fi
     } >>"$report"

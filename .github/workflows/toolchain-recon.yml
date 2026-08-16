@@ -18,11 +18,11 @@ on:
       platform:
         description: "Synology platform"
         required: true
-        default: "apollolake"
+        default: "geminilake"
       toolchain_file:
         description: "Synology toolchain archive filename"
         required: true
-        default: "apollolake-gcc1220_glibc236_x86_64-GPL.txz"
+        default: "geminilake-gcc1220_glibc236_x86_64-GPL.txz"
       download_toolchain:
         description: "Download toolchain/toolkit tarballs"
         required: true
@@ -38,8 +38,8 @@ jobs:
     env:
       DSM_VERSION: ${{ inputs.dsm_version || '7.3-86009' }}
       TOOLKIT_VERSION: ${{ inputs.toolkit_version || '7.3' }}
-      SYNO_PLATFORM: ${{ inputs.platform || 'apollolake' }}
-      TOOLCHAIN_FILE: ${{ inputs.toolchain_file || 'apollolake-gcc1220_glibc236_x86_64-GPL.txz' }}
+      SYNO_PLATFORM: ${{ inputs.platform || 'geminilake' }}
+      TOOLCHAIN_FILE: ${{ inputs.toolchain_file || 'geminilake-gcc1220_glibc236_x86_64-GPL.txz' }}
       DOWNLOAD_TOOLCHAIN: ${{ inputs.download_toolchain || false }}
     steps:
       - uses: actions/checkout@v4
@@ -60,6 +60,10 @@ jobs:
             --toolkit-version "${TOOLKIT_VERSION}" \
             --platform "${SYNO_PLATFORM}" \
             --toolchain-file "${TOOLCHAIN_FILE}" \
+            --toolchain-md5 bc93d88359a055b398d8e78965bc95cc \
+            --toolkit-base-md5 fd0862fa44189606bd64cc32138f3302 \
+            --toolkit-dev-md5 cb6221764494afdbec7aa1a22ea3ad6a \
+            --toolkit-env-md5 ec544e4e943da80f8b18163516c4ba46 \
             --output artifacts/ci-toolchain-recon \
             $args
 

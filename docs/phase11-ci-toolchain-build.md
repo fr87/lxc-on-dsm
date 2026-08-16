@@ -36,8 +36,9 @@ The DS224+ hardware reconnaissance observed an x86_64 DSM system loader:
 /lib64/ld-linux-x86-64.so.2
 ```
 
-The first external build target should therefore be the DSM 7.3 x86_64
-Synology toolchain/platform family that matches the physical DS224+ report.
+Synology's CPU/package architecture list identifies the DS224+ as x86_64 with
+package architecture `Geminilake`. The first external build target should
+therefore use the DSM 7.3 `geminilake` x86_64 toolchain/platform family.
 
 Before hard-coding a platform value, confirm the platform signal from the
 physical NAS report, for example from `uname -a` or Synology model/platform
@@ -112,9 +113,18 @@ Manual runs accept:
 
 - DSM toolchain version, default `7.3-86009`
 - toolkit version, default `7.3`
-- platform, default `apollolake`
-- toolchain filename, default `apollolake-gcc1220_glibc236_x86_64-GPL.txz`
+- platform, default `geminilake`
+- toolchain filename, default `geminilake-gcc1220_glibc236_x86_64-GPL.txz`
 - `download_toolchain`, default `false`
+
+The pinned archive MD5 values for the first candidate are:
+
+```text
+bc93d88359a055b398d8e78965bc95cc  geminilake-gcc1220_glibc236_x86_64-GPL.txz
+fd0862fa44189606bd64cc32138f3302  base_env-7.3.txz
+cb6221764494afdbec7aa1a22ea3ad6a  ds.geminilake-7.3.dev.txz
+ec544e4e943da80f8b18163516c4ba46  ds.geminilake-7.3.env.txz
+```
 
 With downloads disabled, it only records the selected URLs and uploads a small
 reconnaissance artifact. With downloads enabled, it downloads the selected
