@@ -160,6 +160,41 @@ startable through the GitHub API until the workflow file exists on the
 repository default branch. The automatic PR/push trigger exists so the workflow
 can still be validated before that merge.
 
+## DSM-native runtime build preparation workflow
+
+The second workflow is `.github/workflows/dsm-native-runtime-build.yml`.
+
+It is intentionally still a preparation workflow, not a runtime-producing build.
+Its first job is to prove that a disposable CI runner can prepare the Synology
+DSM-native build workspace without using Virtual DSM or the physical DS224+ as a
+compiler host.
+
+Default PR/push behavior is lightweight:
+
+- shell-check the DSM-native build scripts
+- write a small preparation report
+- do not download Synology archives
+- do not extract toolchains
+- do not build LXC
+
+The heavier preparation path is enabled only when:
+
+- `workflow_dispatch` input `prepare_toolchain=true` is used; or
+- a push commit message contains `[prepare-dsm-build]`
+
+That heavier path:
+
+1. downloads the selected Synology toolchain/toolkit archives;
+2. verifies pinned MD5 checksums;
+3. extracts archives on the CI runner only;
+4. records candidate paths for build tools, cross compiler, sysroot and target
+   loader;
+5. discards downloaded/extracted work before artifact upload.
+
+It still does not create a runtime bundle. The next gate after this preparation
+passes is to add the actual LXC cross-build step and then run the existing
+runtime/package-boundary checks in CI.
+
 ## Validated download reconnaissance
 
 GitHub Actions run `31952595034` validated the first `geminilake` DSM 7.3

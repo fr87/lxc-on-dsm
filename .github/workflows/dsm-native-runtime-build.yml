@@ -1,0 +1,51 @@
+name: dsm-native-runtime-build
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      prepare_toolchain:
+        description: "Download and extract Synology toolchain/toolkit"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PREPARE_TOOLCHAIN: ${{ inputs.prepare_toolchain || contains(github.event.head_commit.message, '[prepare-dsm-build]') || false }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check DSM-native build scripts
+        run: |
+          sh -n scripts/ci-dsm-native-runtime-build.sh
+          sh -n scripts/build-lxc.sh
+          sh -n scripts/create-lxc-runtime-bundle.sh
+          sh -n scripts/check-lxc-runtime-bundle.sh
+          sh -n scripts/check-runtime-package-boundary.sh
+
+      - name: Prepare DSM-native build workspace
+        run: |
+          args=""
+          if [ "${PREPARE_TOOLCHAIN}" = "true" ]; then
+            args="--download --extract --discard-work"
+          fi
+          sh scripts/ci-dsm-native-runtime-build.sh \
+            --output artifacts/ci-dsm-native-runtime-build \
+            $args
+
+      - name: Upload DSM-native preparation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-dsm-native-runtime-build
+          path: artifacts/ci-dsm-native-runtime-build
+          if-no-files-found: error
