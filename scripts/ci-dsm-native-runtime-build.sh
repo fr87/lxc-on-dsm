@@ -208,14 +208,13 @@ if [ "$build_lxc" -eq 1 ]; then
     if [ -d "${sysroot_path}/usr/lib" ] && [ ! -e "${sysroot_path}/usr/lib64" ]; then
         ln -s lib "${sysroot_path}/usr/lib64"
     fi
+    if [ -d "${sysroot_path}/lib" ] && [ ! -e "${sysroot_path}/lib64" ]; then
+        ln -s lib "${sysroot_path}/lib64"
+    fi
 
-    libc_linker_script="${sysroot_path}/usr/lib/libc.so"
-    if [ -f "$libc_linker_script" ]; then
-        cp "$libc_linker_script" "${libc_linker_script}.ci-bak"
-        sed \
-            -e "s#/usr/lib64/#${sysroot_path}/usr/lib64/#g" \
-            -e "s#/lib64/#${sysroot_path}/lib/#g" \
-            "${libc_linker_script}.ci-bak" >"$libc_linker_script"
+    libc_nonshared=$(find "$sysroot_path" -type f -name 'libc_nonshared.a' | sort | sed -n '1p')
+    if [ -n "$libc_nonshared" ] && [ ! -e "${sysroot_path}/usr/lib64/libc_nonshared.a" ]; then
+        cp "$libc_nonshared" "${sysroot_path}/usr/lib64/libc_nonshared.a"
     fi
 
     {
@@ -232,10 +231,10 @@ if [ "$build_lxc" -eq 1 ]; then
         else
             printf 'WARN: sysroot usr/lib64/libc_nonshared.a is missing\n'
         fi
-        if [ -f "$libc_linker_script" ] && grep -q "$sysroot_path" "$libc_linker_script"; then
-            printf 'OK: sysroot libc linker script uses CI-local absolute paths\n'
+        if [ -e "${sysroot_path}/lib64/ld-linux-x86-64.so.2" ]; then
+            printf 'OK: sysroot lib64 loader path resolves\n'
         else
-            printf 'WARN: sysroot libc linker script was not rewritten\n'
+            printf 'WARN: sysroot lib64 loader path is missing\n'
         fi
     } >>"$report"
 
