@@ -315,3 +315,31 @@ sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 
 That package gate does not install the SPK, does not restore the runtime,
 does not start containers and does not change networking.
+
+The same package-only gate is available in CI after an intentional DSM-native
+runtime build:
+
+```sh
+sh scripts/ci-package-runtime-spk.sh \
+  --runtime-artifact-dir artifacts/ci-dsm-native-runtime-build \
+  --output artifacts/ci-runtime-spk
+```
+
+When `build_lxc=true` or `[build-dsm-runtime]` is used, the workflow validates
+the runtime bundle, embeds it into an SPK payload, builds the `.spk`, validates
+the archive and uploads a separate `ci-runtime-spk` artifact. This still does
+not contact a DSM host, install the package, restore runtime files or start a
+container.
+
+On Windows/Git-Bash, local extraction of the runtime bundle can fail on
+bash-completion symlinks even when the Linux/DSM bundle is valid. For local
+packaging only, the wrapper supports:
+
+```sh
+sh scripts/ci-package-runtime-spk.sh \
+  --runtime-artifact-dir build/gh-run-32390336678/ci-dsm-native-runtime-build \
+  --output build/ci-runtime-spk-local \
+  --skip-extracting-runtime-checks
+```
+
+Do not use that skip flag for the authoritative GitHub Actions build.

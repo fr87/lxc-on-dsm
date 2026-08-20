@@ -365,5 +365,30 @@ sh scripts/build-spk.sh
 sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 ```
 
+The CI equivalent is:
+
+```sh
+sh scripts/ci-package-runtime-spk.sh \
+  --runtime-artifact-dir artifacts/ci-dsm-native-runtime-build \
+  --output artifacts/ci-runtime-spk
+```
+
+The uploaded GitHub Actions artifact is named `ci-runtime-spk`. It contains the
+checked `.spk`, packaging logs and a short report, but it remains a lab
+candidate only. Package installation and runtime restoration are separate,
+explicit operations for a non-production DSM lab.
+
+For local Windows/Git-Bash packaging only, the CI wrapper can skip extracting
+the runtime bundle and rely on archive-listing checks instead:
+
+```sh
+sh scripts/ci-package-runtime-spk.sh \
+  --runtime-artifact-dir build/gh-run-32390336678/ci-dsm-native-runtime-build \
+  --output build/ci-runtime-spk-local \
+  --skip-extracting-runtime-checks
+```
+
+The GitHub Actions path must run without that skip flag.
+
 That gate passed locally. It does not install the SPK, does not restore the
 runtime and does not touch any DSM host.

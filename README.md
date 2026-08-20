@@ -198,5 +198,9 @@ sh scripts/build-spk.sh
 sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 ```
 
+Alternativ kann die CI nach einem absichtlich aktivierten DSM-Runtime-Build ein
+geprüftes Artefakt `ci-runtime-spk` erzeugen. Dieses SPK enthält das Runtime-
+Bundle, restauriert es aber nicht automatisch.
+
 Eine echte Runtime-Restore- oder Container-Validierung bleibt blockiert, bis ein
 separater Nicht-Produktiv-DSM-Testhost verfuegbar ist.
