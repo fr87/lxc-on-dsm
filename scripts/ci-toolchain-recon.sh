@@ -172,7 +172,9 @@ if [ "$download" -eq 1 ]; then
         command -v tar >/dev/null 2>&1 || { printf 'Missing tar for --inspect-archives\n' >&2; exit 1; }
         layout_dir="${output_dir}/archive-layout"
         mkdir -p "$layout_dir"
+        focus_file="${output_dir}/build-layout-focus.txt"
         : >"${output_dir}/archive-layout-summary.txt"
+        : >"$focus_file"
         for file in "$download_dir"/*.txz; do
             base=$(basename "$file")
             sample_file="${layout_dir}/${base}.sample.txt"
@@ -192,6 +194,33 @@ if [ "$download" -eq 1 ]; then
                 printf '\n'
             } >>"${output_dir}/archive-layout-summary.txt"
         done
+        {
+            printf '%s\n' '# Focused build layout'
+            printf '\n'
+            printf '%s\n' '## Cross compiler archive'
+            printf '\n'
+            tar -tf "${download_dir}/${toolchain_file}" \
+                | grep -E '(^|/)x86_64-pc-linux-gnu-(gcc|g\+\+|cc|c\+\+|ld|ar|ranlib|strip)$|(^|/)bin/(gcc|g\+\+|ld|ar|ranlib|strip)$|sys-root/(lib64|lib|usr/lib)/(ld-linux-x86-64\.so\.2|libc\.so|libc\.so\.6)$' \
+                | sed -n '1,240p' || true
+            printf '\n'
+            printf '%s\n' '## Toolkit env archive'
+            printf '\n'
+            tar -tf "${download_dir}/ds.${platform}-${toolkit_version}.env.txz" \
+                | grep -E 'usr/local/(sysroot|x86_64-pc-linux-gnu)|sys-root/(lib64|lib|usr/lib)/(ld-linux-x86-64\.so\.2|libc\.so|libc\.so\.6)$|/x86_64-pc-linux-gnu-(gcc|g\+\+|cc|c\+\+|ld|ar|ranlib|strip)$' \
+                | sed -n '1,240p' || true
+            printf '\n'
+            printf '%s\n' '## Toolkit dev archive'
+            printf '\n'
+            tar -tf "${download_dir}/ds.${platform}-${toolkit_version}.dev.txz" \
+                | grep -E 'usr/local/x86_64-pc-linux-gnu/.*/sys-root/usr/(include|lib|lib64|share/pkgconfig|lib/pkgconfig)|\.(pc|cmake)$' \
+                | sed -n '1,240p' || true
+            printf '\n'
+            printf '%s\n' '## Base build environment'
+            printf '\n'
+            tar -tf "${download_dir}/base_env-${toolkit_version}.txz" \
+                | grep -E '^usr/bin/(gcc|g\+\+|cc|c\+\+|meson|ninja|pkg-config|pkgconf|cmake|make|python3)$|^usr/lib.*/pkgconfig/.*\.pc$|^usr/share/pkgconfig/.*\.pc$' \
+                | sed -n '1,240p' || true
+        } >>"$focus_file"
     fi
     {
         printf '\n'
@@ -230,6 +259,14 @@ if [ "$download" -eq 1 ]; then
             printf '\n'
             printf '```text\n'
             cat "${output_dir}/archive-layout-summary.txt"
+            printf '```\n'
+        fi
+        if [ -r "${output_dir}/build-layout-focus.txt" ]; then
+            printf '\n'
+            printf '%s\n' '## Focused build layout'
+            printf '\n'
+            printf '```text\n'
+            cat "${output_dir}/build-layout-focus.txt"
             printf '```\n'
         fi
     } >>"$report"
