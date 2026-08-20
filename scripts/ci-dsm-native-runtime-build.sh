@@ -205,6 +205,26 @@ if [ "$build_lxc" -eq 1 ]; then
     [ -n "$strip_path" ] || { printf 'Missing x86_64-pc-linux-gnu-strip\n' >&2; exit 1; }
     [ -n "$sysroot_path" ] || { printf 'Missing Synology sysroot\n' >&2; exit 1; }
 
+    if [ -d "${sysroot_path}/usr/lib" ] && [ ! -e "${sysroot_path}/usr/lib64" ]; then
+        ln -s lib "${sysroot_path}/usr/lib64"
+    fi
+
+    {
+        printf '\n'
+        printf '%s\n' '## Build sysroot compatibility'
+        printf '\n'
+        if [ -e "${sysroot_path}/usr/lib64" ]; then
+            printf 'OK: sysroot usr/lib64 path is present\n'
+        else
+            printf 'WARN: sysroot usr/lib64 path is absent\n'
+        fi
+        if [ -e "${sysroot_path}/usr/lib64/libc_nonshared.a" ]; then
+            printf 'OK: sysroot usr/lib64/libc_nonshared.a resolves\n'
+        else
+            printf 'WARN: sysroot usr/lib64/libc_nonshared.a is missing\n'
+        fi
+    } >>"$report"
+
     cross_file="${output_dir}/meson-cross-${platform}.txt"
     {
         printf '%s\n' '[binaries]'
