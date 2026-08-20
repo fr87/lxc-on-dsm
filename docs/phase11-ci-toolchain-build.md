@@ -184,12 +184,18 @@ The heavier preparation path is enabled only when:
 
 That heavier path:
 
-1. downloads the selected Synology toolchain/toolkit archives;
+1. downloads the selected Synology toolchain plus target env/dev archives;
 2. verifies pinned MD5 checksums;
 3. extracts archives on the CI runner only;
 4. records candidate paths for build tools, cross compiler, sysroot and target
    loader;
 5. discards downloaded/extracted work before artifact upload.
+
+Synology `base_env` is intentionally not part of the default preparation path.
+The CI runner can provide generic build tools such as Meson/Ninja/pkg-config,
+while the Synology archives provide the target toolchain/sysroot pieces. This
+keeps the first preparation run smaller and avoids unpacking the largest toolkit
+archive unless a later build issue proves it is needed.
 
 It still does not create a runtime bundle. The next gate after this preparation
 passes is to add the actual LXC cross-build step and then run the existing
