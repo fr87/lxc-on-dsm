@@ -247,3 +247,73 @@ The uploaded artifact contains only:
 - expected MD5 verification output
 
 It does not contain the downloaded Synology tarballs.
+
+## Validated DSM-native runtime build
+
+GitHub Actions run `32390336678` validated the first DSM-native runtime build
+for the DS224+ target family:
+
+- platform: `geminilake`
+- DSM toolchain: `7.3-86009`
+- toolkit: `7.3`
+- LXC: `6.0.6`
+- runtime prefix: `/volume1/@lxc/lab/opt`
+- bundle: `lxc-runtime-bundle-20260820T161125Z.tar.gz`
+
+The CI runner downloaded and verified the Synology target archives:
+
+```text
+geminilake-gcc1220_glibc236_x86_64-GPL.txz: OK
+ds.geminilake-7.3.dev.txz: OK
+ds.geminilake-7.3.env.txz: OK
+```
+
+The build used Synology's cross compiler and sysroot, with CI-only sysroot
+compatibility links for paths expected by the glibc linker script:
+
+```text
+OK: sysroot usr/lib64 path is present
+OK: sysroot usr/lib64/libc_nonshared.a resolves
+OK: sysroot lib64 loader path resolves
+```
+
+The CI runtime bundle gates passed on the Linux runner:
+
+```sh
+sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz
+sh scripts/check-runtime-package-boundary.sh artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz
+```
+
+The uploaded artifact contains the runtime bundle plus reports and checksum
+evidence. It does not contain Synology toolchain archives, build work
+directories, source trees, container state, container rootfs data or SPK
+artifacts.
+
+Note: extracting the runtime bundle on Windows/Git-Bash can fail on
+bash-completion symlinks. That is not treated as bundle failure because the
+authoritative bundle checks run on the Linux CI runner and the target platform
+is Linux/DSM.
+
+## Next hardware test gate
+
+The next physical DS224+ step is a restore/dependency gate only. It should not
+start containers and should not change networking.
+
+Copy the CI artifact bundle to the physical DS224+ repository workspace and run:
+
+```sh
+sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz
+sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz --target /volume1/@lxc/lab/opt
+if [ -e /volume1/@lxc/lab/opt ]; then mv /volume1/@lxc/lab/opt "/volume1/@lxc/lab/opt.previous.$(date -u +%Y%m%dT%H%M%SZ)"; fi
+sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz --target /volume1/@lxc/lab/opt --install
+sh scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt
+sh scripts/verify-lxc-install.sh --prefix /volume1/@lxc/lab/opt
+```
+
+The `mv` step is intentionally recoverable. It is needed only when a previous
+runtime experiment already occupies `/volume1/@lxc/lab/opt`.
+
+If the dependency and install verification pass on the physical DS224+, the
+project can move to a controlled physical container creation test. If they fail,
+the failure should be treated as a runtime dependency/loader issue, not as a
+request to install Entware or build tools on the physical NAS.
