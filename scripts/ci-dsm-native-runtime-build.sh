@@ -175,6 +175,7 @@ if [ "$extract" -eq 1 ]; then
 fi
 
 if [ "$discard_work" -eq 1 ] && [ -n "${work_dir:-}" ]; then
+    chmod -R u+w "$work_dir" 2>/dev/null || true
     rm -rf "$work_dir"
     printf 'work_discarded=1\n' >>"$manifest"
     {
