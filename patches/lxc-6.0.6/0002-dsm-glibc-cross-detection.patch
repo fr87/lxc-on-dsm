@@ -1,0 +1,61 @@
+diff --git a/src/lxc/log.h b/src/lxc/log.h
+index 3d7d49d..9b3dc2a 100644
+--- a/src/lxc/log.h
++++ b/src/lxc/log.h
+@@ -303,14 +303,14 @@
+ /*
+  * Helper macro to define errno string.
+  */
+-#if HAVE_STRERROR_R
+-	#if STRERROR_R_CHAR_P
++#if HAVE_STRERROR_R || defined(__GLIBC__)
++	#if STRERROR_R_CHAR_P || defined(__GLIBC__)
+ 	char *strerror_r(int errnum, char *buf, size_t buflen);
+ 	#else
+ 	int strerror_r(int errnum, char *buf, size_t buflen);
+ 	#endif
+ 
+-	#if STRERROR_R_CHAR_P
++	#if STRERROR_R_CHAR_P || defined(__GLIBC__)
+ 		#define lxc_log_strerror_r                                               \
+ 			char errno_buf[PATH_MAX / 2] = {"Failed to get errno string"};   \
+ 			char *ptr = NULL;                                                \
+diff --git a/src/lxc/mount_utils.h b/src/lxc/mount_utils.h
+index 9269a1f..526b81d 100644
+--- a/src/lxc/mount_utils.h
++++ b/src/lxc/mount_utils.h
+@@ -256,7 +256,7 @@ struct mount_attr {
+ };
+ #endif
+ 
+-#if !HAVE_MOUNT_SETATTR
++#if !HAVE_MOUNT_SETATTR && !defined(__GLIBC__)
+ static inline int mount_setattr(int dfd, const char *path, unsigned int flags,
+ 				struct mount_attr *attr, size_t size)
+ {
+diff --git a/src/lxc/process_utils.h b/src/lxc/process_utils.h
+index 8db28ca..9441d19 100644
+--- a/src/lxc/process_utils.h
++++ b/src/lxc/process_utils.h
+@@ -262,7 +262,7 @@ __hidden extern pid_t lxc_raw_clone_cb(int (*fn)(void *), void *args, unsigned l
+ 				       int *pidfd);
+ 
+ 
+-#if !HAVE_EXECVEAT
++#if !HAVE_EXECVEAT && !defined(__GLIBC__)
+ static inline int execveat(int dirfd, const char *pathname, char *const argv[],
+ 			   char *const envp[], int flags)
+ {
+diff --git a/src/lxc/syscall_wrappers.h b/src/lxc/syscall_wrappers.h
+index 7952920..7f86713 100644
+--- a/src/lxc/syscall_wrappers.h
++++ b/src/lxc/syscall_wrappers.h
+@@ -151,7 +151,7 @@ static int faccessat(int __fd, const char *__file, int __type, int __flag)
+ #define CLOSE_RANGE_CLOEXEC	(1U << 2)
+ #endif
+ 
+-#if !HAVE_CLOSE_RANGE
++#if !HAVE_CLOSE_RANGE && !defined(__GLIBC__)
+ static inline int close_range(unsigned int fd, unsigned int max_fd, unsigned int flags)
+ {
+ 	return syscall(__NR_close_range, fd, max_fd, flags);
