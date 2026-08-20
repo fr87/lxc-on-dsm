@@ -37,6 +37,10 @@ while [ "$#" -gt 0 ]; do
 done
 
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
+case "$output_dir" in
+    /*) ;;
+    *) output_dir="${PWD}/${output_dir}" ;;
+esac
 mkdir -p "$output_dir"
 
 download_base_url=https://global.synologydownload.com/download
