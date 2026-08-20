@@ -186,20 +186,17 @@ sh scripts/create-recovery-bundle.sh
 sh scripts/check-recovery-bundle.sh artifacts/recovery-bundle-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
 ```
 
-Fuer den ersten Hardware-Lab-Kandidaten muss zusaetzlich der LXC-Userspace als
-eigenes Runtime-Bundle gesichert und geprueft werden:
+Der physische DS224+ Host ist ein Produktivsystem und kein freigegebener
+Testhost. Der aktuelle Paketpfad bleibt daher auf CI-/Lab-Artefakte begrenzt.
+Ein SPK-Kandidat kann das in CI gebaute Runtime-Bundle einbetten, ohne das Paket
+zu installieren, Runtime-Dateien zu restaurieren oder Container zu starten:
 
 ```sh
-sh scripts/create-lxc-runtime-bundle.sh --prefix /volume1/@lxc/lab/opt
-sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
-sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz --target /volume1/@lxc/lab/opt
-sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz --target /volume1/@lxc/lab/opt --install
-sh scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt
-sh scripts/plan-dsm-native-runtime.sh
-sh scripts/check-dsm-native-toolchain.sh
-sh scripts/check-runtime-package-boundary.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
-sh scripts/plan-ci-toolchain-build.sh
-sh scripts/ci-toolchain-recon.sh
-sh scripts/create-hardware-handoff-bundle.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk --runtime-bundle artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
-sh scripts/check-hardware-handoff-bundle.sh artifacts/hardware-handoff-lxc-on-dsm-YYYYMMDDTHHMMSSZ.tar.gz
+sh scripts/assemble-spk-payload.sh --runtime-bundle build/gh-run-32390336678/ci-dsm-native-runtime-build/lxc-runtime-bundle-20260820T161125Z.tar.gz
+sh scripts/check-spk-payload.sh
+sh scripts/build-spk.sh
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 ```
+
+Eine echte Runtime-Restore- oder Container-Validierung bleibt blockiert, bis ein
+separater Nicht-Produktiv-DSM-Testhost verfuegbar ist.

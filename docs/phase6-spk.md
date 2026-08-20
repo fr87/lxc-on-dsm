@@ -330,3 +330,40 @@ gate. It ships `target/scripts/lxc-on-dsm-root-helper.sh` as a normal executable
 package file without setuid/setgid, keeps Package Center `start` blocked for the
 package user, and validates installed-helper manual root start, status and
 stop/cleanup for the macvlan lifecycle.
+
+## Runtime-bundled package candidate
+
+After the DSM-native CI runtime build passed, the package payload gained an
+optional `--runtime-bundle` assembly path. This copies the reviewed runtime
+bundle into the package payload as:
+
+```text
+target/runtime/lxc-runtime-bundle.tar.gz
+```
+
+The bundle remains an opaque artifact inside the SPK. Package installation does
+not restore it automatically, Package Center `start` remains blocked for the
+package user and no container is created or started.
+
+The package also ships explicit helper scripts:
+
+```text
+target/scripts/install-packaged-runtime.sh
+target/scripts/restore-lxc-runtime-bundle.sh
+target/scripts/check-lxc-runtime-deps.sh
+```
+
+`install-packaged-runtime.sh` is dry-run by default and requires `--install`
+before it writes `/volumeN/@lxc/lab/opt`.
+
+The current package-only gate is:
+
+```sh
+sh scripts/assemble-spk-payload.sh --runtime-bundle build/gh-run-32390336678/ci-dsm-native-runtime-build/lxc-runtime-bundle-20260820T161125Z.tar.gz
+sh scripts/check-spk-payload.sh
+sh scripts/build-spk.sh
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
+```
+
+That gate passed locally. It does not install the SPK, does not restore the
+runtime and does not touch any DSM host.

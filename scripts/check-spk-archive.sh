@@ -83,10 +83,17 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
     grep -q 'scripts/stop-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target stop script present' || { printf '%s\n' 'MISSING: target stop script'; missing=$((missing + 1)); }
     grep -q 'scripts/doctor-macvlan-profile.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target doctor script present' || { printf '%s\n' 'MISSING: target doctor script'; missing=$((missing + 1)); }
     grep -q 'scripts/prepare-package-access.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target package access script present' || { printf '%s\n' 'MISSING: target package access script'; missing=$((missing + 1)); }
+    grep -q 'scripts/restore-lxc-runtime-bundle.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target runtime restore script present' || { printf '%s\n' 'MISSING: target runtime restore script'; missing=$((missing + 1)); }
+    grep -q 'scripts/check-lxc-runtime-deps.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target runtime dependency check present' || { printf '%s\n' 'MISSING: target runtime dependency check'; missing=$((missing + 1)); }
+    grep -q 'scripts/install-packaged-runtime.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target packaged runtime install wrapper present' || { printf '%s\n' 'MISSING: target packaged runtime install wrapper'; missing=$((missing + 1)); }
     grep -q 'scripts/lxc-on-dsm-root-helper.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target root helper present' || { printf '%s\n' 'MISSING: target root helper'; missing=$((missing + 1)); }
     grep -q 'config/lab-macvlan.env.example' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target profile example present' || { printf '%s\n' 'MISSING: target profile example'; missing=$((missing + 1)); }
     grep -q -- '--logfile' "${tmp_dir}/package/scripts/start-macvlan-profile.sh" && printf '%s\n' 'OK: start script captures LXC debug logfile' || { printf '%s\n' 'MISSING: start script LXC debug logfile capture'; missing=$((missing + 1)); }
     grep -q '0730' "${tmp_dir}/package/scripts/prepare-package-access.sh" && printf '%s\n' 'OK: package access can allow lifecycle-state writes' || { printf '%s\n' 'MISSING: package access lifecycle-state write permission'; missing=$((missing + 1)); }
+    grep -q 'LXC RUNTIME RESTORE DRY RUN PASS' "${tmp_dir}/package/scripts/restore-lxc-runtime-bundle.sh" && printf '%s\n' 'OK: runtime restore script defaults to dry-run' || { printf '%s\n' 'MISSING: runtime restore dry-run gate'; missing=$((missing + 1)); }
+    grep -q 'No container was started' "${tmp_dir}/package/scripts/check-lxc-runtime-deps.sh" && printf '%s\n' 'OK: runtime dependency check does not start containers' || { printf '%s\n' 'MISSING: runtime dependency no-container guarantee'; missing=$((missing + 1)); }
+    grep -q 'Packaged LXC runtime restore' "${tmp_dir}/package/scripts/install-packaged-runtime.sh" && printf '%s\n' 'OK: packaged runtime install wrapper emits summary' || { printf '%s\n' 'MISSING: packaged runtime install wrapper summary'; missing=$((missing + 1)); }
+    grep -q -- '--install' "${tmp_dir}/package/scripts/install-packaged-runtime.sh" && printf '%s\n' 'OK: packaged runtime install wrapper requires explicit install' || { printf '%s\n' 'MISSING: packaged runtime install wrapper explicit install gate'; missing=$((missing + 1)); }
     if [ -r "${tmp_dir}/package/scripts/lxc-on-dsm-root-helper.sh" ]; then
         grep -q 'ROOT HELPER DRY RUN COMPLETE' "${tmp_dir}/package/scripts/lxc-on-dsm-root-helper.sh" && printf '%s\n' 'OK: root helper dry-run guard present' || { printf '%s\n' 'MISSING: root helper dry-run guard'; missing=$((missing + 1)); }
         helper_mode=$(ls -l "${tmp_dir}/package/scripts/lxc-on-dsm-root-helper.sh" 2>/dev/null | awk '{ print $1 }' | sed -n '1p')
@@ -106,6 +113,36 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
             missing=$((missing + 1))
         fi
     done
+    if grep -q 'runtime/lxc-runtime-bundle.tar.gz' "${tmp_dir}/package-files.txt"; then
+        printf '%s\n' 'OK: packaged runtime bundle present'
+        grep -q 'runtime/README.md' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: packaged runtime bundle manifest present' || { printf '%s\n' 'MISSING: packaged runtime bundle manifest'; missing=$((missing + 1)); }
+        if ! grep -q 'does not restore it automatically' "${tmp_dir}/package/runtime/README.md"; then
+            printf '%s\n' 'MISSING: packaged runtime manifest no-autorestore note'
+            missing=$((missing + 1))
+        fi
+        if tar -tzf "${tmp_dir}/package/runtime/lxc-runtime-bundle.tar.gz" >"${tmp_dir}/runtime-bundle-files.txt" 2>"${tmp_dir}/runtime-bundle-tar.err"; then
+            grep -q 'runtime/bin/lxc-start' "${tmp_dir}/runtime-bundle-files.txt" && printf '%s\n' 'OK: packaged runtime bundle contains lxc-start' || { printf '%s\n' 'MISSING: packaged runtime bundle lxc-start'; missing=$((missing + 1)); }
+            grep -q 'runtime/lib' "${tmp_dir}/runtime-bundle-files.txt" && printf '%s\n' 'OK: packaged runtime bundle contains runtime lib path' || { printf '%s\n' 'MISSING: packaged runtime bundle runtime lib path'; missing=$((missing + 1)); }
+            if grep -q '/containers/\|/containers$' "${tmp_dir}/runtime-bundle-files.txt"; then
+                printf '%s\n' 'BLOCKED: packaged runtime bundle appears to contain container/rootfs data'
+                missing=$((missing + 1))
+            else
+                printf '%s\n' 'OK: packaged runtime bundle listing has no container data'
+            fi
+            if grep -q '/build/work/\|/build/sources/\|build.ninja\|meson-private\|meson-info' "${tmp_dir}/runtime-bundle-files.txt"; then
+                printf '%s\n' 'BLOCKED: packaged runtime bundle appears to contain build intermediates'
+                missing=$((missing + 1))
+            else
+                printf '%s\n' 'OK: packaged runtime bundle listing has no build intermediates'
+            fi
+        else
+            cat "${tmp_dir}/runtime-bundle-tar.err"
+            printf '%s\n' 'BLOCKED: packaged runtime bundle could not be listed'
+            missing=$((missing + 1))
+        fi
+    else
+        printf '%s\n' 'WARN: archive does not include a runtime bundle; package is management-only'
+    fi
     if grep -q 'build.ninja\|meson-private\|meson-info\|/build/work/\|/build/sources/' "${tmp_dir}/package-files.txt"; then
         printf '%s\n' 'BLOCKED: archive contains build intermediates or source/build trees'
         missing=$((missing + 1))

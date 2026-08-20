@@ -35,6 +35,9 @@ target/scripts/doctor-macvlan-profile.sh
 target/scripts/verify-macvlan-profile.sh
 target/scripts/print-lxc-env.sh
 target/scripts/prepare-package-access.sh
+target/scripts/restore-lxc-runtime-bundle.sh
+target/scripts/check-lxc-runtime-deps.sh
+target/scripts/install-packaged-runtime.sh
 target/scripts/lxc-on-dsm-root-helper.sh
 "
 
@@ -112,6 +115,22 @@ if ! grep -q 'PACKAGE ACCESS PLAN READY' "${payload_dir}/target/scripts/prepare-
     printf '%s\n' 'MISSING: package access script dry-run guard'
     missing=$((missing + 1))
 fi
+if ! grep -q 'LXC RUNTIME RESTORE DRY RUN PASS' "${payload_dir}/target/scripts/restore-lxc-runtime-bundle.sh"; then
+    printf '%s\n' 'MISSING: packaged runtime restore script dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'No container was started' "${payload_dir}/target/scripts/check-lxc-runtime-deps.sh"; then
+    printf '%s\n' 'MISSING: packaged runtime dependency check no-container guarantee'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'Packaged LXC runtime restore' "${payload_dir}/target/scripts/install-packaged-runtime.sh"; then
+    printf '%s\n' 'MISSING: packaged runtime install wrapper'
+    missing=$((missing + 1))
+fi
+if ! grep -q -- '--install' "${payload_dir}/target/scripts/install-packaged-runtime.sh"; then
+    printf '%s\n' 'MISSING: packaged runtime install wrapper explicit install gate'
+    missing=$((missing + 1))
+fi
 if ! grep -q '0730' "${payload_dir}/target/scripts/prepare-package-access.sh"; then
     printf '%s\n' 'MISSING: package access script lifecycle-state write permission'
     missing=$((missing + 1))
@@ -123,6 +142,40 @@ fi
 if find "$payload_dir" -name '*.spk' | grep -q .; then
     printf '%s\n' 'BLOCKED: payload contains an .spk artifact'
     missing=$((missing + 1))
+fi
+if [ -e "${payload_dir}/target/runtime/lxc-runtime-bundle.tar.gz" ]; then
+    printf '%s\n' 'OK: packaged runtime bundle is present'
+    if [ -r "${payload_dir}/target/runtime/README.md" ]; then
+        printf '%s\n' 'OK: packaged runtime bundle manifest is present'
+    else
+        printf '%s\n' 'MISSING: packaged runtime bundle manifest'
+        missing=$((missing + 1))
+    fi
+    if ! grep -q 'does not restore it automatically' "${payload_dir}/target/runtime/README.md"; then
+        printf '%s\n' 'MISSING: packaged runtime manifest does not document no-autorestore behavior'
+        missing=$((missing + 1))
+    fi
+    if tar -tzf "${payload_dir}/target/runtime/lxc-runtime-bundle.tar.gz" >/tmp/lxc-on-dsm-packaged-runtime-list.$$ 2>/tmp/lxc-on-dsm-packaged-runtime-tar.$$; then
+        if grep -q '/containers/\|/containers$' /tmp/lxc-on-dsm-packaged-runtime-list.$$; then
+            printf '%s\n' 'BLOCKED: packaged runtime bundle appears to contain container/rootfs data'
+            missing=$((missing + 1))
+        else
+            printf '%s\n' 'OK: packaged runtime bundle listing has no container data'
+        fi
+        if grep -q '/build/work/\|/build/sources/\|build.ninja\|meson-private\|meson-info' /tmp/lxc-on-dsm-packaged-runtime-list.$$; then
+            printf '%s\n' 'BLOCKED: packaged runtime bundle appears to contain build intermediates'
+            missing=$((missing + 1))
+        else
+            printf '%s\n' 'OK: packaged runtime bundle listing has no build intermediates'
+        fi
+    else
+        cat /tmp/lxc-on-dsm-packaged-runtime-tar.$$
+        printf '%s\n' 'BLOCKED: packaged runtime bundle could not be listed'
+        missing=$((missing + 1))
+    fi
+    rm -f /tmp/lxc-on-dsm-packaged-runtime-list.$$ /tmp/lxc-on-dsm-packaged-runtime-tar.$$
+else
+    printf '%s\n' 'WARN: no runtime bundle packaged; SPK is management-only'
 fi
 
 printf '\n'

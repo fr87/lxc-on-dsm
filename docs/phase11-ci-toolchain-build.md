@@ -294,26 +294,24 @@ bash-completion symlinks. That is not treated as bundle failure because the
 authoritative bundle checks run on the Linux CI runner and the target platform
 is Linux/DSM.
 
-## Next hardware test gate
+## Production NAS boundary
 
-The next physical DS224+ step is a restore/dependency gate only. It should not
-start containers and should not change networking.
+The physical DS224+ is a production system and is not an approved test target.
+Do not run restore, dependency, install or container-start checks there.
 
-Copy the CI artifact bundle to the physical DS224+ repository workspace and run:
+The validated CI bundle can be packaged and carried forward as a lab artifact,
+but it remains unvalidated on physical DS224+ hardware until a separate,
+non-production lab NAS or equivalent disposable DSM target exists.
+
+The next package gate is therefore package-only:
 
 ```sh
-sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz
-sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz --target /volume1/@lxc/lab/opt
-if [ -e /volume1/@lxc/lab/opt ]; then mv /volume1/@lxc/lab/opt "/volume1/@lxc/lab/opt.previous.$(date -u +%Y%m%dT%H%M%SZ)"; fi
-sh scripts/restore-lxc-runtime-bundle.sh --bundle artifacts/lxc-runtime-bundle-20260820T161125Z.tar.gz --target /volume1/@lxc/lab/opt --install
-sh scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt
-sh scripts/verify-lxc-install.sh --prefix /volume1/@lxc/lab/opt
+sh scripts/assemble-spk-payload.sh \
+  --runtime-bundle build/gh-run-32390336678/ci-dsm-native-runtime-build/lxc-runtime-bundle-20260820T161125Z.tar.gz
+sh scripts/check-spk-payload.sh
+sh scripts/build-spk.sh
+sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 ```
 
-The `mv` step is intentionally recoverable. It is needed only when a previous
-runtime experiment already occupies `/volume1/@lxc/lab/opt`.
-
-If the dependency and install verification pass on the physical DS224+, the
-project can move to a controlled physical container creation test. If they fail,
-the failure should be treated as a runtime dependency/loader issue, not as a
-request to install Entware or build tools on the physical NAS.
+That package gate does not install the SPK, does not restore the runtime,
+does not start containers and does not change networking.
