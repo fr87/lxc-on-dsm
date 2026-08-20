@@ -1,3 +1,12 @@
+diff --git a/hooks/unmount-namespace.c b/hooks/unmount-namespace.c
+index b64dd92..f7bbd78 100644
+--- a/hooks/unmount-namespace.c
++++ b/hooks/unmount-namespace.c
+@@ -32,3 +32,3 @@
+ /* Define setns() if missing from the C library */
+-#if !HAVE_SETNS
++#if !HAVE_SETNS && !defined(__GLIBC__)
+ static inline int setns(int fd, int nstype)
 diff --git a/src/lxc/log.h b/src/lxc/log.h
 index 3d7d49d..9b3dc2a 100644
 --- a/src/lxc/log.h
