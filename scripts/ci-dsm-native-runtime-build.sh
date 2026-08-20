@@ -128,11 +128,14 @@ if [ "$extract" -eq 1 ]; then
 
     if [ "$include_base_env" -eq 1 ]; then
         mkdir -p "${extract_dir}/base"
-        tar -xJf "${download_dir}/base_env-${toolkit_version}.txz" -C "${extract_dir}/base"
+        tar --no-same-owner --no-same-permissions -xJf "${download_dir}/base_env-${toolkit_version}.txz" -C "${extract_dir}/base"
     fi
-    tar -xJf "${download_dir}/${toolchain_file}" -C "$syno_dir"
-    tar -xJf "${download_dir}/ds.${platform}-${toolkit_version}.env.txz" -C "$syno_dir"
-    tar -xJf "${download_dir}/ds.${platform}-${toolkit_version}.dev.txz" -C "$syno_dir"
+    tar --no-same-owner --no-same-permissions -xJf "${download_dir}/${toolchain_file}" -C "$syno_dir"
+    chmod -R u+w "$syno_dir" 2>/dev/null || true
+    tar --no-same-owner --no-same-permissions -xJf "${download_dir}/ds.${platform}-${toolkit_version}.env.txz" -C "$syno_dir"
+    chmod -R u+w "$syno_dir" 2>/dev/null || true
+    tar --no-same-owner --no-same-permissions -xJf "${download_dir}/ds.${platform}-${toolkit_version}.dev.txz" -C "$syno_dir"
+    chmod -R u+w "$syno_dir" 2>/dev/null || true
 
     {
         printf '%s\n' '# Toolchain path candidates'
