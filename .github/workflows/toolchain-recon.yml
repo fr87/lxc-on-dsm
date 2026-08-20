@@ -28,6 +28,11 @@ on:
         required: true
         type: boolean
         default: false
+      inspect_archives:
+        description: "Inspect archive layout after download"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -41,6 +46,7 @@ jobs:
       SYNO_PLATFORM: ${{ inputs.platform || 'geminilake' }}
       TOOLCHAIN_FILE: ${{ inputs.toolchain_file || 'geminilake-gcc1220_glibc236_x86_64-GPL.txz' }}
       DOWNLOAD_TOOLCHAIN: ${{ inputs.download_toolchain || contains(github.event.head_commit.message, '[download-toolchain]') || false }}
+      INSPECT_ARCHIVES: ${{ inputs.inspect_archives || false }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +59,10 @@ jobs:
         run: |
           args=""
           if [ "${DOWNLOAD_TOOLCHAIN}" = "true" ]; then
-            args="--download --inspect-archives --discard-downloads"
+            args="--download --discard-downloads"
+          fi
+          if [ "${INSPECT_ARCHIVES}" = "true" ]; then
+            args="${args} --inspect-archives"
           fi
           sh scripts/ci-toolchain-recon.sh \
             --dsm-version "${DSM_VERSION}" \

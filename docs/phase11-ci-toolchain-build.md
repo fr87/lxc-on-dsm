@@ -117,6 +117,7 @@ Manual runs accept:
 - platform, default `geminilake`
 - toolchain filename, default `geminilake-gcc1220_glibc236_x86_64-GPL.txz`
 - `download_toolchain`, default `false`
+- `inspect_archives`, default `false`
 
 The pinned archive MD5 values for the first candidate are:
 
@@ -141,6 +142,11 @@ still does not build LXC.
 To avoid uploading multi-gigabyte toolchain archives, the workflow discards
 downloaded tarballs after checksum verification. The artifact keeps only the
 manifest, reports and checksum evidence.
+
+Archive layout inspection is available as a manual `workflow_dispatch` option
+for targeted troubleshooting. It is not enabled by the `[download-toolchain]`
+push marker because listing compressed `.txz` archives can take materially
+longer than plain checksum validation on GitHub Actions.
 
 On push events, a full download/checksum reconnaissance runs only when the head
 commit message contains:
