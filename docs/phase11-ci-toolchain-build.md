@@ -331,6 +331,11 @@ the archive and uploads a separate `ci-runtime-spk` artifact. This still does
 not contact a DSM host, install the package, restore runtime files or start a
 container.
 
+The runtime build also carries forward the pinned Alpine minirootfs tarball when
+available. The SPK packaging gate embeds it as a container image seed so a later
+admin command can create a stopped container without fetching build-time
+dependencies on DSM.
+
 On Windows/Git-Bash, local extraction of the runtime bundle can fail on
 bash-completion symlinks even when the Linux/DSM bundle is valid. For local
 packaging only, the wrapper supports:

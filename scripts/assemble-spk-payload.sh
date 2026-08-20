@@ -3,18 +3,20 @@
 set -eu
 
 usage() {
-    printf '%s\n' "Usage: $0 [--package NAME] [--output DIRECTORY] [--runtime-bundle FILE]"
+    printf '%s\n' "Usage: $0 [--package NAME] [--output DIRECTORY] [--runtime-bundle FILE] [--rootfs-tar FILE]"
 }
 
 package_name=lxc-on-dsm
 output_root=build/spk-payload
 runtime_bundle=
+rootfs_tar=
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --package) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; package_name=$2; shift 2 ;;
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_root=$2; shift 2 ;;
         --runtime-bundle) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; runtime_bundle=$2; shift 2 ;;
+        --rootfs-tar) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; rootfs_tar=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
     esac
@@ -26,6 +28,13 @@ if [ -n "$runtime_bundle" ]; then
     case "$runtime_bundle" in
         *.tar.gz|*.tgz) ;;
         *) printf 'Runtime bundle must end with .tar.gz or .tgz: %s\n' "$runtime_bundle" >&2; exit 2 ;;
+    esac
+fi
+if [ -n "$rootfs_tar" ]; then
+    [ -r "$rootfs_tar" ] || { printf 'Missing rootfs tar: %s\n' "$rootfs_tar" >&2; exit 1; }
+    case "$rootfs_tar" in
+        *.tar.gz|*.tgz) ;;
+        *) printf 'Rootfs image must end with .tar.gz or .tgz: %s\n' "$rootfs_tar" >&2; exit 2 ;;
     esac
 fi
 
@@ -43,6 +52,9 @@ fi
 mkdir -p "${target_dir}/scripts" "${target_dir}/config" "$etc_dir" "$conf_dir" "$pkg_scripts_dir"
 if [ -n "$runtime_bundle" ]; then
     mkdir -p "${target_dir}/runtime"
+fi
+if [ -n "$rootfs_tar" ]; then
+    mkdir -p "${target_dir}/images"
 fi
 
 cp spk/INFO.template "${payload_dir}/INFO"
@@ -64,6 +76,7 @@ cp scripts/prepare-package-access.sh "${target_dir}/scripts/"
 cp scripts/restore-lxc-runtime-bundle.sh "${target_dir}/scripts/"
 cp scripts/check-lxc-runtime-deps.sh "${target_dir}/scripts/"
 cp scripts/install-packaged-runtime.sh "${target_dir}/scripts/"
+cp scripts/create-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/experimental/lxc-on-dsm-root-helper.sh "${target_dir}/scripts/"
 cp config/lab-macvlan.env.example "${etc_dir}/lab-macvlan.env.example"
 cp config/lab-macvlan.env.example "${target_dir}/config/lab-macvlan.env.example"
@@ -80,6 +93,21 @@ if [ -n "$runtime_bundle" ]; then
         printf '%s\n' '- package installation does not restore it automatically'
         printf '%s\n' '- package start does not create containers automatically'
     } >"${target_dir}/runtime/README.md"
+fi
+if [ -n "$rootfs_tar" ]; then
+    cp "$rootfs_tar" "${target_dir}/images/alpine-minirootfs.tar.gz"
+    {
+        printf '%s\n' '# Packaged container image manifest'
+        printf 'source_image=%s\n' "$rootfs_tar"
+        printf 'packaged_image=target/images/alpine-minirootfs.tar.gz\n'
+        printf 'generated_utc=%s\n' "$(date -u +%Y%m%dT%H%M%SZ)"
+        printf '\n'
+        printf '%s\n' '## Scope'
+        printf '%s\n' '- image is shipped as an opaque root filesystem seed'
+        printf '%s\n' '- package installation does not extract it automatically'
+        printf '%s\n' '- containers are created only by an explicit admin command'
+        printf '%s\n' '- container creation does not start the container'
+    } >"${target_dir}/images/README.md"
 fi
 
 chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
@@ -100,6 +128,7 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/restore-lxc-runtime-bundle.sh" \
     "${target_dir}/scripts/check-lxc-runtime-deps.sh" \
     "${target_dir}/scripts/install-packaged-runtime.sh" \
+    "${target_dir}/scripts/create-packaged-container.sh" \
     "${target_dir}/scripts/lxc-on-dsm-root-helper.sh"
 chmod 0644 "${etc_dir}/lab-macvlan.env.example" \
     "${target_dir}/config/lab-macvlan.env.example"
@@ -107,6 +136,11 @@ if [ -n "$runtime_bundle" ]; then
     chmod 0755 "${target_dir}/runtime"
     chmod 0644 "${target_dir}/runtime/lxc-runtime-bundle.tar.gz" \
         "${target_dir}/runtime/README.md"
+fi
+if [ -n "$rootfs_tar" ]; then
+    chmod 0755 "${target_dir}/images"
+    chmod 0644 "${target_dir}/images/alpine-minirootfs.tar.gz" \
+        "${target_dir}/images/README.md"
 fi
 
 {
@@ -123,5 +157,6 @@ printf '\n'
 printf 'package=%s\n' "$package_name"
 printf 'payload_dir=%s\n' "$payload_dir"
 [ -z "$runtime_bundle" ] || printf 'runtime_bundle=%s\n' "$runtime_bundle"
+[ -z "$rootfs_tar" ] || printf 'rootfs_tar=%s\n' "$rootfs_tar"
 printf '\n'
 printf '%s\n' 'Result: SPK PAYLOAD ASSEMBLED. No .spk was built or installed.'

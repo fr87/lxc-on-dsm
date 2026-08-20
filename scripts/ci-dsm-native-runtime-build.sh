@@ -290,6 +290,12 @@ if [ "$build_lxc" -eq 1 ]; then
     sh scripts/check-lxc-runtime-bundle.sh "$bundle"
     sh scripts/check-runtime-package-boundary.sh "$bundle"
 
+    alpine_image=$(find "$build_sources" -maxdepth 1 -name 'alpine-minirootfs-*.tar.gz' -print | sort | sed -n '1p')
+    if [ -n "$alpine_image" ]; then
+        cp "$alpine_image" "$output_dir/"
+        printf 'alpine_image=%s\n' "${output_dir}/$(basename "$alpine_image")" >>"$manifest"
+    fi
+
     {
         printf '\n'
         printf '%s\n' '## LXC runtime build'

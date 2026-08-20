@@ -351,10 +351,16 @@ The package also ships explicit helper scripts:
 target/scripts/install-packaged-runtime.sh
 target/scripts/restore-lxc-runtime-bundle.sh
 target/scripts/check-lxc-runtime-deps.sh
+target/scripts/create-packaged-container.sh
 ```
 
 `install-packaged-runtime.sh` is dry-run by default and requires `--install`
 before it writes `/volumeN/@lxc/lab/opt`.
+
+`create-packaged-container.sh` is also dry-run by default and requires
+`--create` before it writes a stopped container under
+`/volumeN/@lxc/lab/containers`. It does not start the container and does not
+change networking.
 
 The current package-only gate is:
 
@@ -377,6 +383,16 @@ The uploaded GitHub Actions artifact is named `ci-runtime-spk`. It contains the
 checked `.spk`, packaging logs and a short report, but it remains a lab
 candidate only. Package installation and runtime restoration are separate,
 explicit operations for a non-production DSM lab.
+
+When the CI runtime build has fetched the pinned Alpine minirootfs, the package
+gate embeds it as:
+
+```text
+target/images/alpine-minirootfs.tar.gz
+```
+
+The image is a seed artifact only. Package installation does not extract it
+automatically.
 
 For local Windows/Git-Bash packaging only, the CI wrapper can skip extracting
 the runtime bundle and rely on archive-listing checks instead:

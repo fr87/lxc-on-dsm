@@ -11,3 +11,5 @@ jobs:
         run: sh tests/check-analysis-safety.sh
       - name: Check report evaluator
         run: sh tests/check-evaluate-report.sh
+      - name: Check packaged container contract
+        run: sh tests/check-packaged-container-contract.sh

@@ -38,6 +38,7 @@ target/scripts/prepare-package-access.sh
 target/scripts/restore-lxc-runtime-bundle.sh
 target/scripts/check-lxc-runtime-deps.sh
 target/scripts/install-packaged-runtime.sh
+target/scripts/create-packaged-container.sh
 target/scripts/lxc-on-dsm-root-helper.sh
 "
 
@@ -131,6 +132,14 @@ if ! grep -q -- '--install' "${payload_dir}/target/scripts/install-packaged-runt
     printf '%s\n' 'MISSING: packaged runtime install wrapper explicit install gate'
     missing=$((missing + 1))
 fi
+if ! grep -q 'PACKAGED CONTAINER CREATE DRY RUN COMPLETE' "${payload_dir}/target/scripts/create-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container create dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'No container was started' "${payload_dir}/target/scripts/create-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container create no-start guarantee'
+    missing=$((missing + 1))
+fi
 if ! grep -q '0730' "${payload_dir}/target/scripts/prepare-package-access.sh"; then
     printf '%s\n' 'MISSING: package access script lifecycle-state write permission'
     missing=$((missing + 1))
@@ -176,6 +185,21 @@ if [ -e "${payload_dir}/target/runtime/lxc-runtime-bundle.tar.gz" ]; then
     rm -f /tmp/lxc-on-dsm-packaged-runtime-list.$$ /tmp/lxc-on-dsm-packaged-runtime-tar.$$
 else
     printf '%s\n' 'WARN: no runtime bundle packaged; SPK is management-only'
+fi
+if [ -e "${payload_dir}/target/images/alpine-minirootfs.tar.gz" ]; then
+    printf '%s\n' 'OK: packaged Alpine image is present'
+    if [ -r "${payload_dir}/target/images/README.md" ]; then
+        printf '%s\n' 'OK: packaged Alpine image manifest is present'
+    else
+        printf '%s\n' 'MISSING: packaged Alpine image manifest'
+        missing=$((missing + 1))
+    fi
+    if ! grep -q 'does not extract it automatically' "${payload_dir}/target/images/README.md"; then
+        printf '%s\n' 'MISSING: packaged Alpine image manifest does not document no-autoextract behavior'
+        missing=$((missing + 1))
+    fi
+else
+    printf '%s\n' 'WARN: no Alpine image packaged; container creation requires an external image'
 fi
 
 printf '\n'
