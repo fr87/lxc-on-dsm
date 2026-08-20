@@ -12,6 +12,11 @@ on:
         required: true
         type: boolean
         default: false
+      build_lxc:
+        description: "Build LXC and create runtime bundle"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -22,6 +27,7 @@ jobs:
     timeout-minutes: 45
     env:
       PREPARE_TOOLCHAIN: ${{ inputs.prepare_toolchain || contains(github.event.head_commit.message, '[prepare-dsm-build]') || false }}
+      BUILD_LXC: ${{ inputs.build_lxc || contains(github.event.head_commit.message, '[build-dsm-runtime]') || false }}
     steps:
       - uses: actions/checkout@v4
 
@@ -33,10 +39,18 @@ jobs:
           sh -n scripts/check-lxc-runtime-bundle.sh
           sh -n scripts/check-runtime-package-boundary.sh
 
+      - name: Install CI build dependencies
+        if: env.BUILD_LXC == 'true'
+        run: |
+          python3 -m pip install --user meson
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
       - name: Prepare DSM-native build workspace
         run: |
           args=""
-          if [ "${PREPARE_TOOLCHAIN}" = "true" ]; then
+          if [ "${BUILD_LXC}" = "true" ]; then
+            args="--build-lxc --discard-work"
+          elif [ "${PREPARE_TOOLCHAIN}" = "true" ]; then
             args="--download --extract --discard-work"
           fi
           sh scripts/ci-dsm-native-runtime-build.sh \

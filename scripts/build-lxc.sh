@@ -4,13 +4,15 @@ set -eu
 PATH="/opt/bin:/opt/sbin:${PATH}"
 
 usage() {
-    printf '%s\n' "Usage: $0 --prefix DIRECTORY [--manifest FILE] [--sources DIRECTORY] [--build DIRECTORY] [--install]"
+    printf '%s\n' "Usage: $0 --prefix DIRECTORY [--manifest FILE] [--sources DIRECTORY] [--build DIRECTORY] [--cross-file FILE] [--destdir DIRECTORY] [--install]"
 }
 
 manifest=manifests/lxc-userspace.env
 sources_dir="${PWD}/build/sources"
 build_dir="${PWD}/build/work"
 prefix=""
+cross_file=""
+destdir=""
 install_after_build=0
 
 while [ "$#" -gt 0 ]; do
@@ -19,6 +21,8 @@ while [ "$#" -gt 0 ]; do
         --sources) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; sources_dir=$2; shift 2 ;;
         --build) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; build_dir=$2; shift 2 ;;
         --prefix) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; prefix=$2; shift 2 ;;
+        --cross-file) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; cross_file=$2; shift 2 ;;
+        --destdir) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; destdir=$2; shift 2 ;;
         --install) install_after_build=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
@@ -50,6 +54,15 @@ case "$prefix" in
     /*) ;;
     *) printf 'Prefix must be an absolute path: %s\n' "$prefix" >&2; exit 2 ;;
 esac
+if [ -n "$cross_file" ]; then
+    [ -r "$cross_file" ] || { printf 'Missing cross file: %s\n' "$cross_file" >&2; exit 2; }
+fi
+if [ -n "$destdir" ]; then
+    case "$destdir" in
+        /*) ;;
+        *) printf 'DESTDIR must be an absolute path: %s\n' "$destdir" >&2; exit 2 ;;
+    esac
+fi
 
 lxc_tar="${sources_dir}/lxc-${LXC_VERSION}.tar.gz"
 [ -r "$lxc_tar" ] || {
@@ -75,7 +88,13 @@ if [ ! -f "$patch_stamp" ]; then
     : >"$patch_stamp"
 fi
 
-meson setup "$lxc_build" "$lxc_src" \
+meson_args=""
+if [ -n "$cross_file" ]; then
+    meson_args="${meson_args} --cross-file ${cross_file}"
+fi
+
+# shellcheck disable=SC2086
+meson setup "$lxc_build" "$lxc_src" $meson_args \
     --prefix "$prefix" \
     --sysconfdir etc \
     --localstatedir var \
@@ -91,8 +110,13 @@ meson setup "$lxc_build" "$lxc_src" \
 ninja -C "$lxc_build"
 
 if [ "$install_after_build" -eq 1 ]; then
-    meson install -C "$lxc_build"
-    printf 'LXC installed under %s\n' "$prefix"
+    if [ -n "$destdir" ]; then
+        DESTDIR="$destdir" meson install -C "$lxc_build"
+        printf 'LXC installed under %s%s\n' "$destdir" "$prefix"
+    else
+        meson install -C "$lxc_build"
+        printf 'LXC installed under %s\n' "$prefix"
+    fi
 else
     printf 'LXC build complete: %s\n' "$lxc_build"
     printf 'Install explicitly with: %s --prefix %s --install\n' "$0" "$prefix"

@@ -201,6 +201,24 @@ It still does not create a runtime bundle. The next gate after this preparation
 passes is to add the actual LXC cross-build step and then run the existing
 runtime/package-boundary checks in CI.
 
+The same workflow also has a first runtime-build gate. It is enabled only when:
+
+- `workflow_dispatch` input `build_lxc=true` is used; or
+- a push commit message contains `[build-dsm-runtime]`
+
+That build path downloads and extracts the Synology target toolchain/sysroot,
+installs CI-host Meson, builds LXC with a Meson cross file, stages installation
+under a CI-owned `DESTDIR`, creates an `lxc-runtime-bundle-*.tar.gz` artifact and
+runs:
+
+```sh
+sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
+sh scripts/check-runtime-package-boundary.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
+```
+
+Only after this CI runtime bundle passes those gates should the physical DS224+
+be used again for a restore/dependency dry-run.
+
 ## Validated download reconnaissance
 
 GitHub Actions run `31952595034` validated the first `geminilake` DSM 7.3

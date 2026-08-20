@@ -4,25 +4,34 @@
 set -eu
 
 usage() {
-    printf '%s\n' "Usage: $0 [--prefix DIRECTORY] [--output DIRECTORY]"
+    printf '%s\n' "Usage: $0 [--prefix DIRECTORY] [--output DIRECTORY] [--staged-prefix]"
 }
 
 prefix=/volume1/@lxc/lab/opt
 output_dir=artifacts
+staged_prefix=0
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --prefix) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; prefix=$2; shift 2 ;;
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_dir=$2; shift 2 ;;
+        --staged-prefix) staged_prefix=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
     esac
 done
 
-case "$prefix" in
-    /volume[0-9]*/@lxc/lab/opt) ;;
-    *) printf 'Refusing unexpected LXC prefix: %s\n' "$prefix" >&2; exit 2 ;;
-esac
+if [ "$staged_prefix" -eq 1 ]; then
+    case "$prefix" in
+        */volume[0-9]*/@lxc/lab/opt) ;;
+        *) printf 'Refusing unexpected staged LXC prefix: %s\n' "$prefix" >&2; exit 2 ;;
+    esac
+else
+    case "$prefix" in
+        /volume[0-9]*/@lxc/lab/opt) ;;
+        *) printf 'Refusing unexpected LXC prefix: %s\n' "$prefix" >&2; exit 2 ;;
+    esac
+fi
 
 [ -d "$prefix" ] || { printf 'Missing LXC prefix: %s\n' "$prefix" >&2; exit 1; }
 for binary in lxc-start lxc-info lxc-ls lxc-stop lxc-checkconfig; do

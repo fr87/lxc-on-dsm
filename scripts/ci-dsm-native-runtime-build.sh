@@ -4,7 +4,7 @@
 set -eu
 
 usage() {
-    printf '%s\n' "Usage: $0 [--output DIRECTORY] [--download] [--extract] [--include-base-env] [--discard-work]"
+    printf '%s\n' "Usage: $0 [--output DIRECTORY] [--download] [--extract] [--build-lxc] [--include-base-env] [--discard-work]"
 }
 
 dsm_version=7.3-86009
@@ -18,6 +18,7 @@ toolkit_dev_md5=cb6221764494afdbec7aa1a22ea3ad6a
 toolkit_env_md5=ec544e4e943da80f8b18163516c4ba46
 download=0
 extract=0
+build_lxc=0
 include_base_env=0
 discard_work=0
 output_dir=artifacts/ci-dsm-native-runtime-build
@@ -27,6 +28,7 @@ while [ "$#" -gt 0 ]; do
         --output) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; output_dir=$2; shift 2 ;;
         --download) download=1; shift ;;
         --extract) extract=1; download=1; shift ;;
+        --build-lxc) build_lxc=1; extract=1; download=1; shift ;;
         --include-base-env) include_base_env=1; shift ;;
         --discard-work) discard_work=1; shift ;;
         -h|--help) usage; exit 0 ;;
@@ -54,6 +56,7 @@ report="${output_dir}/dsm-native-runtime-build-${stamp}.md"
     printf 'toolchain_file=%s\n' "$toolchain_file"
     printf 'download=%s\n' "$download"
     printf 'extract=%s\n' "$extract"
+    printf 'build_lxc=%s\n' "$build_lxc"
     printf 'include_base_env=%s\n' "$include_base_env"
     printf 'discard_work=%s\n' "$discard_work"
     printf 'toolchain_url=%s\n' "$toolchain_url"
@@ -75,7 +78,11 @@ report="${output_dir}/dsm-native-runtime-build-${stamp}.md"
     printf '%s\n' '- does not touch any DSM host'
     printf '%s\n' '- does not install Entware'
     printf '%s\n' '- does not start containers'
-    printf '%s\n' '- does not create a runtime bundle yet'
+    if [ "$build_lxc" -eq 1 ]; then
+        printf '%s\n' '- creates a runtime bundle but does not test it on DSM'
+    else
+        printf '%s\n' '- does not create a runtime bundle yet'
+    fi
     printf '%s\n' '- skips Synology base_env unless explicitly requested'
 } >"$report"
 
@@ -116,15 +123,16 @@ fi
 if [ "$extract" -eq 1 ]; then
     command -v tar >/dev/null 2>&1 || { printf 'Missing tar\n' >&2; exit 1; }
     extract_dir="${work_dir}/extract"
-    mkdir -p "${extract_dir}/toolchain" "${extract_dir}/env" "${extract_dir}/dev"
+    syno_dir="${extract_dir}/synology"
+    mkdir -p "$syno_dir"
 
     if [ "$include_base_env" -eq 1 ]; then
         mkdir -p "${extract_dir}/base"
         tar -xJf "${download_dir}/base_env-${toolkit_version}.txz" -C "${extract_dir}/base"
     fi
-    tar -xJf "${download_dir}/${toolchain_file}" -C "${extract_dir}/toolchain"
-    tar -xJf "${download_dir}/ds.${platform}-${toolkit_version}.env.txz" -C "${extract_dir}/env"
-    tar -xJf "${download_dir}/ds.${platform}-${toolkit_version}.dev.txz" -C "${extract_dir}/dev"
+    tar -xJf "${download_dir}/${toolchain_file}" -C "$syno_dir"
+    tar -xJf "${download_dir}/ds.${platform}-${toolkit_version}.env.txz" -C "$syno_dir"
+    tar -xJf "${download_dir}/ds.${platform}-${toolkit_version}.dev.txz" -C "$syno_dir"
 
     {
         printf '%s\n' '# Toolchain path candidates'
@@ -150,17 +158,17 @@ if [ "$extract" -eq 1 ]; then
         fi
         printf '\n'
         printf '%s\n' '## Cross compiler candidates'
-        find "${extract_dir}/toolchain" "${extract_dir}/env" -type f \
+        find "$syno_dir" -type f \
             \( -name 'x86_64-pc-linux-gnu-gcc' -o -name 'x86_64-pc-linux-gnu-g++' -o -name gcc -o -name g++ \) \
             -print | sort | sed "s#^${extract_dir}/##" | sed -n '1,120p'
         printf '\n'
         printf '%s\n' '## Sysroot candidates'
-        find "${extract_dir}/env" "${extract_dir}/dev" -type d \
+        find "$syno_dir" -type d \
             \( -path '*/x86_64-pc-linux-gnu/*/sys-root' -o -path '*/usr/local/sysroot' \) \
             -print | sort | sed "s#^${extract_dir}/##" | sed -n '1,120p'
         printf '\n'
         printf '%s\n' '## Target loader candidates'
-        find "${extract_dir}/env" "${extract_dir}/dev" -type f -name 'ld-linux-x86-64.so.2' \
+        find "$syno_dir" -type f -name 'ld-linux-x86-64.so.2' \
             -print | sort | sed "s#^${extract_dir}/##" | sed -n '1,120p'
     } >"${output_dir}/toolchain-path-candidates.txt"
 
@@ -170,6 +178,88 @@ if [ "$extract" -eq 1 ]; then
         printf '\n'
         printf '```text\n'
         cat "${output_dir}/toolchain-path-candidates.txt"
+        printf '```\n'
+    } >>"$report"
+fi
+
+if [ "$build_lxc" -eq 1 ]; then
+    for tool in meson ninja pkg-config gcc g++ make patch curl tar gzip sed awk grep; do
+        command -v "$tool" >/dev/null 2>&1 || { printf 'Missing build tool: %s\n' "$tool" >&2; exit 1; }
+    done
+
+    cc_path=$(find "$syno_dir" -type f -path '*/usr/local/x86_64-pc-linux-gnu/bin/x86_64-pc-linux-gnu-gcc' | sort | sed -n '1p')
+    cxx_path=$(find "$syno_dir" -type f -path '*/usr/local/x86_64-pc-linux-gnu/bin/x86_64-pc-linux-gnu-g++' | sort | sed -n '1p')
+    ar_path=$(find "$syno_dir" -type f -path '*/usr/local/x86_64-pc-linux-gnu/bin/x86_64-pc-linux-gnu-ar' | sort | sed -n '1p')
+    strip_path=$(find "$syno_dir" -type f -path '*/usr/local/x86_64-pc-linux-gnu/bin/x86_64-pc-linux-gnu-strip' | sort | sed -n '1p')
+    sysroot_path=$(find "$syno_dir" -type d -path '*/usr/local/x86_64-pc-linux-gnu/x86_64-pc-linux-gnu/sys-root' | sort | sed -n '1p')
+    [ -n "$cc_path" ] || { printf 'Missing x86_64-pc-linux-gnu-gcc\n' >&2; exit 1; }
+    [ -n "$cxx_path" ] || { printf 'Missing x86_64-pc-linux-gnu-g++\n' >&2; exit 1; }
+    [ -n "$ar_path" ] || { printf 'Missing x86_64-pc-linux-gnu-ar\n' >&2; exit 1; }
+    [ -n "$strip_path" ] || { printf 'Missing x86_64-pc-linux-gnu-strip\n' >&2; exit 1; }
+    [ -n "$sysroot_path" ] || { printf 'Missing Synology sysroot\n' >&2; exit 1; }
+
+    cross_file="${output_dir}/meson-cross-${platform}.txt"
+    {
+        printf '%s\n' '[binaries]'
+        printf "c = '%s'\n" "$cc_path"
+        printf "cpp = '%s'\n" "$cxx_path"
+        printf "ar = '%s'\n" "$ar_path"
+        printf "strip = '%s'\n" "$strip_path"
+        printf "pkgconfig = '%s'\n" "$(command -v pkg-config)"
+        printf '\n'
+        printf '%s\n' '[properties]'
+        printf "sys_root = '%s'\n" "$sysroot_path"
+        printf "c_args = ['--sysroot=%s']\n" "$sysroot_path"
+        printf "cpp_args = ['--sysroot=%s']\n" "$sysroot_path"
+        printf "c_link_args = ['--sysroot=%s', '-Wl,--dynamic-linker=/lib64/ld-linux-x86-64.so.2']\n" "$sysroot_path"
+        printf "cpp_link_args = ['--sysroot=%s', '-Wl,--dynamic-linker=/lib64/ld-linux-x86-64.so.2']\n" "$sysroot_path"
+        printf '\n'
+        printf '%s\n' '[host_machine]'
+        printf "%s\n" "system = 'linux'"
+        printf "%s\n" "cpu_family = 'x86_64'"
+        printf "%s\n" "cpu = 'x86_64'"
+        printf "%s\n" "endian = 'little'"
+    } >"$cross_file"
+
+    build_sources="${work_dir}/sources"
+    build_work="${work_dir}/lxc-build"
+    destdir="${work_dir}/stage"
+    runtime_prefix=/volume1/@lxc/lab/opt
+    staged_prefix="${destdir}${runtime_prefix}"
+
+    PKG_CONFIG_SYSROOT_DIR="$sysroot_path"
+    PKG_CONFIG_LIBDIR="${sysroot_path}/usr/lib/pkgconfig:${sysroot_path}/usr/share/pkgconfig:${sysroot_path}/usr/lib64/pkgconfig"
+    export PKG_CONFIG_SYSROOT_DIR PKG_CONFIG_LIBDIR
+
+    sh scripts/fetch-sources.sh --output "$build_sources" --gpg-home "${work_dir}/gnupg"
+    sh scripts/build-lxc.sh \
+        --sources "$build_sources" \
+        --build "$build_work" \
+        --prefix "$runtime_prefix" \
+        --cross-file "$cross_file" \
+        --destdir "$destdir" \
+        --install
+
+    sh scripts/create-lxc-runtime-bundle.sh \
+        --prefix "$staged_prefix" \
+        --staged-prefix \
+        --output "$output_dir"
+
+    bundle=$(find "$output_dir" -maxdepth 1 -name 'lxc-runtime-bundle-*.tar.gz' -print | sort | sed -n '1p')
+    [ -n "$bundle" ] || { printf 'Runtime bundle was not created\n' >&2; exit 1; }
+    sh scripts/check-lxc-runtime-bundle.sh "$bundle"
+    sh scripts/check-runtime-package-boundary.sh "$bundle"
+
+    {
+        printf '\n'
+        printf '%s\n' '## LXC runtime build'
+        printf '\n'
+        printf '```text\n'
+        printf 'cross_file=%s\n' "$cross_file"
+        printf 'sysroot=%s\n' "$sysroot_path"
+        printf 'runtime_prefix=%s\n' "$runtime_prefix"
+        printf 'staged_prefix=%s\n' "$staged_prefix"
+        printf 'bundle=%s\n' "$bundle"
         printf '```\n'
     } >>"$report"
 fi
@@ -194,6 +284,7 @@ printf 'manifest=%s\n' "$manifest"
 printf 'report=%s\n' "$report"
 printf 'download=%s\n' "$download"
 printf 'extract=%s\n' "$extract"
+printf 'build_lxc=%s\n' "$build_lxc"
 printf 'include_base_env=%s\n' "$include_base_env"
 printf 'discard_work=%s\n' "$discard_work"
 printf '\n'
