@@ -175,52 +175,69 @@ if [ "$download" -eq 1 ]; then
         focus_file="${output_dir}/build-layout-focus.txt"
         : >"${output_dir}/archive-layout-summary.txt"
         : >"$focus_file"
+        {
+            printf '%s\n' '# Focused build layout'
+            printf '\n'
+        } >"$focus_file"
         for file in "$download_dir"/*.txz; do
             base=$(basename "$file")
             sample_file="${layout_dir}/${base}.sample.txt"
             hints_file="${layout_dir}/${base}.hints.txt"
             top_file="${layout_dir}/${base}.top-level.txt"
-            tar -tf "$file" | sed -n '1,400p' >"$sample_file"
-            tar -tf "$file" | sed 's#^\./##; s#/.*##' | sed '/^$/d' | sort -u >"$top_file"
-            {
-                tar -tf "$file" | grep -E '(^|/)(gcc|g\+\+|ld|as|strip|sysroot|libc\.so|ld-linux|pkg-config|pkgconf|cmake|meson|ninja)(/|$|[.-])' || true
-            } | sed -n '1,400p' >"$hints_file"
+            tmp_list="${layout_dir}/${base}.full-list.tmp"
+            tar -tf "$file" >"$tmp_list"
+            sed -n '1,400p' "$tmp_list" >"$sample_file"
+            sed 's#^\./##; s#/.*##' "$tmp_list" | sed '/^$/d' | sort -u >"$top_file"
+            grep -E '(^|/)(gcc|g\+\+|ld|as|strip|sysroot|libc\.so|ld-linux|pkg-config|pkgconf|cmake|meson|ninja)(/|$|[.-])' "$tmp_list" \
+                | sed -n '1,400p' >"$hints_file" || true
             {
                 printf '### %s\n' "$base"
-                printf 'entries=%s\n' "$(tar -tf "$file" | wc -l | tr -d ' ')"
+                printf 'entries=%s\n' "$(wc -l <"$tmp_list" | tr -d ' ')"
                 printf 'top_level=%s\n' "$(tr '\n' ' ' <"$top_file" | sed 's/[ ]*$//')"
                 printf 'sample_file=%s\n' "$(basename "$sample_file")"
                 printf 'hints_file=%s\n' "$(basename "$hints_file")"
                 printf '\n'
             } >>"${output_dir}/archive-layout-summary.txt"
+            case "$base" in
+                "$toolchain_file")
+                    {
+                        printf '%s\n' '## Cross compiler archive'
+                        printf '\n'
+                        grep -E '(^|/)x86_64-pc-linux-gnu-(gcc|g\+\+|cc|c\+\+|ld|ar|ranlib|strip)$|(^|/)bin/(gcc|g\+\+|ld|ar|ranlib|strip)$|sys-root/(lib64|lib|usr/lib)/(ld-linux-x86-64\.so\.2|libc\.so|libc\.so\.6)$' "$tmp_list" \
+                            | sed -n '1,240p' || true
+                        printf '\n'
+                    } >>"$focus_file"
+                    ;;
+                "ds.${platform}-${toolkit_version}.env.txz")
+                    {
+                        printf '%s\n' '## Toolkit env archive'
+                        printf '\n'
+                        grep -E 'usr/local/(sysroot|x86_64-pc-linux-gnu)|sys-root/(lib64|lib|usr/lib)/(ld-linux-x86-64\.so\.2|libc\.so|libc\.so\.6)$|/x86_64-pc-linux-gnu-(gcc|g\+\+|cc|c\+\+|ld|ar|ranlib|strip)$' "$tmp_list" \
+                            | sed -n '1,240p' || true
+                        printf '\n'
+                    } >>"$focus_file"
+                    ;;
+                "ds.${platform}-${toolkit_version}.dev.txz")
+                    {
+                        printf '%s\n' '## Toolkit dev archive'
+                        printf '\n'
+                        grep -E 'usr/local/x86_64-pc-linux-gnu/.*/sys-root/usr/(include|lib|lib64|share/pkgconfig|lib/pkgconfig)|\.(pc|cmake)$' "$tmp_list" \
+                            | sed -n '1,240p' || true
+                        printf '\n'
+                    } >>"$focus_file"
+                    ;;
+                "base_env-${toolkit_version}.txz")
+                    {
+                        printf '%s\n' '## Base build environment'
+                        printf '\n'
+                        grep -E '^usr/bin/(gcc|g\+\+|cc|c\+\+|meson|ninja|pkg-config|pkgconf|cmake|make|python3)$|^usr/lib.*/pkgconfig/.*\.pc$|^usr/share/pkgconfig/.*\.pc$' "$tmp_list" \
+                            | sed -n '1,240p' || true
+                        printf '\n'
+                    } >>"$focus_file"
+                    ;;
+            esac
+            rm -f "$tmp_list"
         done
-        {
-            printf '%s\n' '# Focused build layout'
-            printf '\n'
-            printf '%s\n' '## Cross compiler archive'
-            printf '\n'
-            tar -tf "${download_dir}/${toolchain_file}" \
-                | grep -E '(^|/)x86_64-pc-linux-gnu-(gcc|g\+\+|cc|c\+\+|ld|ar|ranlib|strip)$|(^|/)bin/(gcc|g\+\+|ld|ar|ranlib|strip)$|sys-root/(lib64|lib|usr/lib)/(ld-linux-x86-64\.so\.2|libc\.so|libc\.so\.6)$' \
-                | sed -n '1,240p' || true
-            printf '\n'
-            printf '%s\n' '## Toolkit env archive'
-            printf '\n'
-            tar -tf "${download_dir}/ds.${platform}-${toolkit_version}.env.txz" \
-                | grep -E 'usr/local/(sysroot|x86_64-pc-linux-gnu)|sys-root/(lib64|lib|usr/lib)/(ld-linux-x86-64\.so\.2|libc\.so|libc\.so\.6)$|/x86_64-pc-linux-gnu-(gcc|g\+\+|cc|c\+\+|ld|ar|ranlib|strip)$' \
-                | sed -n '1,240p' || true
-            printf '\n'
-            printf '%s\n' '## Toolkit dev archive'
-            printf '\n'
-            tar -tf "${download_dir}/ds.${platform}-${toolkit_version}.dev.txz" \
-                | grep -E 'usr/local/x86_64-pc-linux-gnu/.*/sys-root/usr/(include|lib|lib64|share/pkgconfig|lib/pkgconfig)|\.(pc|cmake)$' \
-                | sed -n '1,240p' || true
-            printf '\n'
-            printf '%s\n' '## Base build environment'
-            printf '\n'
-            tar -tf "${download_dir}/base_env-${toolkit_version}.txz" \
-                | grep -E '^usr/bin/(gcc|g\+\+|cc|c\+\+|meson|ninja|pkg-config|pkgconf|cmake|make|python3)$|^usr/lib.*/pkgconfig/.*\.pc$|^usr/share/pkgconfig/.*\.pc$' \
-                | sed -n '1,240p' || true
-        } >>"$focus_file"
     fi
     {
         printf '\n'
