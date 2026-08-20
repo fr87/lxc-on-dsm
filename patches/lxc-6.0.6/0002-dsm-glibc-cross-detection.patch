@@ -47,15 +47,30 @@ index 8db28ca..9441d19 100644
  			   char *const envp[], int flags)
  {
 diff --git a/src/lxc/syscall_wrappers.h b/src/lxc/syscall_wrappers.h
-index 7952920..7f86713 100644
+index 7952920..3e583d9 100644
 --- a/src/lxc/syscall_wrappers.h
 +++ b/src/lxc/syscall_wrappers.h
-@@ -151,7 +151,7 @@ static int faccessat(int __fd, const char *__file, int __type, int __flag)
- #define CLOSE_RANGE_CLOEXEC	(1U << 2)
- #endif
- 
+@@ -77,3 +77,3 @@ extern int pivot_root(const char *new_root, const char *put_old);
+ /* Define sethostname() if missing from the C library */
+-#if !HAVE_SETHOSTNAME
++#if !HAVE_SETHOSTNAME && !defined(__GLIBC__)
+ static inline int sethostname(const char *name, size_t len)
+@@ -85,3 +85,3 @@ static inline int sethostname(const char *name, size_t len)
+ /* Define setns() if missing from the C library */
+-#if !HAVE_SETNS
++#if !HAVE_SETNS && !defined(__GLIBC__)
+ static inline int setns(int fd, int nstype)
+@@ -128,3 +128,3 @@ static inline int signalfd(int fd, const sigset_t *mask, int flags)
+ /* Define unshare() if missing from the C library */
+-#if !HAVE_UNSHARE
++#if !HAVE_UNSHARE && !defined(__GLIBC__)
+ static inline int unshare(int flags)
+@@ -138,3 +138,3 @@ extern int unshare(int);
+ /* Define faccessat() if missing from the C library */
+-#if !HAVE_FACCESSAT
++#if !HAVE_FACCESSAT && !defined(__GLIBC__)
+ static int faccessat(int __fd, const char *__file, int __type, int __flag)
+@@ -154,3 +154,3 @@ static int faccessat(int __fd, const char *__file, int __type, int __flag)
 -#if !HAVE_CLOSE_RANGE
 +#if !HAVE_CLOSE_RANGE && !defined(__GLIBC__)
  static inline int close_range(unsigned int fd, unsigned int max_fd, unsigned int flags)
- {
- 	return syscall(__NR_close_range, fd, max_fd, flags);
