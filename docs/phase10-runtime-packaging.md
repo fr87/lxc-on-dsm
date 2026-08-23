@@ -114,12 +114,25 @@ The package also ships a persistent explicit start/stop pair:
 ```sh
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
+sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name alpine-empty --run -- hostname
 sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-empty
 ```
 
 Persistent `none` starts are intentionally refused. `none` remains a short
 smoke-test mode. Persistent package starts currently accept `empty` for isolated
 local containers and `macvlan` for DHCP/LAN containers.
+
+Because `lxc-attach` is not reliable on the current DSM kernel/userspace
+combination, persistent package starts support a small in-container hook instead:
+
+```text
+/etc/lxc-on-dsm/start.sh
+```
+
+If the file exists and is executable inside the container rootfs, the packaged
+start command runs it after DHCP evidence collection and records `hook_status`
+in the runtime state. This gives later service bootstrap work a path that does
+not depend on `lxc-attach`.
 
 Virtual DSM validation on 2026-08-23 installed a local runtime-bundled SPK with
 the package-owned macvlan DHCP test, created `alpine-packaged-lan` from the

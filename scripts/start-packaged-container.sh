@@ -133,6 +133,12 @@ if ! lxc-start -d -P "$state_dir" -n "$name" --logfile "$lxc_debug_log" --logpri
         printf "ip_plain=%s\n" "$ip_plain"
         printf "gateway=%s\n" "$gateway"
         printf "routes=%s\n" "$(ip route 2>/dev/null | tr "\n" "|" || true)"
+        hook_status=SKIPPED
+        if [ -x /etc/lxc-on-dsm/start.sh ]; then
+            /etc/lxc-on-dsm/start.sh >/tmp/lxc-on-dsm-start-hook.log 2>&1 && hook_status=OK || hook_status=FAIL
+        fi
+        printf "hook_status=%s\n" "$hook_status"
+        printf "hook_log=%s\n" "$(tr "\n" "|" </tmp/lxc-on-dsm-start-hook.log 2>/dev/null || true)"
     } >"$evidence"
     trap "exit 0" TERM INT
     while :; do sleep 3600; done
@@ -153,6 +159,7 @@ cat "$evidence_file" >>"$log_file"
 dhcp_status=$(sed -n 's/^dhcp_status=//p' "$evidence_file" | sed -n '1p')
 container_ip=$(sed -n 's/^ip_plain=//p' "$evidence_file" | sed -n '1p')
 gateway=$(sed -n 's/^gateway=//p' "$evidence_file" | sed -n '1p')
+hook_status=$(sed -n 's/^hook_status=//p' "$evidence_file" | sed -n '1p')
 
 {
     printf '%s\n' '# Packaged LXC container runtime state'
@@ -164,6 +171,7 @@ gateway=$(sed -n 's/^gateway=//p' "$evidence_file" | sed -n '1p')
     printf 'container_ip=%s\n' "$container_ip"
     printf 'gateway=%s\n' "$gateway"
     printf 'dhcp_status=%s\n' "$dhcp_status"
+    printf 'hook_status=%s\n' "$hook_status"
     printf 'log=%s\n' "$log_file"
     printf 'lxc_debug_log=%s\n' "$lxc_debug_log"
 } >"$runtime_state"
@@ -176,6 +184,7 @@ printf 'network_type=%s\n' "$network_type"
 printf 'container_ip=%s\n' "$container_ip"
 printf 'gateway=%s\n' "$gateway"
 printf 'dhcp_status=%s\n' "$dhcp_status"
+printf 'hook_status=%s\n' "$hook_status"
 printf 'runtime_state=%s\n' "$runtime_state"
 printf 'log=%s\n' "$log_file"
 printf 'lxc_debug_log=%s\n' "$lxc_debug_log"

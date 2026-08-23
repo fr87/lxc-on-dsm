@@ -230,6 +230,14 @@ sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alp
 Fuer dauerhafte Starts ist `none` absichtlich blockiert. `none` bleibt fuer den
 kurzen Smoke-Test reserviert; fuer einen isolierten persistenten Container wird
 `empty` verwendet, fuer LAN-Nutzbarkeit `macvlan`.
+
+`lxc-attach` bleibt ein Diagnosepfad, aber kein validierter Managementpfad: In
+Virtual DSM kann es an DSM-/Kernel-Seccomp- und Capability-Grenzen scheitern.
+Fuer spaetere Dienste im Container ist deshalb ein Start-Hook vorgesehen:
+
+```text
+/etc/lxc-on-dsm/start.sh
+```
 Der netzwerklose Smoke-Test ist ebenfalls als Paketbefehl enthalten und läuft
 direkt aus dem installierten SPK:
 
@@ -270,6 +278,7 @@ Package-owned macvlan DHCP test: OK, DHCP/gateway/internet reachable
 Package-owned inventory: OK, reports RUNNING/STOPPED with bundled runtime
 Package-owned persistent empty start/stop: OK
 Package-owned persistent macvlan start/stop: OK, DHCP OK
+Package-owned attach diagnostic: observed DSM seccomp/capability limitation
 Physical DS224+: not touched
 ```
 

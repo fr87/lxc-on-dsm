@@ -42,6 +42,7 @@ target/scripts/create-packaged-container.sh
 target/scripts/list-packaged-containers.sh
 target/scripts/start-packaged-container.sh
 target/scripts/stop-packaged-container.sh
+target/scripts/exec-packaged-container.sh
 target/scripts/run-packaged-smoke-test.sh
 target/scripts/run-packaged-macvlan-dhcp-test.sh
 target/scripts/lxc-on-dsm-root-helper.sh
@@ -133,6 +134,10 @@ if ! grep -q 'start-packaged-container.sh' "${payload_dir}/target/ui/index.html"
 fi
 if ! grep -q 'stop-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
     printf '%s\n' 'MISSING: DSM UI packaged stop command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'exec-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged exec command'
     missing=$((missing + 1))
 fi
 if ! grep -q 'navigator.clipboard' "${payload_dir}/target/ui/app.js"; then
@@ -231,6 +236,18 @@ if ! grep -q 'PACKAGED CONTAINER STOPPED' "${payload_dir}/target/scripts/stop-pa
 fi
 if ! grep -q 'Packaged container stop requires uid=0' "${payload_dir}/target/scripts/stop-packaged-container.sh"; then
     printf '%s\n' 'MISSING: packaged container stop root gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER EXEC DRY RUN COMPLETE' "${payload_dir}/target/scripts/exec-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container exec dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER EXEC COMPLETE' "${payload_dir}/target/scripts/exec-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container exec success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'Packaged container exec requires uid=0' "${payload_dir}/target/scripts/exec-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container exec root gate'
     missing=$((missing + 1))
 fi
 if ! grep -q 'PACKAGED SMOKE TEST PASSED' "${payload_dir}/target/scripts/run-packaged-smoke-test.sh"; then

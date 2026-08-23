@@ -15,6 +15,8 @@ grep -q 'empty|macvlan' "$starter"
 grep -q 'Refusing persistent start for lxc.net.0.type = none' "$starter"
 grep -q 'LD_LIBRARY_PATH=' "$starter"
 grep -q 'LXC_CONFIG_PATH=' "$starter"
+grep -q '/etc/lxc-on-dsm/start.sh' "$starter"
+grep -q 'hook_status=' "$starter"
 
 grep -q 'PACKAGED CONTAINER STOPPED' "$stopper"
 grep -q 'Packaged container stop requires uid=0' "$stopper"

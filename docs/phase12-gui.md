@@ -46,10 +46,12 @@ The page shows the reviewed admin command sequence:
 4. dry-run container creation;
 5. explicit stopped-container creation;
 6. explicit package container start/stop;
-7. package-owned networkless smoke test;
-8. optional package-owned macvlan DHCP/LAN probe;
-9. read-only lifecycle status;
-10. explicit root-helper start/stop.
+7. optional in-container start hook location;
+8. attach diagnostic for the known `lxc-attach` limitation;
+9. package-owned networkless smoke test;
+10. optional package-owned macvlan DHCP/LAN probe;
+11. read-only lifecycle status;
+12. explicit root-helper start/stop.
 
 The page also includes a client-side command builder for the common package
 container flow. It accepts only constrained container names and interface names,
@@ -61,7 +63,13 @@ then generates copyable commands for:
 - running the package-owned networkless smoke test;
 - creating a stopped macvlan test container;
 - running the macvlan DHCP/LAN probe in dry-run and explicit `--run` mode;
-- starting and stopping a package-created container explicitly.
+- starting and stopping a package-created container explicitly;
+- probing `lxc-attach` as a diagnostic only.
+
+`lxc-attach` is not presented as a validated management path. On the current
+DSM lab it can fail with seccomp/capability errors. The persistent start path
+therefore exposes `/etc/lxc-on-dsm/start.sh` as the preferred future bootstrap
+hook for services inside the container.
 
 The command builder deliberately separates `none` and `empty`: `none` remains a
 short smoke-test path, while persistent package container start is generated for

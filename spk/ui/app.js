@@ -43,6 +43,10 @@
             "sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name " + name + " --run"
         ].join("\n");
         var stop = "sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name " + name;
+        var exec = [
+            "sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name " + name + " --run -- hostname",
+            "sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name " + name + " --run -- /bin/sh"
+        ].join("\n");
         var test;
 
         if (network === "macvlan") {
@@ -56,6 +60,7 @@
             create += " --network-type none --create";
             start = "# Persistent start is intentionally disabled for lxc.net.0.type = none.\n# Use the smoke test below, or choose empty/macvlan for a running container.";
             stop = "# No persistent none-mode container was started by this flow.";
+            exec = "# No persistent none-mode container is running in this flow.";
             test = "sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-smoke-test.sh --name " + name;
             setText("builder-hint", "none mode is kept for the short smoke test only. For a persistent isolated container, choose empty mode.");
         } else {
@@ -69,6 +74,7 @@
         setText("cmd-test", test);
         setText("cmd-start", start);
         setText("cmd-stop", stop);
+        setText("cmd-exec", exec);
     }
 
     function wireCommandBuilder() {
