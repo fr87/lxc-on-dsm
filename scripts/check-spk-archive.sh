@@ -52,6 +52,8 @@ if [ -r "${tmp_dir}/INFO" ]; then
     grep -q '^package="lxc-on-dsm"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata name' || { printf '%s\n' 'MISSING: package metadata name'; missing=$((missing + 1)); }
     grep -q '^version="[0-9][0-9.]*-[0-9][0-9]*"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata version format' || { printf '%s\n' 'MISSING: DSM-compatible numeric package version'; missing=$((missing + 1)); }
     grep -q '^os_min_ver="7\.0-40000"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata os_min_ver' || { printf '%s\n' 'MISSING: DSM 7 compatible os_min_ver metadata'; missing=$((missing + 1)); }
+    grep -q '^dsmuidir="ui"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata dsmuidir' || { printf '%s\n' 'MISSING: DSM UI directory metadata'; missing=$((missing + 1)); }
+    grep -q '^dsmappname="com\.fr87\.LxcOnDsmLab"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: package metadata dsmappname' || { printf '%s\n' 'MISSING: DSM app name metadata'; missing=$((missing + 1)); }
     grep -q '^silent_install="no"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: silent_install disabled' || { printf '%s\n' 'MISSING: silent_install disabled'; missing=$((missing + 1)); }
     grep -q '^silent_upgrade="no"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: silent_upgrade disabled' || { printf '%s\n' 'MISSING: silent_upgrade disabled'; missing=$((missing + 1)); }
     grep -q '^silent_uninstall="no"$' "${tmp_dir}/INFO" && printf '%s\n' 'OK: silent_uninstall disabled' || { printf '%s\n' 'MISSING: silent_uninstall disabled'; missing=$((missing + 1)); }
@@ -89,6 +91,11 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
     grep -q 'scripts/create-packaged-container.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target packaged container create script present' || { printf '%s\n' 'MISSING: target packaged container create script'; missing=$((missing + 1)); }
     grep -q 'scripts/lxc-on-dsm-root-helper.sh' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target root helper present' || { printf '%s\n' 'MISSING: target root helper'; missing=$((missing + 1)); }
     grep -q 'config/lab-macvlan.env.example' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target profile example present' || { printf '%s\n' 'MISSING: target profile example'; missing=$((missing + 1)); }
+    grep -q 'ui/config' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI config present' || { printf '%s\n' 'MISSING: target DSM UI config'; missing=$((missing + 1)); }
+    grep -q 'ui/index.html' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI page present' || { printf '%s\n' 'MISSING: target DSM UI page'; missing=$((missing + 1)); }
+    grep -q 'ui/style.css' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI style present' || { printf '%s\n' 'MISSING: target DSM UI style'; missing=$((missing + 1)); }
+    grep -q '"url": "3rdparty/lxc-on-dsm/index.html"' "${tmp_dir}/package/ui/config" && printf '%s\n' 'OK: DSM UI local URL config' || { printf '%s\n' 'MISSING: DSM UI local URL config'; missing=$((missing + 1)); }
+    grep -q 'Package Center start/stop is intentionally blocked' "${tmp_dir}/package/ui/index.html" && printf '%s\n' 'OK: DSM UI explains root lifecycle gate' || { printf '%s\n' 'MISSING: DSM UI root lifecycle warning'; missing=$((missing + 1)); }
     grep -q -- '--logfile' "${tmp_dir}/package/scripts/start-macvlan-profile.sh" && printf '%s\n' 'OK: start script captures LXC debug logfile' || { printf '%s\n' 'MISSING: start script LXC debug logfile capture'; missing=$((missing + 1)); }
     grep -q '0730' "${tmp_dir}/package/scripts/prepare-package-access.sh" && printf '%s\n' 'OK: package access can allow lifecycle-state writes' || { printf '%s\n' 'MISSING: package access lifecycle-state write permission'; missing=$((missing + 1)); }
     grep -q 'LXC RUNTIME RESTORE DRY RUN PASS' "${tmp_dir}/package/scripts/restore-lxc-runtime-bundle.sh" && printf '%s\n' 'OK: runtime restore script defaults to dry-run' || { printf '%s\n' 'MISSING: runtime restore dry-run gate'; missing=$((missing + 1)); }

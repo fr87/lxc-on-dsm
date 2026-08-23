@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LXC on DSM Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <p class="eyebrow">Experimental lab package</p>
+            <h1>LXC on DSM Lab</h1>
+            <p>
+                Native LXC on DSM is powerful and sharp-edged. This first GUI
+                intentionally acts as a safe control panel: it documents package
+                paths and shows explicit root commands for reviewed lifecycle
+                gates.
+            </p>
+            <p class="warning">
+                Package Center start/stop is intentionally blocked for the
+                package user. Privileged operations require a reviewed root
+                shell command.
+            </p>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <h2>1. Check packaged runtime</h2>
+                <p>Dry-run dependency check. Does not restore files and does not start containers.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-runtime.sh</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>2. Restore runtime</h2>
+                <p>Explicitly restores the packaged LXC runtime under the lab prefix.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-runtime.sh --install</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>3. Plan container creation</h2>
+                <p>Shows the target paths for a stopped Alpine container. No files are written.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lab --network-type none</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>4. Create stopped container</h2>
+                <p>Creates the container rootfs and config. It does not start the container.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lab --network-type none --create</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>5. Lifecycle status</h2>
+                <p>Read-only doctor for the configured macvlan profile.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh status --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>6. Start/stop via root helper</h2>
+                <p>Starts or stops only the configured lab container after the profile is reviewed.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
+sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh stop --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>
+            </article>
+        </section>
+
+        <section class="notes">
+            <h2>Current boundaries</h2>
+            <ul>
+                <li>No automatic runtime restore during package install.</li>
+                <li>No automatic container creation or start during package install.</li>
+                <li>No Entware dependency on the DSM target.</li>
+                <li>No production readiness claim.</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

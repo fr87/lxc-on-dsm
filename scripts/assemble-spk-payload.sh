@@ -50,6 +50,9 @@ if [ -e "$payload_dir" ]; then
 fi
 
 mkdir -p "${target_dir}/scripts" "${target_dir}/config" "$etc_dir" "$conf_dir" "$pkg_scripts_dir"
+if [ -d spk/ui ]; then
+    mkdir -p "${target_dir}/ui"
+fi
 if [ -n "$runtime_bundle" ]; then
     mkdir -p "${target_dir}/runtime"
 fi
@@ -66,6 +69,11 @@ cp spk/scripts/preupgrade.template "${pkg_scripts_dir}/preupgrade"
 cp spk/scripts/postupgrade.template "${pkg_scripts_dir}/postupgrade"
 cp spk/scripts/preuninst.template "${pkg_scripts_dir}/preuninst"
 cp spk/scripts/postuninst.template "${pkg_scripts_dir}/postuninst"
+if [ -d spk/ui ]; then
+    cp spk/ui/config "${target_dir}/ui/config"
+    cp spk/ui/index.html "${target_dir}/ui/index.html"
+    cp spk/ui/style.css "${target_dir}/ui/style.css"
+fi
 
 cp scripts/start-macvlan-profile.sh "${target_dir}/scripts/"
 cp scripts/stop-macvlan-profile.sh "${target_dir}/scripts/"
@@ -136,6 +144,12 @@ if [ -n "$runtime_bundle" ]; then
     chmod 0755 "${target_dir}/runtime"
     chmod 0644 "${target_dir}/runtime/lxc-runtime-bundle.tar.gz" \
         "${target_dir}/runtime/README.md"
+fi
+if [ -d "${target_dir}/ui" ]; then
+    chmod 0755 "${target_dir}/ui"
+    chmod 0644 "${target_dir}/ui/config" \
+        "${target_dir}/ui/index.html" \
+        "${target_dir}/ui/style.css"
 fi
 if [ -n "$rootfs_tar" ]; then
     chmod 0755 "${target_dir}/images"

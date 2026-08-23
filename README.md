@@ -54,7 +54,7 @@ sh scripts/create-lab-container.sh --prefix /volume1/@lxc/lab/opt --name alpine-
 sh scripts/verify-lxc-runtime.sh --prefix /volume1/@lxc/lab/opt --name alpine-lab
 ```
 
-Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Phase 7 Resource Worker](docs/phase7-resource-worker.md), [Phase 8 Recovery](docs/phase8-recovery.md), [Phase 9 Hardware Lab](docs/phase9-hardware-lab.md), [Phase 10 Runtime Packaging](docs/phase10-runtime-packaging.md), [Phase 11 CI Toolchain Build](docs/phase11-ci-toolchain-build.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
+Siehe [Kompatibilitaets-Gate](docs/compatibility.md), [Phase 2 Userspace](docs/phase2-userspace.md), [Phase 3 First Container](docs/phase3-first-container.md), [Phase 3 Results](docs/phase3-results.md), [Phase 4 Network](docs/phase4-network.md), [Phase 4 Results](docs/phase4-results.md), [Phase 5 Lifecycle](docs/phase5-lifecycle.md), [Phase 6 SPK](docs/phase6-spk.md), [Phase 7 Resource Worker](docs/phase7-resource-worker.md), [Phase 8 Recovery](docs/phase8-recovery.md), [Phase 9 Hardware Lab](docs/phase9-hardware-lab.md), [Phase 10 Runtime Packaging](docs/phase10-runtime-packaging.md), [Phase 11 CI Toolchain Build](docs/phase11-ci-toolchain-build.md), [Phase 12 GUI](docs/phase12-gui.md), [Known Limitations](docs/known-limitations.md), [Entware Toolchain](docs/entware-build-toolchain.md), [Sicherheitsmodell](docs/safety.md), [Architektur](docs/architecture.md) und [Recovery-Plan](docs/recovery.md).
 
 Der erste reproduzierbare Runtime-Test ist bewusst netzwerklos:
 
@@ -205,6 +205,10 @@ Bundle, restauriert es aber nicht automatisch.
 Das Paket enthält außerdem einen trockenen Container-Erstellbefehl. Wenn ein
 Alpine-Image eingebettet ist, kann ein Admin später explizit einen gestoppten
 Container vorbereiten; gestartet wird er dadurch noch nicht.
+
+Ein erster DSM-GUI-Einstieg ist als lokale Paket-Seite enthalten. Er zeigt die
+reviewten Admin-Kommandos und die Sicherheitsgrenzen, führt aber noch keine
+privilegierten Aktionen im Browser aus.
 
 Eine echte Runtime-Restore- oder Container-Validierung bleibt blockiert, bis ein
 separater Nicht-Produktiv-DSM-Testhost verfuegbar ist.

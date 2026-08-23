@@ -15,6 +15,9 @@ spk/scripts/preupgrade.template
 spk/scripts/postupgrade.template
 spk/scripts/preuninst.template
 spk/scripts/postuninst.template
+spk/ui/config
+spk/ui/index.html
+spk/ui/style.css
 scripts/prepare-package-access.sh
 "
 
@@ -52,6 +55,22 @@ if ! grep -q '^os_min_ver="7\.0-40000"$' spk/INFO.template; then
     printf '%s\n' 'MISSING: DSM 7 compatible os_min_ver metadata'
     missing=$((missing + 1))
 fi
+if ! grep -q '^dsmuidir="ui"$' spk/INFO.template; then
+    printf '%s\n' 'MISSING: DSM UI directory metadata'
+    missing=$((missing + 1))
+fi
+if ! grep -q '^dsmappname="com\.fr87\.LxcOnDsmLab"$' spk/INFO.template; then
+    printf '%s\n' 'MISSING: DSM app name metadata'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"com.fr87.LxcOnDsmLab"' spk/ui/config; then
+    printf '%s\n' 'MISSING: DSM UI app config entry'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"url": "3rdparty/lxc-on-dsm/index.html"' spk/ui/config; then
+    printf '%s\n' 'MISSING: DSM UI local URL config'
+    missing=$((missing + 1))
+fi
 if ! grep -q '"run-as": "package"' spk/conf/privilege.template; then
     printf '%s\n' 'MISSING: DSM 7 package run-as declaration'
     missing=$((missing + 1))
@@ -68,12 +87,16 @@ if ! grep -q 'doctor-macvlan-profile.sh' spk/scripts/start-stop-status.template;
     printf '%s\n' 'MISSING: status wrapper does not call doctor'
     missing=$((missing + 1))
 fi
-if ! grep -q 'start-macvlan-profile.sh' spk/scripts/start-stop-status.template; then
-    printf '%s\n' 'MISSING: start wrapper does not call profile lifecycle start'
+if ! grep -q 'lxc-on-dsm-root-helper.sh' spk/scripts/start-stop-status.template; then
+    printf '%s\n' 'MISSING: start/stop wrapper does not point to installed root helper'
     missing=$((missing + 1))
 fi
-if ! grep -q 'stop-macvlan-profile.sh' spk/scripts/start-stop-status.template; then
-    printf '%s\n' 'MISSING: stop wrapper does not call profile lifecycle stop'
+if ! grep -q 'exec sh "$HELPER" start' spk/scripts/start-stop-status.template; then
+    printf '%s\n' 'MISSING: start wrapper does not delegate to root helper'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'exec sh "$HELPER" stop' spk/scripts/start-stop-status.template; then
+    printf '%s\n' 'MISSING: stop wrapper does not delegate to root helper'
     missing=$((missing + 1))
 fi
 if ! grep -q 'requires root on DSM' spk/scripts/start-stop-status.template; then

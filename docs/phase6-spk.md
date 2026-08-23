@@ -362,6 +362,9 @@ before it writes `/volumeN/@lxc/lab/opt`.
 `/volumeN/@lxc/lab/containers`. It does not start the container and does not
 change networking.
 
+The package also ships a first DSM Desktop UI entry under `target/ui`. This is
+documented in `docs/phase12-gui.md`.
+
 The current package-only gate is:
 
 ```sh

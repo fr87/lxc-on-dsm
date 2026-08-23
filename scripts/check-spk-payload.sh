@@ -40,6 +40,9 @@ target/scripts/check-lxc-runtime-deps.sh
 target/scripts/install-packaged-runtime.sh
 target/scripts/create-packaged-container.sh
 target/scripts/lxc-on-dsm-root-helper.sh
+target/ui/config
+target/ui/index.html
+target/ui/style.css
 "
 
 missing=0
@@ -80,6 +83,22 @@ if ! grep -q '/var/packages/${PACKAGE}/var/artifacts' "${payload_dir}/scripts/st
 fi
 if ! grep -q '"run-as": "package"' "${payload_dir}/conf/privilege"; then
     printf '%s\n' 'MISSING: DSM 7 package run-as declaration'
+    missing=$((missing + 1))
+fi
+if ! grep -q '^dsmuidir="ui"$' "${payload_dir}/INFO"; then
+    printf '%s\n' 'MISSING: DSM UI directory metadata'
+    missing=$((missing + 1))
+fi
+if ! grep -q '^dsmappname="com\.fr87\.LxcOnDsmLab"$' "${payload_dir}/INFO"; then
+    printf '%s\n' 'MISSING: DSM app name metadata'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"url": "3rdparty/lxc-on-dsm/index.html"' "${payload_dir}/target/ui/config"; then
+    printf '%s\n' 'MISSING: DSM UI local URL config'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'Package Center start/stop is intentionally blocked' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI root lifecycle warning'
     missing=$((missing + 1))
 fi
 if grep -q '"ctrl-script"' "${payload_dir}/conf/privilege"; then
