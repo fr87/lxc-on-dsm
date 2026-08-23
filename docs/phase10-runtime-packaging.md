@@ -54,16 +54,38 @@ sh scripts/check-lxc-runtime-deps.sh --prefix /volume1/@lxc/lab/opt
 
 ## Current hardware implication
 
-The Entware-built Virtual DSM runtime remains useful as proof that LXC works on
-DSM when the userspace can run. It is not the final hardware runtime, because
-its binaries use `/opt/lib/ld-linux-x86-64.so.2`.
+The Entware-built Virtual DSM runtime remains useful as early proof that LXC
+works on DSM when the userspace can run. It is not the final hardware runtime,
+because its binaries use `/opt/lib/ld-linux-x86-64.so.2`.
 
-The next hardware-ready candidate should be produced outside the physical NAS
-and should target the DSM system loader observed on the hardware:
+The current release-candidate runtime is produced outside the physical NAS by
+GitHub Actions and targets the DSM system loader observed on the hardware:
 
 ```text
 /lib64/ld-linux-x86-64.so.2
 ```
+
+Virtual DSM validation on 2026-08-23 replaced the old Entware-built lab runtime
+with the packaged CI runtime from run `32652387021`. The old runtime was moved
+aside as a recoverable VM-only backup, then the package-owned restore wrapper
+installed the bundled runtime into `/volume1/@lxc/lab/opt`. `lxc-start --version`
+reported `6.0.6`.
+
+The same Virtual DSM validation created a stopped `alpine-from-spk` container
+from the Alpine image embedded in the SPK and ran the netzwerklose smoke test
+successfully:
+
+```text
+hostname=alpine-from-spk
+kernel=4.4.302+
+pid1_comm=sh
+self_nspid=5
+cgroup_mounts=19
+net_devices=
+Result: SMOKE TEST PASSED. Container was started and stopped without networking.
+```
+
+The productive physical DS224+ was not contacted for this validation.
 
 ## Success criteria
 

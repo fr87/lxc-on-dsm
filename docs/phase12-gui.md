@@ -64,8 +64,35 @@ The package checks now verify:
 - the UI page explains the root lifecycle gate.
 
 Local gates passed for management-only SPK with UI and runtime-bundled SPK with
-UI and a test image seed. Both gates are package-only. No DSM host was
-contacted.
+UI and a test image seed. Both gates are package-only.
+
+Virtual DSM validation on 2026-08-23 installed the CI-built runtime-bundled SPK
+from GitHub Actions run `32652387021`. The installed package exposed:
+
+```text
+target/ui/config
+target/ui/index.html
+target/ui/style.css
+target/ui/app.js
+target/ui/status.json
+target/ui/images/icon_{16,24,32,48,64,72,256}.png
+target/runtime/lxc-runtime-bundle.tar.gz
+target/images/alpine-minirootfs.tar.gz
+```
+
+The installed `status.json` reported:
+
+```json
+{
+  "package": "lxc-on-dsm",
+  "version": "0.1.0-0010",
+  "mode": "experimental-lab",
+  "runtime_bundle_packaged": true,
+  "alpine_image_packaged": true
+}
+```
+
+The productive physical DS224+ was not contacted for this validation.
 
 ## References
 

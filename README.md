@@ -2,7 +2,13 @@
 
 Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. Zielplattform ist zunaechst eine **Synology DS224+ mit DSM 7.3.2-86009 Update 4**; Entwicklung und riskante Tests finden zuerst in Virtual DSM statt.
 
-> **Status:** Phase 7 in Virtual DSM erreicht: `0.1.0-0010` installiert den validierten Root-Helper als normales Paket-Tool, ohne setuid, sudoers oder `run-as=root`. Package Center `start` bleibt fuer den Paketnutzer blockiert; der installierte Helper-Start/Stop-Zyklus ist validiert.
+> **Status:** Phase 12/Release-Candidate-Pfad in Virtual DSM erreicht:
+> `0.1.0-0010` kann als CI-gebautes SPK Runtime-Bundle, Alpine-Image und
+> minimale DSM-GUI enthalten. In Virtual DSM wurde das SPK installiert, die
+> paketierte DSM-native Runtime restauriert, ein gestoppter Container aus dem
+> Paketimage erstellt und netzwerklos erfolgreich gestartet/gestoppt. Package
+> Center `start` bleibt fuer den Paketnutzer absichtlich blockiert; privilegierte
+> Start/Stop-Aktionen laufen nur ueber den expliziten Root-Helper.
 
 ## Analyse ausfuehren
 
@@ -187,7 +193,7 @@ sh scripts/check-recovery-bundle.sh artifacts/recovery-bundle-lxc-on-dsm-YYYYMMD
 ```
 
 Der physische DS224+ Host ist ein Produktivsystem und kein freigegebener
-Testhost. Der aktuelle Paketpfad bleibt daher auf CI-/Lab-Artefakte begrenzt.
+Testhost. Der aktuelle Paketpfad bleibt daher auf CI und Virtual DSM begrenzt.
 Ein SPK-Kandidat kann das in CI gebaute Runtime-Bundle einbetten, ohne das Paket
 zu installieren, Runtime-Dateien zu restaurieren oder Container zu starten:
 
@@ -200,7 +206,7 @@ sh scripts/check-spk-archive.sh --spk build/spk/lxc-on-dsm-0.1.0-0010.spk
 
 Alternativ kann die CI nach einem absichtlich aktivierten DSM-Runtime-Build ein
 geprüftes Artefakt `ci-runtime-spk` erzeugen. Dieses SPK enthält das Runtime-
-Bundle, restauriert es aber nicht automatisch.
+Bundle und das Alpine-Image, restauriert aber nichts automatisch.
 
 Das Paket enthält außerdem einen trockenen Container-Erstellbefehl. Wenn ein
 Alpine-Image eingebettet ist, kann ein Admin später explizit einen gestoppten
@@ -210,5 +216,15 @@ Ein erster DSM-GUI-Einstieg ist als lokale Paket-Seite enthalten. Er zeigt die
 reviewten Admin-Kommandos und die Sicherheitsgrenzen, führt aber noch keine
 privilegierten Aktionen im Browser aus.
 
-Eine echte Runtime-Restore- oder Container-Validierung bleibt blockiert, bis ein
-separater Nicht-Produktiv-DSM-Testhost verfuegbar ist.
+Virtual DSM validation snapshot:
+
+```text
+GitHub Actions run: 32652387021
+SPK: lxc-on-dsm-0.1.0-0010.spk
+Runtime bundle: lxc-runtime-bundle-20260823T164240Z.tar.gz
+Installed package: OK, stopped
+Packaged runtime restore: OK, lxc-start 6.0.6
+Packaged container create: OK, stopped, network type none
+Smoke test: OK, container started and stopped without networking
+Physical DS224+: not touched
+```
