@@ -44,6 +44,7 @@ jobs:
           sh -n scripts/check-spk-archive.sh
           sh -n scripts/ci-package-runtime-spk.sh
           sh -n scripts/create-packaged-container.sh
+          sh -n scripts/validate-packaged-spk-in-vdsm.sh
 
       - name: Install CI build dependencies
         if: env.BUILD_LXC == 'true'

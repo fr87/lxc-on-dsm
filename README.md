@@ -228,3 +228,23 @@ Packaged container create: OK, stopped, network type none
 Smoke test: OK, container started and stopped without networking
 Physical DS224+: not touched
 ```
+
+Der gleiche Virtual-DSM-Test ist als explizites Validierungsgate
+automatisierbar. Es bleibt absichtlich scharf gesichert: Paketinstallation,
+Runtime-Restore, Containeranlage und Smoke-Test werden nur mit den jeweiligen
+Flags ausgeführt:
+
+```sh
+sh scripts/validate-packaged-spk-in-vdsm.sh \
+  --spk /volume1/Dev/lxc-on-dsm/build/ci-runtime-spk-32652387021/spk/lxc-on-dsm-0.1.0-0010.spk \
+  --container alpine-from-spk-2 \
+  --install-package \
+  --restore-runtime \
+  --backup-existing-runtime \
+  --create-container \
+  --smoke
+```
+
+Wenn `/volume1/@lxc/lab/opt` bereits die aktuelle paketierte Runtime enthält,
+`--restore-runtime --backup-existing-runtime` weglassen und nur Containeranlage
+plus Smoke-Test wiederholen.

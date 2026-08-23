@@ -87,6 +87,36 @@ Result: SMOKE TEST PASSED. Container was started and stopped without networking.
 
 The productive physical DS224+ was not contacted for this validation.
 
+## Repeatable Virtual DSM validation gate
+
+The manual Virtual DSM sequence is captured by
+`scripts/validate-packaged-spk-in-vdsm.sh`. The script is not an unattended
+production installer. It requires explicit flags for every mutating phase:
+
+- `--install-package` for `/usr/syno/bin/synopkg install`;
+- `--restore-runtime` for restoring the packaged runtime;
+- `--backup-existing-runtime` before an existing non-empty runtime prefix is
+  moved aside;
+- `--create-container` for creating a stopped container from the packaged
+  Alpine image;
+- `--smoke` for one networkless start/stop smoke test.
+
+Example for a disposable Virtual DSM lab:
+
+```sh
+sh scripts/validate-packaged-spk-in-vdsm.sh \
+  --spk /volume1/Dev/lxc-on-dsm/build/ci-runtime-spk-32652387021/spk/lxc-on-dsm-0.1.0-0010.spk \
+  --container alpine-from-spk-2 \
+  --install-package \
+  --restore-runtime \
+  --backup-existing-runtime \
+  --create-container \
+  --smoke
+```
+
+If the packaged runtime is already restored and should be kept, omit
+`--restore-runtime --backup-existing-runtime` and choose a fresh container name.
+
 ## Success criteria
 
 A runtime candidate is hardware-packaging ready when:
