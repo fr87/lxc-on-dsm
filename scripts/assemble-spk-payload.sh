@@ -52,6 +52,7 @@ fi
 mkdir -p "${target_dir}/scripts" "${target_dir}/config" "$etc_dir" "$conf_dir" "$pkg_scripts_dir"
 if [ -d spk/ui ]; then
     mkdir -p "${target_dir}/ui"
+    mkdir -p "${target_dir}/ui/images"
 fi
 if [ -n "$runtime_bundle" ]; then
     mkdir -p "${target_dir}/runtime"
@@ -73,6 +74,10 @@ if [ -d spk/ui ]; then
     cp spk/ui/config "${target_dir}/ui/config"
     cp spk/ui/index.html "${target_dir}/ui/index.html"
     cp spk/ui/style.css "${target_dir}/ui/style.css"
+    cp spk/ui/app.js "${target_dir}/ui/app.js"
+    for icon_size in 16 24 32 48 64 72 256; do
+        base64 -d spk/ui/images/icon.png.b64 >"${target_dir}/ui/images/icon_${icon_size}.png"
+    done
 fi
 
 cp scripts/start-macvlan-profile.sh "${target_dir}/scripts/"
@@ -117,6 +122,25 @@ if [ -n "$rootfs_tar" ]; then
         printf '%s\n' '- container creation does not start the container'
     } >"${target_dir}/images/README.md"
 fi
+if [ -d spk/ui ]; then
+    {
+        printf '%s\n' '{'
+        printf '  "package": "%s",\n' "$package_name"
+        sed -n 's/^version="\([^"]*\)"$/  "version": "\1",/p' spk/INFO.template
+        printf '  "mode": "experimental-lab",\n'
+        if [ -n "$runtime_bundle" ]; then
+            printf '%s\n' '  "runtime_bundle_packaged": true,'
+        else
+            printf '%s\n' '  "runtime_bundle_packaged": false,'
+        fi
+        if [ -n "$rootfs_tar" ]; then
+            printf '%s\n' '  "alpine_image_packaged": true'
+        else
+            printf '%s\n' '  "alpine_image_packaged": false'
+        fi
+        printf '%s\n' '}'
+    } >"${target_dir}/ui/status.json"
+fi
 
 chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "$etc_dir" "$conf_dir" "$pkg_scripts_dir" \
@@ -146,10 +170,19 @@ if [ -n "$runtime_bundle" ]; then
         "${target_dir}/runtime/README.md"
 fi
 if [ -d "${target_dir}/ui" ]; then
-    chmod 0755 "${target_dir}/ui"
+    chmod 0755 "${target_dir}/ui" "${target_dir}/ui/images"
     chmod 0644 "${target_dir}/ui/config" \
         "${target_dir}/ui/index.html" \
-        "${target_dir}/ui/style.css"
+        "${target_dir}/ui/style.css" \
+        "${target_dir}/ui/app.js" \
+        "${target_dir}/ui/status.json" \
+        "${target_dir}/ui/images/icon_16.png" \
+        "${target_dir}/ui/images/icon_24.png" \
+        "${target_dir}/ui/images/icon_32.png" \
+        "${target_dir}/ui/images/icon_48.png" \
+        "${target_dir}/ui/images/icon_64.png" \
+        "${target_dir}/ui/images/icon_72.png" \
+        "${target_dir}/ui/images/icon_256.png"
 fi
 if [ -n "$rootfs_tar" ]; then
     chmod 0755 "${target_dir}/images"

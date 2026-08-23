@@ -25,6 +25,9 @@ and ships:
 target/ui/config
 target/ui/index.html
 target/ui/style.css
+target/ui/app.js
+target/ui/status.json
+target/ui/images/icon_{16,24,32,48,64,72,256}.png
 ```
 
 The UI config registers `com.fr87.LxcOnDsmLab` as a local URL app:
@@ -47,29 +50,22 @@ The page shows the reviewed admin command sequence:
 It does not execute commands in the browser, does not run as root, does not
 restore runtime files, does not create containers and does not start containers.
 
+The page reads a static `status.json` manifest generated at package assembly
+time. This is intentionally build/package state only, not live host state.
+
 ## Validation gates
 
 The package checks now verify:
 
 - `dsmuidir` and `dsmappname` metadata exist in `INFO`;
-- `target/ui/config`, `target/ui/index.html` and `target/ui/style.css` are
-  present in `package.tgz`;
+- `target/ui/config`, HTML/CSS/JS, status manifest and icon files are present in
+  `package.tgz`;
 - the UI config points to the local package URL;
 - the UI page explains the root lifecycle gate.
 
-Local gates passed for:
-
-- management-only SPK with UI;
-- runtime-bundled SPK with UI and a test image seed.
-
-Both gates are package-only. No DSM host was contacted.
-
-## Known open item
-
-The first GUI version intentionally ships no custom icon. Synology's Application
-Config documentation describes an `icon` property for URL applications. If
-Virtual DSM shows the app without an acceptable icon or rejects the shortcut,
-add package icon assets as the next small GUI follow-up.
+Local gates passed for management-only SPK with UI and runtime-bundled SPK with
+UI and a test image seed. Both gates are package-only. No DSM host was
+contacted.
 
 ## References
 

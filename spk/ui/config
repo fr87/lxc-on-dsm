@@ -4,6 +4,7 @@
             "type": "url",
             "title": "LXC on DSM Lab",
             "desc": "Experimental native LXC lab package control panel",
+            "icon": "images/icon_{0}.png",
             "url": "3rdparty/lxc-on-dsm/index.html",
             "allUsers": false
         }

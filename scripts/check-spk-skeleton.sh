@@ -18,6 +18,8 @@ spk/scripts/postuninst.template
 spk/ui/config
 spk/ui/index.html
 spk/ui/style.css
+spk/ui/app.js
+spk/ui/images/icon.png.b64
 scripts/prepare-package-access.sh
 "
 
@@ -69,6 +71,14 @@ if ! grep -q '"com.fr87.LxcOnDsmLab"' spk/ui/config; then
 fi
 if ! grep -q '"url": "3rdparty/lxc-on-dsm/index.html"' spk/ui/config; then
     printf '%s\n' 'MISSING: DSM UI local URL config'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"icon": "images/icon_{0}.png"' spk/ui/config; then
+    printf '%s\n' 'MISSING: DSM UI icon config'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'status.json' spk/ui/app.js; then
+    printf '%s\n' 'MISSING: DSM UI status manifest fetch'
     missing=$((missing + 1))
 fi
 if ! grep -q '"run-as": "package"' spk/conf/privilege.template; then

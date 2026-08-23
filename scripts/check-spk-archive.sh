@@ -94,7 +94,11 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
     grep -q 'ui/config' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI config present' || { printf '%s\n' 'MISSING: target DSM UI config'; missing=$((missing + 1)); }
     grep -q 'ui/index.html' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI page present' || { printf '%s\n' 'MISSING: target DSM UI page'; missing=$((missing + 1)); }
     grep -q 'ui/style.css' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI style present' || { printf '%s\n' 'MISSING: target DSM UI style'; missing=$((missing + 1)); }
+    grep -q 'ui/app.js' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI script present' || { printf '%s\n' 'MISSING: target DSM UI script'; missing=$((missing + 1)); }
+    grep -q 'ui/status.json' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI status manifest present' || { printf '%s\n' 'MISSING: target DSM UI status manifest'; missing=$((missing + 1)); }
+    grep -q 'ui/images/icon_64.png' "${tmp_dir}/package-files.txt" && printf '%s\n' 'OK: target DSM UI icon present' || { printf '%s\n' 'MISSING: target DSM UI icon'; missing=$((missing + 1)); }
     grep -q '"url": "3rdparty/lxc-on-dsm/index.html"' "${tmp_dir}/package/ui/config" && printf '%s\n' 'OK: DSM UI local URL config' || { printf '%s\n' 'MISSING: DSM UI local URL config'; missing=$((missing + 1)); }
+    grep -q '"icon": "images/icon_{0}.png"' "${tmp_dir}/package/ui/config" && printf '%s\n' 'OK: DSM UI icon config' || { printf '%s\n' 'MISSING: DSM UI icon config'; missing=$((missing + 1)); }
     grep -q 'Package Center start/stop is intentionally blocked' "${tmp_dir}/package/ui/index.html" && printf '%s\n' 'OK: DSM UI explains root lifecycle gate' || { printf '%s\n' 'MISSING: DSM UI root lifecycle warning'; missing=$((missing + 1)); }
     grep -q -- '--logfile' "${tmp_dir}/package/scripts/start-macvlan-profile.sh" && printf '%s\n' 'OK: start script captures LXC debug logfile' || { printf '%s\n' 'MISSING: start script LXC debug logfile capture'; missing=$((missing + 1)); }
     grep -q '0730' "${tmp_dir}/package/scripts/prepare-package-access.sh" && printf '%s\n' 'OK: package access can allow lifecycle-state writes' || { printf '%s\n' 'MISSING: package access lifecycle-state write permission'; missing=$((missing + 1)); }

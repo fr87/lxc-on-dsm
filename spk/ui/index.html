@@ -24,6 +24,29 @@
             </p>
         </section>
 
+        <section class="status">
+            <div>
+                <span>Package</span>
+                <strong id="status-package">loading</strong>
+            </div>
+            <div>
+                <span>Version</span>
+                <strong id="status-version">loading</strong>
+            </div>
+            <div>
+                <span>Runtime bundle</span>
+                <strong id="status-runtime">loading</strong>
+            </div>
+            <div>
+                <span>Alpine image</span>
+                <strong id="status-image">loading</strong>
+            </div>
+            <div>
+                <span>Mode</span>
+                <strong id="status-mode">loading</strong>
+            </div>
+        </section>
+
         <section class="grid">
             <article class="card">
                 <h2>1. Check packaged runtime</h2>
@@ -73,5 +96,6 @@ sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh stop --prof
             </ul>
         </section>
     </main>
+    <script src="app.js"></script>
 </body>
 </html>

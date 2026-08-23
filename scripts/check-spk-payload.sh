@@ -43,6 +43,15 @@ target/scripts/lxc-on-dsm-root-helper.sh
 target/ui/config
 target/ui/index.html
 target/ui/style.css
+target/ui/app.js
+target/ui/status.json
+target/ui/images/icon_16.png
+target/ui/images/icon_24.png
+target/ui/images/icon_32.png
+target/ui/images/icon_48.png
+target/ui/images/icon_64.png
+target/ui/images/icon_72.png
+target/ui/images/icon_256.png
 "
 
 missing=0
@@ -97,8 +106,16 @@ if ! grep -q '"url": "3rdparty/lxc-on-dsm/index.html"' "${payload_dir}/target/ui
     printf '%s\n' 'MISSING: DSM UI local URL config'
     missing=$((missing + 1))
 fi
+if ! grep -q '"icon": "images/icon_{0}.png"' "${payload_dir}/target/ui/config"; then
+    printf '%s\n' 'MISSING: DSM UI icon config'
+    missing=$((missing + 1))
+fi
 if ! grep -q 'Package Center start/stop is intentionally blocked' "${payload_dir}/target/ui/index.html"; then
     printf '%s\n' 'MISSING: DSM UI root lifecycle warning'
+    missing=$((missing + 1))
+fi
+if ! grep -q '"runtime_bundle_packaged":' "${payload_dir}/target/ui/status.json"; then
+    printf '%s\n' 'MISSING: DSM UI runtime bundle status'
     missing=$((missing + 1))
 fi
 if grep -q '"ctrl-script"' "${payload_dir}/conf/privilege"; then
