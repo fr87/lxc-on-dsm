@@ -3,14 +3,18 @@
 set -eu
 
 usage() {
-    printf '%s\n' "Usage: $0 --spk FILE"
+    printf '%s\n' "Usage: $0 --spk FILE [--require-runtime-bundle] [--require-alpine-image]"
 }
 
 spk_file=
+require_runtime_bundle=0
+require_alpine_image=0
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --spk) [ "$#" -ge 2 ] || { usage >&2; exit 2; }; spk_file=$2; shift 2 ;;
+        --require-runtime-bundle) require_runtime_bundle=1; shift ;;
+        --require-alpine-image) require_alpine_image=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) printf 'Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
     esac
@@ -32,6 +36,8 @@ missing=0
 printf '%s\n' '# Experimental SPK archive check'
 printf '\n'
 printf 'spk=%s\n' "$spk_file"
+printf 'require_runtime_bundle=%s\n' "$require_runtime_bundle"
+printf 'require_alpine_image=%s\n' "$require_alpine_image"
 printf '\n'
 
 for top in INFO conf scripts package.tgz; do
@@ -156,6 +162,10 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
         fi
     else
         printf '%s\n' 'WARN: archive does not include a runtime bundle; package is management-only'
+        if [ "$require_runtime_bundle" -eq 1 ]; then
+            printf '%s\n' 'MISSING: runtime-bundled release candidate requires runtime/lxc-runtime-bundle.tar.gz'
+            missing=$((missing + 1))
+        fi
     fi
     if grep -q 'images/alpine-minirootfs.tar.gz' "${tmp_dir}/package-files.txt"; then
         printf '%s\n' 'OK: packaged Alpine image present'
@@ -166,6 +176,10 @@ if [ -r "${tmp_dir}/package.tgz" ]; then
         fi
     else
         printf '%s\n' 'WARN: archive does not include an Alpine image; package cannot create a default container offline'
+        if [ "$require_alpine_image" -eq 1 ]; then
+            printf '%s\n' 'MISSING: runtime-bundled release candidate requires images/alpine-minirootfs.tar.gz'
+            missing=$((missing + 1))
+        fi
     fi
     if grep -q 'build.ninja\|meson-private\|meson-info\|/build/work/\|/build/sources/' "${tmp_dir}/package-files.txt"; then
         printf '%s\n' 'BLOCKED: archive contains build intermediates or source/build trees'

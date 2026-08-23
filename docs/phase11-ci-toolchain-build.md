@@ -91,8 +91,9 @@ Phase 11 must not:
    confirmed.
 5. Package only the installed runtime prefix into a runtime bundle.
 6. Run runtime/package-boundary gates in CI.
-7. Download the CI runtime artifact and test only the restore dry-run and
-   dependency gates on the physical DS224+.
+7. Download the CI runtime artifact and test restore/dependency gates only on a
+   deliberately approved lab host. For the current project boundary that means
+   Virtual DSM first, not the productive physical DS224+.
 
 ## Current decision
 
@@ -216,8 +217,26 @@ sh scripts/check-lxc-runtime-bundle.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHM
 sh scripts/check-runtime-package-boundary.sh artifacts/lxc-runtime-bundle-YYYYMMDDTHHMMSSZ.tar.gz
 ```
 
-Only after this CI runtime bundle passes those gates should the physical DS224+
-be used again for a restore/dependency dry-run.
+Only after this CI runtime bundle passes those gates should it be considered for
+a deliberately approved lab restore/dependency dry-run. The productive physical
+DS224+ is not part of the current test scope.
+
+## Runtime-bundled SPK release-candidate gate
+
+The CI runtime build can also assemble an SPK that embeds the reviewed runtime
+bundle and the pinned Alpine minirootfs image. That SPK is still not installed
+or executed in CI, but it must pass the stricter archive gate:
+
+```sh
+sh scripts/check-spk-archive.sh \
+  --spk artifacts/ci-runtime-spk/spk/lxc-on-dsm-0.1.0-0010.spk \
+  --require-runtime-bundle \
+  --require-alpine-image
+```
+
+This stricter mode is intentionally different from the management-only local
+SPK check. A management-only package may warn when runtime/image artifacts are
+absent. A release-candidate package must fail if either artifact is missing.
 
 ## Validated download reconnaissance
 

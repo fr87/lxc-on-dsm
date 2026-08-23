@@ -90,7 +90,10 @@ sh scripts/build-spk.sh \
 spk=$(find "$spk_dir" -maxdepth 1 -name 'lxc-on-dsm-*.spk' -print | sort | sed -n '1p')
 [ -n "$spk" ] || { printf 'SPK was not created in: %s\n' "$spk_dir" >&2; exit 1; }
 
-sh scripts/check-spk-archive.sh --spk "$spk" >"${output_dir}/check-spk-archive.txt"
+sh scripts/check-spk-archive.sh \
+    --spk "$spk" \
+    --require-runtime-bundle \
+    --require-alpine-image >"${output_dir}/check-spk-archive.txt"
 
 {
     printf '%s\n' '# CI runtime-bundled SPK package'
