@@ -40,6 +40,7 @@ target/scripts/check-lxc-runtime-deps.sh
 target/scripts/install-packaged-runtime.sh
 target/scripts/create-packaged-container.sh
 target/scripts/run-packaged-smoke-test.sh
+target/scripts/run-packaged-macvlan-dhcp-test.sh
 target/scripts/lxc-on-dsm-root-helper.sh
 target/ui/config
 target/ui/index.html
@@ -183,6 +184,14 @@ if ! grep -q 'PACKAGED SMOKE TEST PASSED' "${payload_dir}/target/scripts/run-pac
 fi
 if ! grep -q 'lxc.net.0.type = none' "${payload_dir}/target/scripts/run-packaged-smoke-test.sh"; then
     printf '%s\n' 'MISSING: packaged smoke test networkless guard'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED MACVLAN DHCP TEST DRY RUN COMPLETE' "${payload_dir}/target/scripts/run-packaged-macvlan-dhcp-test.sh"; then
+    printf '%s\n' 'MISSING: packaged macvlan DHCP dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'lxc.net.0.type = macvlan' "${payload_dir}/target/scripts/run-packaged-macvlan-dhcp-test.sh"; then
+    printf '%s\n' 'MISSING: packaged macvlan DHCP config guard'
     missing=$((missing + 1))
 fi
 if ! grep -q '0730' "${payload_dir}/target/scripts/prepare-package-access.sh"; then

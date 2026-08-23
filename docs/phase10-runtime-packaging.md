@@ -96,6 +96,43 @@ lxc.net.0.type = none
 lxc.start.auto = 0
 ```
 
+For the first real LAN usability gate, the package also ships
+`target/scripts/run-packaged-macvlan-dhcp-test.sh`. It is dry-run by default and
+requires `--run` before it starts a macvlan container. It refuses to run unless
+the selected container is configured with:
+
+```text
+lxc.net.0.type = macvlan
+lxc.start.auto = 0
+```
+
+The test uses the configured parent interface only as a macvlan parent. It does
+not bridge, readdress or reconfigure the DSM host interface.
+
+Virtual DSM validation on 2026-08-23 installed a local runtime-bundled SPK with
+the package-owned macvlan DHCP test, created `alpine-packaged-lan` from the
+packaged Alpine image and ran:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh \
+  --name alpine-packaged-lan \
+  --run
+```
+
+Evidence:
+
+```text
+dhcp_status=OK
+addr_after=4: eth0 inet 10.26.88.145/24 ...
+gateway=10.26.88.1
+gateway_ping=OK
+internet_ping=OK
+Result: PACKAGED MACVLAN DHCP TEST COMPLETE.
+```
+
+The container was stopped after the foreground probe. The productive physical
+DS224+ was not contacted.
+
 ## Repeatable Virtual DSM validation gate
 
 The manual Virtual DSM sequence is captured by

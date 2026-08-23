@@ -15,3 +15,5 @@ jobs:
         run: sh tests/check-packaged-container-contract.sh
       - name: Check packaged smoke contract
         run: sh tests/check-packaged-smoke-contract.sh
+      - name: Check packaged macvlan DHCP contract
+        run: sh tests/check-packaged-macvlan-dhcp-contract.sh

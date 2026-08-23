@@ -218,6 +218,20 @@ direkt aus dem installierten SPK:
 sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-smoke-test.sh --name alpine-lab
 ```
 
+Der erste echte LAN-Nutzbarkeitstest ist ebenfalls paket-eigen: ein gestoppter
+macvlan-Container wird explizit erstellt, anschließend holt der Test einmalig
+DHCP und stoppt wieder:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh \
+  --name alpine-lan \
+  --network-type macvlan \
+  --parent-if eth0 \
+  --create
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --name alpine-lan
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --name alpine-lan --run
+```
+
 Ein erster DSM-GUI-Einstieg ist als lokale Paket-Seite enthalten. Er zeigt die
 reviewten Admin-Kommandos und die Sicherheitsgrenzen, führt aber noch keine
 privilegierten Aktionen im Browser aus.
@@ -233,6 +247,7 @@ Packaged runtime restore: OK, lxc-start 6.0.6
 Packaged container create: OK, stopped, network type none
 Smoke test: OK, container started and stopped without networking
 Package-owned smoke command: OK
+Package-owned macvlan DHCP test: OK, DHCP/gateway/internet reachable
 Physical DS224+: not touched
 ```
 
