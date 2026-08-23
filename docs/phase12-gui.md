@@ -44,8 +44,9 @@ The page shows the reviewed admin command sequence:
 2. explicit runtime restore;
 3. dry-run container creation;
 4. explicit stopped-container creation;
-5. read-only lifecycle status;
-6. explicit root-helper start/stop.
+5. package-owned networkless smoke test;
+6. read-only lifecycle status;
+7. explicit root-helper start/stop.
 
 It does not execute commands in the browser, does not run as root, does not
 restore runtime files, does not create containers and does not start containers.

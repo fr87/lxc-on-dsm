@@ -211,6 +211,12 @@ Bundle und das Alpine-Image, restauriert aber nichts automatisch.
 Das Paket enthält außerdem einen trockenen Container-Erstellbefehl. Wenn ein
 Alpine-Image eingebettet ist, kann ein Admin später explizit einen gestoppten
 Container vorbereiten; gestartet wird er dadurch noch nicht.
+Der netzwerklose Smoke-Test ist ebenfalls als Paketbefehl enthalten und läuft
+direkt aus dem installierten SPK:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-smoke-test.sh --name alpine-lab
+```
 
 Ein erster DSM-GUI-Einstieg ist als lokale Paket-Seite enthalten. Er zeigt die
 reviewten Admin-Kommandos und die Sicherheitsgrenzen, führt aber noch keine
@@ -226,6 +232,7 @@ Installed package: OK, stopped
 Packaged runtime restore: OK, lxc-start 6.0.6
 Packaged container create: OK, stopped, network type none
 Smoke test: OK, container started and stopped without networking
+Package-owned smoke command: OK
 Physical DS224+: not touched
 ```
 

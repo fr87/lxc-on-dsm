@@ -39,6 +39,7 @@ target/scripts/restore-lxc-runtime-bundle.sh
 target/scripts/check-lxc-runtime-deps.sh
 target/scripts/install-packaged-runtime.sh
 target/scripts/create-packaged-container.sh
+target/scripts/run-packaged-smoke-test.sh
 target/scripts/lxc-on-dsm-root-helper.sh
 target/ui/config
 target/ui/index.html
@@ -174,6 +175,14 @@ if ! grep -q 'PACKAGED CONTAINER CREATE DRY RUN COMPLETE' "${payload_dir}/target
 fi
 if ! grep -q 'No container was started' "${payload_dir}/target/scripts/create-packaged-container.sh"; then
     printf '%s\n' 'MISSING: packaged container create no-start guarantee'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED SMOKE TEST PASSED' "${payload_dir}/target/scripts/run-packaged-smoke-test.sh"; then
+    printf '%s\n' 'MISSING: packaged smoke test success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'lxc.net.0.type = none' "${payload_dir}/target/scripts/run-packaged-smoke-test.sh"; then
+    printf '%s\n' 'MISSING: packaged smoke test networkless guard'
     missing=$((missing + 1))
 fi
 if ! grep -q '0730' "${payload_dir}/target/scripts/prepare-package-access.sh"; then

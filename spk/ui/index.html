@@ -73,13 +73,19 @@
             </article>
 
             <article class="card">
-                <h2>5. Lifecycle status</h2>
+                <h2>5. Smoke-test stopped container</h2>
+                <p>Starts a networkless container once, records evidence, and stops it again.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-smoke-test.sh --name alpine-lab</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>6. Lifecycle status</h2>
                 <p>Read-only doctor for the configured macvlan profile.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh status --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>
             </article>
 
             <article class="card">
-                <h2>6. Start/stop via root helper</h2>
+                <h2>7. Start/stop via root helper</h2>
                 <p>Starts or stops only the configured lab container after the profile is reviewed.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
 sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh stop --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>

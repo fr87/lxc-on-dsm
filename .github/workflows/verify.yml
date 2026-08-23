@@ -13,3 +13,5 @@ jobs:
         run: sh tests/check-evaluate-report.sh
       - name: Check packaged container contract
         run: sh tests/check-packaged-container-contract.sh
+      - name: Check packaged smoke contract
+        run: sh tests/check-packaged-smoke-contract.sh

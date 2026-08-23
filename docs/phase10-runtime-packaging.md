@@ -87,6 +87,15 @@ Result: SMOKE TEST PASSED. Container was started and stopped without networking.
 
 The productive physical DS224+ was not contacted for this validation.
 
+The package now also ships `target/scripts/run-packaged-smoke-test.sh` so the
+networkless smoke test can be run from the installed SPK itself. The script
+refuses to run unless the selected container is configured with:
+
+```text
+lxc.net.0.type = none
+lxc.start.auto = 0
+```
+
 ## Repeatable Virtual DSM validation gate
 
 The manual Virtual DSM sequence is captured by
