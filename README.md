@@ -6,9 +6,10 @@ Dieses Repository untersucht klassischen LXC-Support direkt unter Synology DSM. 
 > `0.1.0-0010` kann als CI-gebautes SPK Runtime-Bundle, Alpine-Image und
 > minimale DSM-GUI enthalten. In Virtual DSM wurde das SPK installiert, die
 > paketierte DSM-native Runtime restauriert, ein gestoppter Container aus dem
-> Paketimage erstellt und netzwerklos erfolgreich gestartet/gestoppt. Package
-> Center `start` bleibt fuer den Paketnutzer absichtlich blockiert; privilegierte
-> Start/Stop-Aktionen laufen nur ueber den expliziten Root-Helper.
+> Paketimage erstellt, ein `empty`-Container dauerhaft gestartet/gestoppt und
+> ein `macvlan`-Container mit DHCP dauerhaft gestartet/gestoppt. Package Center
+> `start` bleibt fuer den Paketnutzer absichtlich blockiert; privilegierte
+> Aktionen laufen nur ueber explizite Root-Kommandos.
 
 ## Analyse ausfuehren
 
@@ -211,6 +212,24 @@ Bundle und das Alpine-Image, restauriert aber nichts automatisch.
 Das Paket enthält außerdem einen trockenen Container-Erstellbefehl. Wenn ein
 Alpine-Image eingebettet ist, kann ein Admin später explizit einen gestoppten
 Container vorbereiten; gestartet wird er dadurch noch nicht.
+Paket-eigene Container koennen danach read-only inventarisiert und explizit
+gestartet/gestoppt werden:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh
+
+sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh \
+  --name alpine-empty \
+  --network-type empty \
+  --create
+sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
+sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-empty
+```
+
+Fuer dauerhafte Starts ist `none` absichtlich blockiert. `none` bleibt fuer den
+kurzen Smoke-Test reserviert; fuer einen isolierten persistenten Container wird
+`empty` verwendet, fuer LAN-Nutzbarkeit `macvlan`.
 Der netzwerklose Smoke-Test ist ebenfalls als Paketbefehl enthalten und läuft
 direkt aus dem installierten SPK:
 
@@ -248,6 +267,9 @@ Packaged container create: OK, stopped, network type none
 Smoke test: OK, container started and stopped without networking
 Package-owned smoke command: OK
 Package-owned macvlan DHCP test: OK, DHCP/gateway/internet reachable
+Package-owned inventory: OK, reports RUNNING/STOPPED with bundled runtime
+Package-owned persistent empty start/stop: OK
+Package-owned persistent macvlan start/stop: OK, DHCP OK
 Physical DS224+: not touched
 ```
 

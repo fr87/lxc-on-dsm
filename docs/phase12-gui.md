@@ -42,12 +42,30 @@ The page shows the reviewed admin command sequence:
 
 1. dry-run packaged runtime restore;
 2. explicit runtime restore;
-3. dry-run container creation;
-4. explicit stopped-container creation;
-5. package-owned networkless smoke test;
-6. optional package-owned macvlan DHCP/LAN probe;
-7. read-only lifecycle status;
-8. explicit root-helper start/stop.
+3. read-only package container inventory;
+4. dry-run container creation;
+5. explicit stopped-container creation;
+6. explicit package container start/stop;
+7. package-owned networkless smoke test;
+8. optional package-owned macvlan DHCP/LAN probe;
+9. read-only lifecycle status;
+10. explicit root-helper start/stop.
+
+The page also includes a client-side command builder for the common package
+container flow. It accepts only constrained container names and interface names,
+then generates copyable commands for:
+
+- listing package-owned containers;
+- creating a stopped empty-network persistent test container;
+- creating a stopped `none` smoke-test-only container;
+- running the package-owned networkless smoke test;
+- creating a stopped macvlan test container;
+- running the macvlan DHCP/LAN probe in dry-run and explicit `--run` mode;
+- starting and stopping a package-created container explicitly.
+
+The command builder deliberately separates `none` and `empty`: `none` remains a
+short smoke-test path, while persistent package container start is generated for
+`empty` or `macvlan` containers only.
 
 It does not execute commands in the browser, does not run as root, does not
 restore runtime files, does not create containers and does not start containers.
@@ -63,7 +81,8 @@ The package checks now verify:
 - `target/ui/config`, HTML/CSS/JS, status manifest and icon files are present in
   `package.tgz`;
 - the UI config points to the local package URL;
-- the UI page explains the root lifecycle gate.
+- the UI page explains the root lifecycle gate;
+- the UI ships the package container inventory command and command builder.
 
 Local gates passed for management-only SPK with UI and runtime-bundled SPK with
 UI and a test image seed. Both gates are package-only.

@@ -90,6 +90,9 @@ cp scripts/restore-lxc-runtime-bundle.sh "${target_dir}/scripts/"
 cp scripts/check-lxc-runtime-deps.sh "${target_dir}/scripts/"
 cp scripts/install-packaged-runtime.sh "${target_dir}/scripts/"
 cp scripts/create-packaged-container.sh "${target_dir}/scripts/"
+cp scripts/list-packaged-containers.sh "${target_dir}/scripts/"
+cp scripts/start-packaged-container.sh "${target_dir}/scripts/"
+cp scripts/stop-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/run-packaged-smoke-test.sh "${target_dir}/scripts/"
 cp scripts/run-packaged-macvlan-dhcp-test.sh "${target_dir}/scripts/"
 cp scripts/experimental/lxc-on-dsm-root-helper.sh "${target_dir}/scripts/"
@@ -163,6 +166,9 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/check-lxc-runtime-deps.sh" \
     "${target_dir}/scripts/install-packaged-runtime.sh" \
     "${target_dir}/scripts/create-packaged-container.sh" \
+    "${target_dir}/scripts/list-packaged-containers.sh" \
+    "${target_dir}/scripts/start-packaged-container.sh" \
+    "${target_dir}/scripts/stop-packaged-container.sh" \
     "${target_dir}/scripts/run-packaged-smoke-test.sh" \
     "${target_dir}/scripts/run-packaged-macvlan-dhcp-test.sh" \
     "${target_dir}/scripts/lxc-on-dsm-root-helper.sh"

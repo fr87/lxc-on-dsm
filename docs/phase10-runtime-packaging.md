@@ -109,6 +109,18 @@ lxc.start.auto = 0
 The test uses the configured parent interface only as a macvlan parent. It does
 not bridge, readdress or reconfigure the DSM host interface.
 
+The package also ships a persistent explicit start/stop pair:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
+sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-empty
+```
+
+Persistent `none` starts are intentionally refused. `none` remains a short
+smoke-test mode. Persistent package starts currently accept `empty` for isolated
+local containers and `macvlan` for DHCP/LAN containers.
+
 Virtual DSM validation on 2026-08-23 installed a local runtime-bundled SPK with
 the package-owned macvlan DHCP test, created `alpine-packaged-lan` from the
 packaged Alpine image and ran:
@@ -132,6 +144,16 @@ Result: PACKAGED MACVLAN DHCP TEST COMPLETE.
 
 The container was stopped after the foreground probe. The productive physical
 DS224+ was not contacted.
+
+The same package start/stop path was later validated in Virtual DSM with:
+
+```text
+alpine-empty-run: network_type=empty, RUNNING observed, then STOPPED
+alpine-macvlan-run: network_type=macvlan, dhcp_status=OK, container_ip=10.26.88.134, RUNNING observed, then STOPPED
+```
+
+This validation used only the Virtual DSM lab. The productive physical DS224+
+was not contacted.
 
 ## Repeatable Virtual DSM validation gate
 

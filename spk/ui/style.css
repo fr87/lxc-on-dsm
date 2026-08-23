@@ -28,7 +28,8 @@ body {
 
 .hero,
 .card,
-.notes {
+.notes,
+.command-builder {
     background: rgba(17, 24, 39, 0.86);
     border: 1px solid var(--border);
     border-radius: 18px;
@@ -74,6 +75,66 @@ p {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 16px;
+}
+
+.command-builder {
+    padding: 22px;
+    margin-bottom: 24px;
+}
+
+.builder-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.builder-form label {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.builder-form input,
+.builder-form select {
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #020617;
+    color: var(--text);
+}
+
+.generated {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.generated article {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.46);
+}
+
+.generated h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+}
+
+.generated button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: 1px solid rgba(56, 189, 248, 0.65);
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.14);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.hint {
+    margin-bottom: 0;
 }
 
 .status {

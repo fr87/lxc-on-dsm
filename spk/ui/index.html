@@ -47,6 +47,67 @@
             </div>
         </section>
 
+        <section class="command-builder" aria-labelledby="command-builder-title">
+            <div>
+                <p class="eyebrow">Command builder</p>
+                <h2 id="command-builder-title">Prepare a package-owned container test</h2>
+                <p>
+                    This browser page still does not execute anything. It only
+                    builds reviewed root-shell commands from constrained inputs.
+                </p>
+            </div>
+            <form class="builder-form">
+                <label>
+                    Container name
+                    <input id="container-name" type="text" value="alpine-lab" pattern="[A-Za-z0-9_.-]+" autocomplete="off">
+                </label>
+                <label>
+                    Network
+                    <select id="network-type">
+                        <option value="empty">empty / isolated persistent</option>
+                        <option value="none">none / local smoke only</option>
+                        <option value="macvlan">macvlan / DHCP LAN test</option>
+                    </select>
+                </label>
+                <label>
+                    Parent interface
+                    <input id="parent-if" type="text" value="eth0" pattern="[A-Za-z0-9_.:-]+" autocomplete="off">
+                </label>
+            </form>
+            <div class="generated">
+                <article>
+                    <h3>0. List package containers</h3>
+                    <pre><code id="cmd-list">sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh</code></pre>
+                    <button type="button" data-copy="cmd-list">Copy</button>
+                </article>
+                <article>
+                    <h3>1. Create stopped container</h3>
+                    <pre><code id="cmd-create">loading</code></pre>
+                    <button type="button" data-copy="cmd-create">Copy</button>
+                </article>
+                <article>
+                    <h3>2. Validate / smoke</h3>
+                    <pre><code id="cmd-test">loading</code></pre>
+                    <button type="button" data-copy="cmd-test">Copy</button>
+                </article>
+                <article>
+                    <h3>3. Start for use</h3>
+                    <pre><code id="cmd-start">loading</code></pre>
+                    <button type="button" data-copy="cmd-start">Copy</button>
+                </article>
+                <article>
+                    <h3>4. Stop again</h3>
+                    <pre><code id="cmd-stop">loading</code></pre>
+                    <button type="button" data-copy="cmd-stop">Copy</button>
+                </article>
+            </div>
+            <p class="hint" id="builder-hint">
+                Empty-network mode is safest for a persistent first container.
+                macvlan mode performs DHCP only after an explicit
+                <code>--run</code>.
+            </p>
+        </section>
+
         <section class="grid">
             <article class="card">
                 <h2>1. Check packaged runtime</h2>
@@ -61,25 +122,39 @@
             </article>
 
             <article class="card">
-                <h2>3. Plan container creation</h2>
+                <h2>3. List package containers</h2>
+                <p>Read-only inventory of package-owned lab containers and their current LXC state.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>4. Plan container creation</h2>
                 <p>Shows the target paths for a stopped Alpine container. No files are written.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lab --network-type none</code></pre>
             </article>
 
             <article class="card">
-                <h2>4. Create stopped container</h2>
+                <h2>5. Create stopped container</h2>
                 <p>Creates the container rootfs and config. It does not start the container.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lab --network-type none --create</code></pre>
             </article>
 
             <article class="card">
-                <h2>5. Smoke-test stopped container</h2>
+                <h2>6. Start/stop a package container</h2>
+                <p>Starts a package-created lab container and keeps it running until stopped explicitly.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-lab
+sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-lab --run
+sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-lab</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>7. Smoke-test stopped container</h2>
                 <p>Starts a networkless container once, records evidence, and stops it again.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-smoke-test.sh --name alpine-lab</code></pre>
             </article>
 
             <article class="card">
-                <h2>6. Optional macvlan DHCP test</h2>
+                <h2>8. Optional macvlan DHCP test</h2>
                 <p>Creates a stopped macvlan container, then runs one temporary DHCP/LAN probe.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lan --network-type macvlan --parent-if eth0 --create
 sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --name alpine-lan
@@ -87,13 +162,13 @@ sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --n
             </article>
 
             <article class="card">
-                <h2>7. Lifecycle status</h2>
+                <h2>9. Lifecycle status</h2>
                 <p>Read-only doctor for the configured macvlan profile.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh status --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>
             </article>
 
             <article class="card">
-                <h2>8. Start/stop via root helper</h2>
+                <h2>10. Start/stop via root helper</h2>
                 <p>Starts or stops only the configured lab container after the profile is reviewed.</p>
                 <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
 sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh stop --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>

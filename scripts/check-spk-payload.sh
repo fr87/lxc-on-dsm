@@ -39,6 +39,9 @@ target/scripts/restore-lxc-runtime-bundle.sh
 target/scripts/check-lxc-runtime-deps.sh
 target/scripts/install-packaged-runtime.sh
 target/scripts/create-packaged-container.sh
+target/scripts/list-packaged-containers.sh
+target/scripts/start-packaged-container.sh
+target/scripts/stop-packaged-container.sh
 target/scripts/run-packaged-smoke-test.sh
 target/scripts/run-packaged-macvlan-dhcp-test.sh
 target/scripts/lxc-on-dsm-root-helper.sh
@@ -116,6 +119,30 @@ if ! grep -q 'Package Center start/stop is intentionally blocked' "${payload_dir
     printf '%s\n' 'MISSING: DSM UI root lifecycle warning'
     missing=$((missing + 1))
 fi
+if ! grep -q 'id="command-builder-title"' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI command builder section'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'list-packaged-containers.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI container inventory command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'start-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged start command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'stop-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged stop command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'navigator.clipboard' "${payload_dir}/target/ui/app.js"; then
+    printf '%s\n' 'MISSING: DSM UI copy-to-clipboard helper'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'safeInterface' "${payload_dir}/target/ui/app.js"; then
+    printf '%s\n' 'MISSING: DSM UI constrained interface helper'
+    missing=$((missing + 1))
+fi
 if ! grep -q '"runtime_bundle_packaged":' "${payload_dir}/target/ui/status.json"; then
     printf '%s\n' 'MISSING: DSM UI runtime bundle status'
     missing=$((missing + 1))
@@ -176,6 +203,34 @@ if ! grep -q 'PACKAGED CONTAINER CREATE DRY RUN COMPLETE' "${payload_dir}/target
 fi
 if ! grep -q 'No container was started' "${payload_dir}/target/scripts/create-packaged-container.sh"; then
     printf '%s\n' 'MISSING: packaged container create no-start guarantee'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER INVENTORY COMPLETE' "${payload_dir}/target/scripts/list-packaged-containers.sh"; then
+    printf '%s\n' 'MISSING: packaged container inventory success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'No container was started' "${payload_dir}/target/scripts/list-packaged-containers.sh"; then
+    printf '%s\n' 'MISSING: packaged container inventory no-start guarantee'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER START DRY RUN COMPLETE' "${payload_dir}/target/scripts/start-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container start dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER STARTED' "${payload_dir}/target/scripts/start-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container start success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'Packaged container start requires uid=0' "${payload_dir}/target/scripts/start-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container start root gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER STOPPED' "${payload_dir}/target/scripts/stop-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container stop success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'Packaged container stop requires uid=0' "${payload_dir}/target/scripts/stop-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container stop root gate'
     missing=$((missing + 1))
 fi
 if ! grep -q 'PACKAGED SMOKE TEST PASSED' "${payload_dir}/target/scripts/run-packaged-smoke-test.sh"; then
