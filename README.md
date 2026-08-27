@@ -224,6 +224,11 @@ sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh \
   --create
 sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty --install
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-hook-snippet.sh \
+  --name alpine-empty \
+  --snippet 10-marker \
+  --source /var/packages/lxc-on-dsm/target/hooks/marker.example.sh \
+  --install
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
 sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-empty
@@ -283,6 +288,7 @@ Package-owned persistent empty start/stop: OK
 Package-owned persistent macvlan start/stop: OK, DHCP OK
 Package-owned attach diagnostic: observed DSM seccomp/capability limitation
 Package-owned start hook installer: OK, start.d dispatcher executed
+Package-owned hook snippet installer: OK, marker example executed
 Physical DS224+: not touched
 ```
 

@@ -114,6 +114,11 @@ The package also ships a persistent explicit start/stop pair:
 ```sh
 sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty --install
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-hook-snippet.sh \
+  --name alpine-empty \
+  --snippet 10-marker \
+  --source /var/packages/lxc-on-dsm/target/hooks/marker.example.sh \
+  --install
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
 sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name alpine-empty --run -- hostname
@@ -168,6 +173,7 @@ The same package start/stop path was later validated in Virtual DSM with:
 alpine-empty-run: network_type=empty, RUNNING observed, then STOPPED
 alpine-macvlan-run: network_type=macvlan, dhcp_status=OK, container_ip=10.26.88.134, RUNNING observed, then STOPPED
 alpine-hook-installer: hook installer OK, start.d dispatcher wrote marker, hook_status=OK, then STOPPED
+alpine-snippet-run: hook snippet installer OK, marker.example.sh executed, hook_status=OK, then STOPPED
 ```
 
 This validation used only the Virtual DSM lab. The productive physical DS224+

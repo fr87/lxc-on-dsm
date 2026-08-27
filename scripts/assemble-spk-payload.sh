@@ -50,6 +50,7 @@ if [ -e "$payload_dir" ]; then
 fi
 
 mkdir -p "${target_dir}/scripts" "${target_dir}/config" "$etc_dir" "$conf_dir" "$pkg_scripts_dir"
+mkdir -p "${target_dir}/hooks" "${etc_dir}/hooks"
 if [ -d spk/ui ]; then
     mkdir -p "${target_dir}/ui"
     mkdir -p "${target_dir}/ui/images"
@@ -92,6 +93,7 @@ cp scripts/install-packaged-runtime.sh "${target_dir}/scripts/"
 cp scripts/create-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/list-packaged-containers.sh "${target_dir}/scripts/"
 cp scripts/install-packaged-start-hook.sh "${target_dir}/scripts/"
+cp scripts/install-packaged-hook-snippet.sh "${target_dir}/scripts/"
 cp scripts/start-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/stop-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/exec-packaged-container.sh "${target_dir}/scripts/"
@@ -100,6 +102,8 @@ cp scripts/run-packaged-macvlan-dhcp-test.sh "${target_dir}/scripts/"
 cp scripts/experimental/lxc-on-dsm-root-helper.sh "${target_dir}/scripts/"
 cp config/lab-macvlan.env.example "${etc_dir}/lab-macvlan.env.example"
 cp config/lab-macvlan.env.example "${target_dir}/config/lab-macvlan.env.example"
+cp spk/hooks/README.md "${target_dir}/hooks/README.md"
+cp spk/hooks/marker.example.sh "${target_dir}/hooks/marker.example.sh"
 if [ -n "$runtime_bundle" ]; then
     cp "$runtime_bundle" "${target_dir}/runtime/lxc-runtime-bundle.tar.gz"
     {
@@ -170,6 +174,7 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/create-packaged-container.sh" \
     "${target_dir}/scripts/list-packaged-containers.sh" \
     "${target_dir}/scripts/install-packaged-start-hook.sh" \
+    "${target_dir}/scripts/install-packaged-hook-snippet.sh" \
     "${target_dir}/scripts/start-packaged-container.sh" \
     "${target_dir}/scripts/stop-packaged-container.sh" \
     "${target_dir}/scripts/exec-packaged-container.sh" \
@@ -177,7 +182,10 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/run-packaged-macvlan-dhcp-test.sh" \
     "${target_dir}/scripts/lxc-on-dsm-root-helper.sh"
 chmod 0644 "${etc_dir}/lab-macvlan.env.example" \
-    "${target_dir}/config/lab-macvlan.env.example"
+    "${target_dir}/config/lab-macvlan.env.example" \
+    "${target_dir}/hooks/README.md" \
+    "${target_dir}/hooks/marker.example.sh"
+chmod 0755 "${target_dir}/hooks" "${etc_dir}/hooks"
 if [ -n "$runtime_bundle" ]; then
     chmod 0755 "${target_dir}/runtime"
     chmod 0644 "${target_dir}/runtime/lxc-runtime-bundle.tar.gz" \

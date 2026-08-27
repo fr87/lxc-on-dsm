@@ -41,6 +41,7 @@ target/scripts/install-packaged-runtime.sh
 target/scripts/create-packaged-container.sh
 target/scripts/list-packaged-containers.sh
 target/scripts/install-packaged-start-hook.sh
+target/scripts/install-packaged-hook-snippet.sh
 target/scripts/start-packaged-container.sh
 target/scripts/stop-packaged-container.sh
 target/scripts/exec-packaged-container.sh
@@ -59,6 +60,8 @@ target/ui/images/icon_48.png
 target/ui/images/icon_64.png
 target/ui/images/icon_72.png
 target/ui/images/icon_256.png
+target/hooks/README.md
+target/hooks/marker.example.sh
 "
 
 missing=0
@@ -135,6 +138,10 @@ if ! grep -q 'start-packaged-container.sh' "${payload_dir}/target/ui/index.html"
 fi
 if ! grep -q 'install-packaged-start-hook.sh' "${payload_dir}/target/ui/index.html"; then
     printf '%s\n' 'MISSING: DSM UI packaged start hook install command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'install-packaged-hook-snippet.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged hook snippet install command'
     missing=$((missing + 1))
 fi
 if ! grep -q 'stop-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
@@ -229,6 +236,18 @@ if ! grep -q 'PACKAGED START HOOK INSTALL DRY RUN COMPLETE' "${payload_dir}/targ
 fi
 if ! grep -q 'PACKAGED START HOOK INSTALLED' "${payload_dir}/target/scripts/install-packaged-start-hook.sh"; then
     printf '%s\n' 'MISSING: packaged start hook install success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED HOOK SNIPPET INSTALL DRY RUN COMPLETE' "${payload_dir}/target/scripts/install-packaged-hook-snippet.sh"; then
+    printf '%s\n' 'MISSING: packaged hook snippet install dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED HOOK SNIPPET INSTALLED' "${payload_dir}/target/scripts/install-packaged-hook-snippet.sh"; then
+    printf '%s\n' 'MISSING: packaged hook snippet install success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'No container was started' "${payload_dir}/target/scripts/install-packaged-hook-snippet.sh"; then
+    printf '%s\n' 'MISSING: packaged hook snippet install no-start guarantee'
     missing=$((missing + 1))
 fi
 if ! grep -q 'No container was started' "${payload_dir}/target/scripts/install-packaged-start-hook.sh"; then
