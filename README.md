@@ -232,11 +232,19 @@ sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-hook-snippet.sh \
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
 sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-empty --backup
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-empty --backup --destroy
 ```
 
 Fuer dauerhafte Starts ist `none` absichtlich blockiert. `none` bleibt fuer den
 kurzen Smoke-Test reserviert; fuer einen isolierten persistenten Container wird
 `empty` verwendet, fuer LAN-Nutzbarkeit `macvlan`.
+
+Das Entfernen eines Paket-Containers ist ebenfalls gegated: ohne Flag wird nur
+geplant, `--backup` schreibt ein tar.gz in die Paket-Artefakte, und erst
+`--destroy` loescht den gestoppten Container. Laufende Container werden
+abgewiesen.
 
 `lxc-attach` bleibt ein Diagnosepfad, aber kein validierter Managementpfad: In
 Virtual DSM kann es an DSM-/Kernel-Seccomp- und Capability-Grenzen scheitern.
@@ -289,6 +297,7 @@ Package-owned persistent macvlan start/stop: OK, DHCP OK
 Package-owned attach diagnostic: observed DSM seccomp/capability limitation
 Package-owned start hook installer: OK, start.d dispatcher executed
 Package-owned hook snippet installer: OK, marker example executed
+Package-owned remove gate: OK, dry-run/backup/destroy for stopped container
 Physical DS224+: not touched
 ```
 

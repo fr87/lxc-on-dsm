@@ -44,6 +44,7 @@ target/scripts/install-packaged-start-hook.sh
 target/scripts/install-packaged-hook-snippet.sh
 target/scripts/start-packaged-container.sh
 target/scripts/stop-packaged-container.sh
+target/scripts/remove-packaged-container.sh
 target/scripts/exec-packaged-container.sh
 target/scripts/run-packaged-smoke-test.sh
 target/scripts/run-packaged-macvlan-dhcp-test.sh
@@ -146,6 +147,10 @@ if ! grep -q 'install-packaged-hook-snippet.sh' "${payload_dir}/target/ui/index.
 fi
 if ! grep -q 'stop-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
     printf '%s\n' 'MISSING: DSM UI packaged stop command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'remove-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged remove command'
     missing=$((missing + 1))
 fi
 if ! grep -q 'exec-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
@@ -272,6 +277,22 @@ if ! grep -q 'PACKAGED CONTAINER STOPPED' "${payload_dir}/target/scripts/stop-pa
 fi
 if ! grep -q 'Packaged container stop requires uid=0' "${payload_dir}/target/scripts/stop-packaged-container.sh"; then
     printf '%s\n' 'MISSING: packaged container stop root gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER REMOVE DRY RUN COMPLETE' "${payload_dir}/target/scripts/remove-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container remove dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED CONTAINER REMOVED' "${payload_dir}/target/scripts/remove-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container remove success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'No files were removed' "${payload_dir}/target/scripts/remove-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container remove dry-run no-remove guarantee'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'Refusing to remove running container' "${payload_dir}/target/scripts/remove-packaged-container.sh"; then
+    printf '%s\n' 'MISSING: packaged container remove running guard'
     missing=$((missing + 1))
 fi
 if ! grep -q 'PACKAGED CONTAINER EXEC DRY RUN COMPLETE' "${payload_dir}/target/scripts/exec-packaged-container.sh"; then

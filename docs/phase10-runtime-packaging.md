@@ -123,11 +123,19 @@ sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name al
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
 sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name alpine-empty --run -- hostname
 sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-empty --backup
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-empty --backup --destroy
 ```
 
 Persistent `none` starts are intentionally refused. `none` remains a short
 smoke-test mode. Persistent package starts currently accept `empty` for isolated
 local containers and `macvlan` for DHCP/LAN containers.
+
+Stopped package-created containers can be removed through the packaged remove
+gate. It is dry-run by default, can create a tar.gz backup under package
+artifacts, and deletes only when `--destroy` is passed explicitly. It refuses
+running containers.
 
 Because `lxc-attach` is not reliable on the current DSM kernel/userspace
 combination, persistent package starts support a small in-container hook instead:
@@ -174,6 +182,7 @@ alpine-empty-run: network_type=empty, RUNNING observed, then STOPPED
 alpine-macvlan-run: network_type=macvlan, dhcp_status=OK, container_ip=10.26.88.134, RUNNING observed, then STOPPED
 alpine-hook-installer: hook installer OK, start.d dispatcher wrote marker, hook_status=OK, then STOPPED
 alpine-snippet-run: hook snippet installer OK, marker.example.sh executed, hook_status=OK, then STOPPED
+alpine-remove-run: remove gate OK, backup created, stopped container removed
 ```
 
 This validation used only the Virtual DSM lab. The productive physical DS224+

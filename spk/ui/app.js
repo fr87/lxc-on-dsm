@@ -51,6 +51,11 @@
             "sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-hook-snippet.sh --name " + name + " --snippet 10-marker --source /var/packages/lxc-on-dsm/target/hooks/marker.example.sh --install"
         ].join("\n");
         var stop = "sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name " + name;
+        var remove = [
+            "sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name " + name,
+            "sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name " + name + " --backup",
+            "sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name " + name + " --backup --destroy"
+        ].join("\n");
         var exec = [
             "sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name " + name + " --run -- hostname",
             "sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name " + name + " --run -- /bin/sh"
@@ -86,6 +91,7 @@
         setText("cmd-hook", hook);
         setText("cmd-snippet", snippet);
         setText("cmd-stop", stop);
+        setText("cmd-remove", remove);
         setText("cmd-exec", exec);
     }
 

@@ -96,6 +96,7 @@ cp scripts/install-packaged-start-hook.sh "${target_dir}/scripts/"
 cp scripts/install-packaged-hook-snippet.sh "${target_dir}/scripts/"
 cp scripts/start-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/stop-packaged-container.sh "${target_dir}/scripts/"
+cp scripts/remove-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/exec-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/run-packaged-smoke-test.sh "${target_dir}/scripts/"
 cp scripts/run-packaged-macvlan-dhcp-test.sh "${target_dir}/scripts/"
@@ -177,6 +178,7 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/install-packaged-hook-snippet.sh" \
     "${target_dir}/scripts/start-packaged-container.sh" \
     "${target_dir}/scripts/stop-packaged-container.sh" \
+    "${target_dir}/scripts/remove-packaged-container.sh" \
     "${target_dir}/scripts/exec-packaged-container.sh" \
     "${target_dir}/scripts/run-packaged-smoke-test.sh" \
     "${target_dir}/scripts/run-packaged-macvlan-dhcp-test.sh" \
