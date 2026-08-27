@@ -96,6 +96,11 @@
                     <button type="button" data-copy="cmd-start">Copy</button>
                 </article>
                 <article>
+                    <h3>3a. Install hook dispatcher</h3>
+                    <pre><code id="cmd-hook">loading</code></pre>
+                    <button type="button" data-copy="cmd-hook">Copy</button>
+                </article>
+                <article>
                     <h3>4. Stop again</h3>
                     <pre><code id="cmd-stop">loading</code></pre>
                     <button type="button" data-copy="cmd-stop">Copy</button>
@@ -154,8 +159,9 @@ sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alp
 
             <article class="card">
                 <h2>7. Optional container start hook</h2>
-                <p>If present, the package start command runs this script inside the container before the idle loop.</p>
-                <pre><code>/etc/lxc-on-dsm/start.sh</code></pre>
+                <p>Installs a dispatcher that runs executable scripts from <code>/etc/lxc-on-dsm/start.d</code> inside the container.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-lab
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-lab --install</code></pre>
             </article>
 
             <article class="card">

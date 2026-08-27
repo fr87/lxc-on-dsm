@@ -112,6 +112,8 @@ not bridge, readdress or reconfigure the DSM host interface.
 The package also ships a persistent explicit start/stop pair:
 
 ```sh
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty --install
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
 sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name alpine-empty --run -- hostname
@@ -127,12 +129,14 @@ combination, persistent package starts support a small in-container hook instead
 
 ```text
 /etc/lxc-on-dsm/start.sh
+/etc/lxc-on-dsm/start.d/*.sh
 ```
 
 If the file exists and is executable inside the container rootfs, the packaged
 start command runs it after DHCP evidence collection and records `hook_status`
-in the runtime state. This gives later service bootstrap work a path that does
-not depend on `lxc-attach`.
+in the runtime state. The package hook installer creates a dispatcher that runs
+executable `start.d/*.sh` snippets. This gives later service bootstrap work a
+path that does not depend on `lxc-attach`.
 
 Virtual DSM validation on 2026-08-23 installed a local runtime-bundled SPK with
 the package-owned macvlan DHCP test, created `alpine-packaged-lan` from the
@@ -163,6 +167,7 @@ The same package start/stop path was later validated in Virtual DSM with:
 ```text
 alpine-empty-run: network_type=empty, RUNNING observed, then STOPPED
 alpine-macvlan-run: network_type=macvlan, dhcp_status=OK, container_ip=10.26.88.134, RUNNING observed, then STOPPED
+alpine-hook-installer: hook installer OK, start.d dispatcher wrote marker, hook_status=OK, then STOPPED
 ```
 
 This validation used only the Virtual DSM lab. The productive physical DS224+

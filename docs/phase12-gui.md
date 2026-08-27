@@ -63,6 +63,7 @@ then generates copyable commands for:
 - running the package-owned networkless smoke test;
 - creating a stopped macvlan test container;
 - running the macvlan DHCP/LAN probe in dry-run and explicit `--run` mode;
+- installing the in-container start hook dispatcher;
 - starting and stopping a package-created container explicitly;
 - probing `lxc-attach` as a diagnostic only.
 

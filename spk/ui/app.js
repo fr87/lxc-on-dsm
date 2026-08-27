@@ -42,6 +42,10 @@
             "sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name " + name,
             "sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name " + name + " --run"
         ].join("\n");
+        var hook = [
+            "sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name " + name,
+            "sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name " + name + " --install"
+        ].join("\n");
         var stop = "sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name " + name;
         var exec = [
             "sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name " + name + " --run -- hostname",
@@ -59,6 +63,7 @@
         } else if (network === "none") {
             create += " --network-type none --create";
             start = "# Persistent start is intentionally disabled for lxc.net.0.type = none.\n# Use the smoke test below, or choose empty/macvlan for a running container.";
+            hook = "# The hook dispatcher is intended for persistent empty/macvlan containers.";
             stop = "# No persistent none-mode container was started by this flow.";
             exec = "# No persistent none-mode container is running in this flow.";
             test = "sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-smoke-test.sh --name " + name;
@@ -73,6 +78,7 @@
         setText("cmd-create", create);
         setText("cmd-test", test);
         setText("cmd-start", start);
+        setText("cmd-hook", hook);
         setText("cmd-stop", stop);
         setText("cmd-exec", exec);
     }

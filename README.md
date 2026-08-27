@@ -222,6 +222,8 @@ sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh \
   --name alpine-empty \
   --network-type empty \
   --create
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty --install
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-empty --run
 sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-empty
@@ -237,6 +239,7 @@ Fuer spaetere Dienste im Container ist deshalb ein Start-Hook vorgesehen:
 
 ```text
 /etc/lxc-on-dsm/start.sh
+/etc/lxc-on-dsm/start.d/*.sh
 ```
 Der netzwerklose Smoke-Test ist ebenfalls als Paketbefehl enthalten und läuft
 direkt aus dem installierten SPK:
@@ -279,6 +282,7 @@ Package-owned inventory: OK, reports RUNNING/STOPPED with bundled runtime
 Package-owned persistent empty start/stop: OK
 Package-owned persistent macvlan start/stop: OK, DHCP OK
 Package-owned attach diagnostic: observed DSM seccomp/capability limitation
+Package-owned start hook installer: OK, start.d dispatcher executed
 Physical DS224+: not touched
 ```
 

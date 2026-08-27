@@ -40,6 +40,7 @@ target/scripts/check-lxc-runtime-deps.sh
 target/scripts/install-packaged-runtime.sh
 target/scripts/create-packaged-container.sh
 target/scripts/list-packaged-containers.sh
+target/scripts/install-packaged-start-hook.sh
 target/scripts/start-packaged-container.sh
 target/scripts/stop-packaged-container.sh
 target/scripts/exec-packaged-container.sh
@@ -132,6 +133,10 @@ if ! grep -q 'start-packaged-container.sh' "${payload_dir}/target/ui/index.html"
     printf '%s\n' 'MISSING: DSM UI packaged start command'
     missing=$((missing + 1))
 fi
+if ! grep -q 'install-packaged-start-hook.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged start hook install command'
+    missing=$((missing + 1))
+fi
 if ! grep -q 'stop-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
     printf '%s\n' 'MISSING: DSM UI packaged stop command'
     missing=$((missing + 1))
@@ -216,6 +221,18 @@ if ! grep -q 'PACKAGED CONTAINER INVENTORY COMPLETE' "${payload_dir}/target/scri
 fi
 if ! grep -q 'No container was started' "${payload_dir}/target/scripts/list-packaged-containers.sh"; then
     printf '%s\n' 'MISSING: packaged container inventory no-start guarantee'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED START HOOK INSTALL DRY RUN COMPLETE' "${payload_dir}/target/scripts/install-packaged-start-hook.sh"; then
+    printf '%s\n' 'MISSING: packaged start hook install dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED START HOOK INSTALLED' "${payload_dir}/target/scripts/install-packaged-start-hook.sh"; then
+    printf '%s\n' 'MISSING: packaged start hook install success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'No container was started' "${payload_dir}/target/scripts/install-packaged-start-hook.sh"; then
+    printf '%s\n' 'MISSING: packaged start hook install no-start guarantee'
     missing=$((missing + 1))
 fi
 if ! grep -q 'PACKAGED CONTAINER START DRY RUN COMPLETE' "${payload_dir}/target/scripts/start-packaged-container.sh"; then
