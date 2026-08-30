@@ -112,6 +112,8 @@ not bridge, readdress or reconfigure the DSM host interface.
 The package also ships a persistent explicit start/stop pair:
 
 ```sh
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh --name alpine-empty --network-type empty --run
 sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty
 sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-empty --install
 sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-hook-snippet.sh \
@@ -136,6 +138,11 @@ Stopped package-created containers can be removed through the packaged remove
 gate. It is dry-run by default, can create a tar.gz backup under package
 artifacts, and deletes only when `--destroy` is passed explicitly. It refuses
 running containers.
+
+The packaged first-use test wraps the reviewed single-purpose package scripts.
+It is dry-run by default. With `--run` it creates a fresh container, performs
+the selected smoke/start/DHCP gate and can remove the stopped test container
+after a backup when `--remove-after-test` is passed.
 
 Because `lxc-attach` is not reliable on the current DSM kernel/userspace
 combination, persistent package starts support a small in-container hook instead:
@@ -183,6 +190,7 @@ alpine-macvlan-run: network_type=macvlan, dhcp_status=OK, container_ip=10.26.88.
 alpine-hook-installer: hook installer OK, start.d dispatcher wrote marker, hook_status=OK, then STOPPED
 alpine-snippet-run: hook snippet installer OK, marker.example.sh executed, hook_status=OK, then STOPPED
 alpine-remove-run: remove gate OK, backup created, stopped container removed
+alpine-first-use-run: first-use gate OK, empty lifecycle and remove-after-test
 ```
 
 This validation used only the Virtual DSM lab. The productive physical DS224+

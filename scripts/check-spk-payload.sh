@@ -40,6 +40,7 @@ target/scripts/check-lxc-runtime-deps.sh
 target/scripts/install-packaged-runtime.sh
 target/scripts/create-packaged-container.sh
 target/scripts/list-packaged-containers.sh
+target/scripts/run-packaged-first-use-test.sh
 target/scripts/install-packaged-start-hook.sh
 target/scripts/install-packaged-hook-snippet.sh
 target/scripts/start-packaged-container.sh
@@ -131,6 +132,10 @@ if ! grep -q 'id="command-builder-title"' "${payload_dir}/target/ui/index.html";
 fi
 if ! grep -q 'list-packaged-containers.sh' "${payload_dir}/target/ui/index.html"; then
     printf '%s\n' 'MISSING: DSM UI container inventory command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'run-packaged-first-use-test.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged first-use command'
     missing=$((missing + 1))
 fi
 if ! grep -q 'start-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
@@ -233,6 +238,18 @@ if ! grep -q 'PACKAGED CONTAINER INVENTORY COMPLETE' "${payload_dir}/target/scri
 fi
 if ! grep -q 'No container was started' "${payload_dir}/target/scripts/list-packaged-containers.sh"; then
     printf '%s\n' 'MISSING: packaged container inventory no-start guarantee'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED FIRST USE TEST DRY RUN COMPLETE' "${payload_dir}/target/scripts/run-packaged-first-use-test.sh"; then
+    printf '%s\n' 'MISSING: packaged first-use dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED FIRST USE TEST PASSED' "${payload_dir}/target/scripts/run-packaged-first-use-test.sh"; then
+    printf '%s\n' 'MISSING: packaged first-use success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'Packaged first-use test requires uid=0' "${payload_dir}/target/scripts/run-packaged-first-use-test.sh"; then
+    printf '%s\n' 'MISSING: packaged first-use root gate'
     missing=$((missing + 1))
 fi
 if ! grep -q 'PACKAGED START HOOK INSTALL DRY RUN COMPLETE' "${payload_dir}/target/scripts/install-packaged-start-hook.sh"; then

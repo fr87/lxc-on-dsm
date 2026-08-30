@@ -218,6 +218,13 @@ gestartet/gestoppt werden:
 ```sh
 sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh
 
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh \
+  --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh \
+  --name alpine-empty \
+  --network-type empty \
+  --run
+
 sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh \
   --name alpine-empty \
   --network-type empty \
@@ -245,6 +252,11 @@ Das Entfernen eines Paket-Containers ist ebenfalls gegated: ohne Flag wird nur
 geplant, `--backup` schreibt ein tar.gz in die Paket-Artefakte, und erst
 `--destroy` loescht den gestoppten Container. Laufende Container werden
 abgewiesen.
+
+Der First-use-Test ist ein Paket-Orchestrator fuer die erste Nutzung: Ohne
+`--run` zeigt er nur die geplanten Schritte. Mit `--run` erstellt er einen
+frischen Container, fuehrt je nach Netzwerkmodus den Smoke-/Starttest aus und
+kann mit `--remove-after-test` den Testcontainer nach Backup wieder entfernen.
 
 `lxc-attach` bleibt ein Diagnosepfad, aber kein validierter Managementpfad: In
 Virtual DSM kann es an DSM-/Kernel-Seccomp- und Capability-Grenzen scheitern.
@@ -298,6 +310,7 @@ Package-owned attach diagnostic: observed DSM seccomp/capability limitation
 Package-owned start hook installer: OK, start.d dispatcher executed
 Package-owned hook snippet installer: OK, marker example executed
 Package-owned remove gate: OK, dry-run/backup/destroy for stopped container
+Package-owned first-use gate: OK, dry-run/empty lifecycle/remove-after-test
 Physical DS224+: not touched
 ```
 

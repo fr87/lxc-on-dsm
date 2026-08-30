@@ -92,6 +92,7 @@ cp scripts/check-lxc-runtime-deps.sh "${target_dir}/scripts/"
 cp scripts/install-packaged-runtime.sh "${target_dir}/scripts/"
 cp scripts/create-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/list-packaged-containers.sh "${target_dir}/scripts/"
+cp scripts/run-packaged-first-use-test.sh "${target_dir}/scripts/"
 cp scripts/install-packaged-start-hook.sh "${target_dir}/scripts/"
 cp scripts/install-packaged-hook-snippet.sh "${target_dir}/scripts/"
 cp scripts/start-packaged-container.sh "${target_dir}/scripts/"
@@ -174,6 +175,7 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/install-packaged-runtime.sh" \
     "${target_dir}/scripts/create-packaged-container.sh" \
     "${target_dir}/scripts/list-packaged-containers.sh" \
+    "${target_dir}/scripts/run-packaged-first-use-test.sh" \
     "${target_dir}/scripts/install-packaged-start-hook.sh" \
     "${target_dir}/scripts/install-packaged-hook-snippet.sh" \
     "${target_dir}/scripts/start-packaged-container.sh" \
