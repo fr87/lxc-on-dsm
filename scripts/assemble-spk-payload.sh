@@ -101,11 +101,13 @@ cp scripts/remove-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/exec-packaged-container.sh "${target_dir}/scripts/"
 cp scripts/run-packaged-smoke-test.sh "${target_dir}/scripts/"
 cp scripts/run-packaged-macvlan-dhcp-test.sh "${target_dir}/scripts/"
+cp scripts/run-packaged-httpd-example-test.sh "${target_dir}/scripts/"
 cp scripts/experimental/lxc-on-dsm-root-helper.sh "${target_dir}/scripts/"
 cp config/lab-macvlan.env.example "${etc_dir}/lab-macvlan.env.example"
 cp config/lab-macvlan.env.example "${target_dir}/config/lab-macvlan.env.example"
 cp spk/hooks/README.md "${target_dir}/hooks/README.md"
 cp spk/hooks/marker.example.sh "${target_dir}/hooks/marker.example.sh"
+cp spk/hooks/httpd.example.sh "${target_dir}/hooks/httpd.example.sh"
 if [ -n "$runtime_bundle" ]; then
     cp "$runtime_bundle" "${target_dir}/runtime/lxc-runtime-bundle.tar.gz"
     {
@@ -184,11 +186,13 @@ chmod 0755 "$target_dir" "${target_dir}/scripts" "${target_dir}/config" \
     "${target_dir}/scripts/exec-packaged-container.sh" \
     "${target_dir}/scripts/run-packaged-smoke-test.sh" \
     "${target_dir}/scripts/run-packaged-macvlan-dhcp-test.sh" \
+    "${target_dir}/scripts/run-packaged-httpd-example-test.sh" \
     "${target_dir}/scripts/lxc-on-dsm-root-helper.sh"
 chmod 0644 "${etc_dir}/lab-macvlan.env.example" \
     "${target_dir}/config/lab-macvlan.env.example" \
     "${target_dir}/hooks/README.md" \
-    "${target_dir}/hooks/marker.example.sh"
+    "${target_dir}/hooks/marker.example.sh" \
+    "${target_dir}/hooks/httpd.example.sh"
 chmod 0755 "${target_dir}/hooks" "${etc_dir}/hooks"
 if [ -n "$runtime_bundle" ]; then
     chmod 0755 "${target_dir}/runtime"

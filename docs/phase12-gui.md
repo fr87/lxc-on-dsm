@@ -61,6 +61,7 @@ then generates copyable commands for:
 
 - listing package-owned containers;
 - running the guided first-use test in dry-run or explicit `--run` mode;
+- running the packaged HTTP example service test;
 - creating a stopped empty-network persistent test container;
 - creating a stopped `none` smoke-test-only container;
 - running the package-owned networkless smoke test;

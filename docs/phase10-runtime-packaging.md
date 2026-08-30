@@ -144,6 +144,17 @@ It is dry-run by default. With `--run` it creates a fresh container, performs
 the selected smoke/start/DHCP gate and can remove the stopped test container
 after a backup when `--remove-after-test` is passed.
 
+The package also includes an example service hook and test:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-httpd-example-test.sh --name alpine-httpd
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-httpd-example-test.sh --name alpine-httpd --network-type empty --run
+```
+
+The example starts a tiny HTTP-like service through the in-container start hook
+when the container image provides `httpd`, BusyBox `httpd`, or `nc`. It is a lab
+service bootstrap proof, not a production web stack.
+
 Because `lxc-attach` is not reliable on the current DSM kernel/userspace
 combination, persistent package starts support a small in-container hook instead:
 

@@ -258,6 +258,18 @@ Der First-use-Test ist ein Paket-Orchestrator fuer die erste Nutzung: Ohne
 frischen Container, fuehrt je nach Netzwerkmodus den Smoke-/Starttest aus und
 kann mit `--remove-after-test` den Testcontainer nach Backup wieder entfernen.
 
+Als erster Dienst-Bootstrap-Pfad ist ein HTTP-Beispiel enthalten. Es installiert
+den Start-Hook, fuegt ein Beispiel-Snippet hinzu und startet im Container einen
+kleinen HTTP-aehnlichen Dienst, wenn `httpd`, BusyBox-`httpd` oder `nc`
+verfuegbar ist:
+
+```sh
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-httpd-example-test.sh \
+  --name alpine-httpd \
+  --network-type empty \
+  --run
+```
+
 `lxc-attach` bleibt ein Diagnosepfad, aber kein validierter Managementpfad: In
 Virtual DSM kann es an DSM-/Kernel-Seccomp- und Capability-Grenzen scheitern.
 Fuer spaetere Dienste im Container ist deshalb ein Start-Hook vorgesehen:

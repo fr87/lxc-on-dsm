@@ -38,6 +38,7 @@
         var parentIf = safeInterface(byId("parent-if") && byId("parent-if").value, "eth0");
         var list = "sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh";
         var firstUse = "sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh --name " + name;
+        var httpd = "sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-httpd-example-test.sh --name " + name;
         var create = "sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name " + name;
         var start = [
             "sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name " + name,
@@ -66,6 +67,7 @@
         if (network === "macvlan") {
             create += " --network-type macvlan --parent-if " + parentIf + " --create";
             firstUse += " --network-type macvlan --parent-if " + parentIf + " --run";
+            httpd += " --network-type macvlan --parent-if " + parentIf + " --run";
             test = [
                 "sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --name " + name,
                 "sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --name " + name + " --run"
@@ -74,6 +76,7 @@
         } else if (network === "none") {
             create += " --network-type none --create";
             firstUse += " --network-type none --run --remove-after-test";
+            httpd = "# HTTP example needs empty or macvlan because persistent none-mode starts are disabled.";
             start = "# Persistent start is intentionally disabled for lxc.net.0.type = none.\n# Use the smoke test below, or choose empty/macvlan for a running container.";
             hook = "# The hook dispatcher is intended for persistent empty/macvlan containers.";
             snippet = "# Hook snippets are intended for persistent empty/macvlan containers.";
@@ -84,6 +87,7 @@
         } else {
             create += " --network-type empty --create";
             firstUse += " --network-type empty --run";
+            httpd += " --network-type empty --run";
             test = "sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh";
             setText("builder-hint", "empty mode creates an isolated network namespace and is the safest persistent first container.");
         }
@@ -92,6 +96,7 @@
         setText("cmd-first-use", firstUse);
         setText("cmd-create", create);
         setText("cmd-test", test);
+        setText("cmd-httpd", httpd);
         setText("cmd-start", start);
         setText("cmd-hook", hook);
         setText("cmd-snippet", snippet);

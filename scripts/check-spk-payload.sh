@@ -49,6 +49,7 @@ target/scripts/remove-packaged-container.sh
 target/scripts/exec-packaged-container.sh
 target/scripts/run-packaged-smoke-test.sh
 target/scripts/run-packaged-macvlan-dhcp-test.sh
+target/scripts/run-packaged-httpd-example-test.sh
 target/scripts/lxc-on-dsm-root-helper.sh
 target/ui/config
 target/ui/index.html
@@ -64,6 +65,7 @@ target/ui/images/icon_72.png
 target/ui/images/icon_256.png
 target/hooks/README.md
 target/hooks/marker.example.sh
+target/hooks/httpd.example.sh
 "
 
 missing=0
@@ -136,6 +138,10 @@ if ! grep -q 'list-packaged-containers.sh' "${payload_dir}/target/ui/index.html"
 fi
 if ! grep -q 'run-packaged-first-use-test.sh' "${payload_dir}/target/ui/index.html"; then
     printf '%s\n' 'MISSING: DSM UI packaged first-use command'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'run-packaged-httpd-example-test.sh' "${payload_dir}/target/ui/index.html"; then
+    printf '%s\n' 'MISSING: DSM UI packaged HTTP example command'
     missing=$((missing + 1))
 fi
 if ! grep -q 'start-packaged-container.sh' "${payload_dir}/target/ui/index.html"; then
@@ -338,6 +344,18 @@ if ! grep -q 'PACKAGED MACVLAN DHCP TEST DRY RUN COMPLETE' "${payload_dir}/targe
 fi
 if ! grep -q 'lxc.net.0.type = macvlan' "${payload_dir}/target/scripts/run-packaged-macvlan-dhcp-test.sh"; then
     printf '%s\n' 'MISSING: packaged macvlan DHCP config guard'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED HTTP EXAMPLE TEST DRY RUN COMPLETE' "${payload_dir}/target/scripts/run-packaged-httpd-example-test.sh"; then
+    printf '%s\n' 'MISSING: packaged HTTP example dry-run gate'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'PACKAGED HTTP EXAMPLE TEST PASSED' "${payload_dir}/target/scripts/run-packaged-httpd-example-test.sh"; then
+    printf '%s\n' 'MISSING: packaged HTTP example success marker'
+    missing=$((missing + 1))
+fi
+if ! grep -q 'lxc-on-dsm example service' "${payload_dir}/target/hooks/httpd.example.sh"; then
+    printf '%s\n' 'MISSING: packaged HTTP example hook snippet'
     missing=$((missing + 1))
 fi
 if ! grep -q '0730' "${payload_dir}/target/scripts/prepare-package-access.sh"; then
