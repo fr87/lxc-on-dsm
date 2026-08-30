@@ -1,0 +1,21 @@
+diff --git a/src/lxc/network.c b/src/lxc/network.c
+--- a/src/lxc/network.c
++++ b/src/lxc/network.c
+@@ -7,6 +7,17 @@
+ #include <fcntl.h>
+ #include <linux/netlink.h>
+ #include <linux/rtnetlink.h>
++/*
++ * Synology DSM 7.3 on kernel 4.4 can expose older userspace Linux headers via
++ * the Entware toolchain. These netlink attributes are stable Linux UAPI enum
++ * values and are needed by LXC 6.0.6 when creating veth devices.
++ */
++#ifndef IFLA_NUM_TX_QUEUES
++#define IFLA_NUM_TX_QUEUES 31
++#endif
++#ifndef IFLA_NUM_RX_QUEUES
++#define IFLA_NUM_RX_QUEUES 32
++#endif
+ #include <linux/sockios.h>
+ #include <net/ethernet.h>
+ #include <net/if.h>

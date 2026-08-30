@@ -1,0 +1,6 @@
+#!/bin/sh
+# Template only. Future implementation should preserve user/runtime data by default.
+set -eu
+
+printf '%s\n' 'LXC on DSM postuninst template: no action implemented.'
+printf '%s\n' 'Future postuninst must not delete container data unless explicitly requested.'

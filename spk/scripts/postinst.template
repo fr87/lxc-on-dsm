@@ -1,0 +1,40 @@
+#!/bin/sh
+# Template only. Create package-owned example config only; never autostart.
+set -eu
+
+package=${SYNOPKG_PKGNAME:-lxc-on-dsm}
+pkg_dest=${SYNOPKG_PKGDEST:-/var/packages/${package}/target}
+pkg_etc="/var/packages/${package}/etc"
+pkg_var="/var/packages/${package}/var"
+pkg_artifacts="${pkg_var}/artifacts"
+
+example_src="${pkg_dest}/config/lab-macvlan.env.example"
+example_dst="${pkg_etc}/lab-macvlan.env.example"
+
+for dir in "$pkg_dest" "${pkg_dest}/scripts" "${pkg_dest}/config"; do
+    if [ -d "$dir" ]; then
+        chmod 0755 "$dir"
+    fi
+done
+
+mkdir -p "$pkg_artifacts"
+chown lxc_on_dsm:lxc_on_dsm "$pkg_var" "$pkg_artifacts" 2>/dev/null || true
+chmod 0755 "$pkg_var" "$pkg_artifacts"
+
+for script in "${pkg_dest}"/scripts/*.sh; do
+    if [ -f "$script" ]; then
+        chmod 0755 "$script"
+    fi
+done
+
+if [ -f "$example_src" ]; then
+    chmod 0644 "$example_src"
+fi
+
+if [ -r "$example_src" ] && [ ! -e "$example_dst" ]; then
+    cp "$example_src" "$example_dst"
+    chmod 0644 "$example_dst"
+fi
+
+printf '%s\n' 'LXC on DSM postinst: target permissions and example config prepared.'
+printf '%s\n' 'postinst did not autostart containers.'

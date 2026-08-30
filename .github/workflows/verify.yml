@@ -1,0 +1,19 @@
+name: verify
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  shell-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check analysis scripts
+        run: sh tests/check-analysis-safety.sh
+      - name: Check report evaluator
+        run: sh tests/check-evaluate-report.sh
+      - name: Check packaged container contract
+        run: sh tests/check-packaged-container-contract.sh
+      - name: Check packaged smoke contract
+        run: sh tests/check-packaged-smoke-contract.sh
+      - name: Check packaged macvlan DHCP contract
+        run: sh tests/check-packaged-macvlan-dhcp-contract.sh

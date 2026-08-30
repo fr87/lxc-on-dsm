@@ -1,0 +1,6 @@
+#!/bin/sh
+# Template only. Future implementation should stop lifecycle-owned runtime state.
+set -eu
+
+printf '%s\n' 'LXC on DSM preuninst template: no action implemented.'
+printf '%s\n' 'Future preuninst should stop managed containers and preserve data unless explicitly removed.'

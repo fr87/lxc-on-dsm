@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LXC on DSM Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <p class="eyebrow">Experimental lab package</p>
+            <h1>LXC on DSM Lab</h1>
+            <p>
+                Native LXC on DSM is powerful and sharp-edged. This first GUI
+                intentionally acts as a safe control panel: it documents package
+                paths and shows explicit root commands for reviewed lifecycle
+                gates.
+            </p>
+            <p class="warning">
+                Package Center start/stop is intentionally blocked for the
+                package user. Privileged operations require a reviewed root
+                shell command.
+            </p>
+        </section>
+
+        <section class="status">
+            <div>
+                <span>Package</span>
+                <strong id="status-package">loading</strong>
+            </div>
+            <div>
+                <span>Version</span>
+                <strong id="status-version">loading</strong>
+            </div>
+            <div>
+                <span>Runtime bundle</span>
+                <strong id="status-runtime">loading</strong>
+            </div>
+            <div>
+                <span>Alpine image</span>
+                <strong id="status-image">loading</strong>
+            </div>
+            <div>
+                <span>Mode</span>
+                <strong id="status-mode">loading</strong>
+            </div>
+        </section>
+
+        <section class="command-builder" aria-labelledby="command-builder-title">
+            <div>
+                <p class="eyebrow">Command builder</p>
+                <h2 id="command-builder-title">Prepare a package-owned container test</h2>
+                <p>
+                    This browser page still does not execute anything. It only
+                    builds reviewed root-shell commands from constrained inputs.
+                </p>
+            </div>
+            <form class="builder-form">
+                <label>
+                    Container name
+                    <input id="container-name" type="text" value="alpine-lab" pattern="[A-Za-z0-9_.-]+" autocomplete="off">
+                </label>
+                <label>
+                    Network
+                    <select id="network-type">
+                        <option value="empty">empty / isolated persistent</option>
+                        <option value="none">none / local smoke only</option>
+                        <option value="macvlan">macvlan / DHCP LAN test</option>
+                    </select>
+                </label>
+                <label>
+                    Parent interface
+                    <input id="parent-if" type="text" value="eth0" pattern="[A-Za-z0-9_.:-]+" autocomplete="off">
+                </label>
+            </form>
+            <div class="generated">
+                <article>
+                    <h3>0. List package containers</h3>
+                    <pre><code id="cmd-list">sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh</code></pre>
+                    <button type="button" data-copy="cmd-list">Copy</button>
+                </article>
+                <article>
+                    <h3>0a. Guided first-use test</h3>
+                    <pre><code id="cmd-first-use">loading</code></pre>
+                    <button type="button" data-copy="cmd-first-use">Copy</button>
+                </article>
+                <article>
+                    <h3>1. Create stopped container</h3>
+                    <pre><code id="cmd-create">loading</code></pre>
+                    <button type="button" data-copy="cmd-create">Copy</button>
+                </article>
+                <article>
+                    <h3>2. Validate / smoke</h3>
+                    <pre><code id="cmd-test">loading</code></pre>
+                    <button type="button" data-copy="cmd-test">Copy</button>
+                </article>
+                <article>
+                    <h3>2a. Example HTTP service</h3>
+                    <pre><code id="cmd-httpd">loading</code></pre>
+                    <button type="button" data-copy="cmd-httpd">Copy</button>
+                </article>
+                <article>
+                    <h3>3. Start for use</h3>
+                    <pre><code id="cmd-start">loading</code></pre>
+                    <button type="button" data-copy="cmd-start">Copy</button>
+                </article>
+                <article>
+                    <h3>3a. Install hook dispatcher</h3>
+                    <pre><code id="cmd-hook">loading</code></pre>
+                    <button type="button" data-copy="cmd-hook">Copy</button>
+                </article>
+                <article>
+                    <h3>3b. Install marker snippet</h3>
+                    <pre><code id="cmd-snippet">loading</code></pre>
+                    <button type="button" data-copy="cmd-snippet">Copy</button>
+                </article>
+                <article>
+                    <h3>4. Stop again</h3>
+                    <pre><code id="cmd-stop">loading</code></pre>
+                    <button type="button" data-copy="cmd-stop">Copy</button>
+                </article>
+                <article>
+                    <h3>5. Backup / remove stopped container</h3>
+                    <pre><code id="cmd-remove">loading</code></pre>
+                    <button type="button" data-copy="cmd-remove">Copy</button>
+                </article>
+                <article>
+                    <h3>6. Run inside</h3>
+                    <pre><code id="cmd-exec">loading</code></pre>
+                    <button type="button" data-copy="cmd-exec">Copy</button>
+                </article>
+            </div>
+            <p class="hint" id="builder-hint">
+                Empty-network mode is safest for a persistent first container.
+                macvlan mode performs DHCP only after an explicit
+                <code>--run</code>.
+            </p>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <h2>1. Check packaged runtime</h2>
+                <p>Dry-run dependency check. Does not restore files and does not start containers.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-runtime.sh</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>2. Restore runtime</h2>
+                <p>Explicitly restores the packaged LXC runtime under the lab prefix.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-runtime.sh --install</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>3. List package containers</h2>
+                <p>Read-only inventory of package-owned lab containers and their current LXC state.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/list-packaged-containers.sh</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>4. Guided first-use test</h2>
+                <p>One reviewed package command can create a fresh container, run the selected first test, and optionally remove it with a backup.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh --name alpine-empty
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh --name alpine-empty --network-type empty --run
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-first-use-test.sh --name alpine-smoke --network-type none --run --remove-after-test</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>5. Plan container creation</h2>
+                <p>Shows the target paths for a stopped Alpine container. No files are written.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lab --network-type none</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>6. Create stopped container</h2>
+                <p>Creates the container rootfs and config. It does not start the container.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lab --network-type none --create</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>7. Start/stop a package container</h2>
+                <p>Starts a package-created lab container and keeps it running until stopped explicitly.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-lab
+sh /var/packages/lxc-on-dsm/target/scripts/start-packaged-container.sh --name alpine-lab --run
+sh /var/packages/lxc-on-dsm/target/scripts/stop-packaged-container.sh --name alpine-lab</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>8. Example HTTP service</h2>
+                <p>Creates a fresh container, installs the hook dispatcher and a tiny BusyBox httpd snippet, starts it, verifies service evidence, and stops again.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-httpd-example-test.sh --name alpine-httpd
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-httpd-example-test.sh --name alpine-httpd --network-type empty --run
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-httpd-example-test.sh --name alpine-httpd-lan --network-type macvlan --parent-if eth0 --run</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>9. Optional container start hook</h2>
+                <p>Installs a dispatcher that runs executable scripts from <code>/etc/lxc-on-dsm/start.d</code> inside the container.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-lab
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-start-hook.sh --name alpine-lab --install</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>10. Optional hook snippet</h2>
+                <p>Installs a reviewed package hook snippet into the container start.d directory.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-hook-snippet.sh --name alpine-lab --snippet 10-marker --source /var/packages/lxc-on-dsm/target/hooks/marker.example.sh
+sh /var/packages/lxc-on-dsm/target/scripts/install-packaged-hook-snippet.sh --name alpine-lab --snippet 10-marker --source /var/packages/lxc-on-dsm/target/hooks/marker.example.sh --install</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>11. Attach diagnostic</h2>
+                <p>lxc-attach is kept as a diagnostic only; DSM may reject it because of seccomp/capability limitations.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name alpine-lab
+sh /var/packages/lxc-on-dsm/target/scripts/exec-packaged-container.sh --name alpine-lab --run -- hostname</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>12. Backup/remove stopped container</h2>
+                <p>Plans removal by default, can create a backup, and deletes only after explicit <code>--destroy</code>. Running containers are refused.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-lab
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-lab --backup
+sh /var/packages/lxc-on-dsm/target/scripts/remove-packaged-container.sh --name alpine-lab --backup --destroy</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>13. Smoke-test stopped container</h2>
+                <p>Starts a networkless container once, records evidence, and stops it again.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-smoke-test.sh --name alpine-lab</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>14. Optional macvlan DHCP test</h2>
+                <p>Creates a stopped macvlan container, then runs one temporary DHCP/LAN probe.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/create-packaged-container.sh --name alpine-lan --network-type macvlan --parent-if eth0 --create
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --name alpine-lan
+sh /var/packages/lxc-on-dsm/target/scripts/run-packaged-macvlan-dhcp-test.sh --name alpine-lan --run</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>15. Lifecycle status</h2>
+                <p>Read-only doctor for the configured macvlan profile.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh status --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>
+            </article>
+
+            <article class="card">
+                <h2>16. Start/stop via root helper</h2>
+                <p>Starts or stops only the configured lab container after the profile is reviewed.</p>
+                <pre><code>sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh start --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env
+sh /var/packages/lxc-on-dsm/target/scripts/lxc-on-dsm-root-helper.sh stop --profile /var/packages/lxc-on-dsm/etc/lab-macvlan.env</code></pre>
+            </article>
+        </section>
+
+        <section class="notes">
+            <h2>Current boundaries</h2>
+            <ul>
+                <li>No automatic runtime restore during package install.</li>
+                <li>No automatic container creation or start during package install.</li>
+                <li>No Entware dependency on the DSM target.</li>
+                <li>No production readiness claim.</li>
+            </ul>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>

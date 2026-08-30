@@ -1,0 +1,89 @@
+name: dsm-native-runtime-build
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      prepare_toolchain:
+        description: "Download and extract Synology toolchain/toolkit"
+        required: true
+        type: boolean
+        default: false
+      build_lxc:
+        description: "Build LXC and create runtime bundle"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PREPARE_TOOLCHAIN: ${{ inputs.prepare_toolchain || contains(github.event.head_commit.message, '[prepare-dsm-build]') || false }}
+      BUILD_LXC: ${{ inputs.build_lxc || contains(github.event.head_commit.message, '[build-dsm-runtime]') || false }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check DSM-native build scripts
+        run: |
+          sh -n scripts/ci-dsm-native-runtime-build.sh
+          sh -n scripts/build-lxc.sh
+          sh -n scripts/create-lxc-runtime-bundle.sh
+          sh -n scripts/check-lxc-runtime-bundle.sh
+          sh -n scripts/check-runtime-package-boundary.sh
+          sh -n scripts/assemble-spk-payload.sh
+          sh -n scripts/check-spk-payload.sh
+          sh -n scripts/build-spk.sh
+          sh -n scripts/check-spk-archive.sh
+          sh -n scripts/ci-package-runtime-spk.sh
+          sh -n scripts/create-packaged-container.sh
+          sh -n scripts/run-packaged-smoke-test.sh
+          sh -n scripts/run-packaged-macvlan-dhcp-test.sh
+          sh -n scripts/validate-packaged-spk-in-vdsm.sh
+
+      - name: Install CI build dependencies
+        if: env.BUILD_LXC == 'true'
+        run: |
+          python3 -m pip install --user meson
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Prepare DSM-native build workspace
+        run: |
+          args=""
+          if [ "${BUILD_LXC}" = "true" ]; then
+            args="--build-lxc --discard-work"
+          elif [ "${PREPARE_TOOLCHAIN}" = "true" ]; then
+            args="--download --extract --discard-work"
+          fi
+          sh scripts/ci-dsm-native-runtime-build.sh \
+            --output artifacts/ci-dsm-native-runtime-build \
+            $args
+
+      - name: Build runtime-bundled SPK artifact
+        if: env.BUILD_LXC == 'true'
+        run: |
+          sh scripts/ci-package-runtime-spk.sh \
+            --runtime-artifact-dir artifacts/ci-dsm-native-runtime-build \
+            --output artifacts/ci-runtime-spk
+
+      - name: Upload DSM-native preparation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-dsm-native-runtime-build
+          path: artifacts/ci-dsm-native-runtime-build
+          if-no-files-found: error
+
+      - name: Upload runtime-bundled SPK artifact
+        if: env.BUILD_LXC == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-runtime-spk
+          path: artifacts/ci-runtime-spk
+          if-no-files-found: error

@@ -1,0 +1,86 @@
+name: toolchain-recon
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      dsm_version:
+        description: "DSM toolchain version"
+        required: true
+        default: "7.3-86009"
+      toolkit_version:
+        description: "DSM toolkit version"
+        required: true
+        default: "7.3"
+      platform:
+        description: "Synology platform"
+        required: true
+        default: "geminilake"
+      toolchain_file:
+        description: "Synology toolchain archive filename"
+        required: true
+        default: "geminilake-gcc1220_glibc236_x86_64-GPL.txz"
+      download_toolchain:
+        description: "Download toolchain/toolkit tarballs"
+        required: true
+        type: boolean
+        default: false
+      inspect_archives:
+        description: "Inspect archive layout after download"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    env:
+      DSM_VERSION: ${{ inputs.dsm_version || '7.3-86009' }}
+      TOOLKIT_VERSION: ${{ inputs.toolkit_version || '7.3' }}
+      SYNO_PLATFORM: ${{ inputs.platform || 'geminilake' }}
+      TOOLCHAIN_FILE: ${{ inputs.toolchain_file || 'geminilake-gcc1220_glibc236_x86_64-GPL.txz' }}
+      DOWNLOAD_TOOLCHAIN: ${{ inputs.download_toolchain || contains(github.event.head_commit.message, '[download-toolchain]') || false }}
+      INSPECT_ARCHIVES: ${{ inputs.inspect_archives || false }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check scripts
+        run: |
+          sh -n scripts/ci-toolchain-recon.sh
+          sh -n scripts/plan-ci-toolchain-build.sh
+
+      - name: Record Synology toolchain metadata
+        run: |
+          args=""
+          if [ "${DOWNLOAD_TOOLCHAIN}" = "true" ]; then
+            args="--download --discard-downloads"
+          fi
+          if [ "${INSPECT_ARCHIVES}" = "true" ]; then
+            args="${args} --inspect-archives"
+          fi
+          sh scripts/ci-toolchain-recon.sh \
+            --dsm-version "${DSM_VERSION}" \
+            --toolkit-version "${TOOLKIT_VERSION}" \
+            --platform "${SYNO_PLATFORM}" \
+            --toolchain-file "${TOOLCHAIN_FILE}" \
+            --toolchain-platform-dir 'Intel%20x86%20Linux%204.4.302%20%28GeminiLake%29' \
+            --toolchain-md5 bc93d88359a055b398d8e78965bc95cc \
+            --toolkit-base-md5 fd0862fa44189606bd64cc32138f3302 \
+            --toolkit-dev-md5 cb6221764494afdbec7aa1a22ea3ad6a \
+            --toolkit-env-md5 ec544e4e943da80f8b18163516c4ba46 \
+            --output artifacts/ci-toolchain-recon \
+            --probe-urls \
+            $args
+
+      - name: Upload reconnaissance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-toolchain-recon-${{ env.SYNO_PLATFORM }}-${{ env.DSM_VERSION }}
+          path: artifacts/ci-toolchain-recon
+          if-no-files-found: error
