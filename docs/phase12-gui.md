@@ -43,21 +43,24 @@ The page shows the reviewed admin command sequence:
 1. dry-run packaged runtime restore;
 2. explicit runtime restore;
 3. read-only package container inventory;
-4. dry-run container creation;
-5. explicit stopped-container creation;
-6. explicit package container start/stop;
-7. optional in-container start hook location;
-8. attach diagnostic for the known `lxc-attach` limitation;
-9. package-owned networkless smoke test;
-10. optional package-owned macvlan DHCP/LAN probe;
-11. read-only lifecycle status;
-12. explicit root-helper start/stop.
+4. guided first-use test;
+5. dry-run container creation;
+6. explicit stopped-container creation;
+7. explicit package container start/stop;
+8. optional in-container start hook location;
+9. attach diagnostic for the known `lxc-attach` limitation;
+10. backup/removal of stopped package containers;
+11. package-owned networkless smoke test;
+12. optional package-owned macvlan DHCP/LAN probe;
+13. read-only lifecycle status;
+14. explicit root-helper start/stop.
 
 The page also includes a client-side command builder for the common package
 container flow. It accepts only constrained container names and interface names,
 then generates copyable commands for:
 
 - listing package-owned containers;
+- running the guided first-use test in dry-run or explicit `--run` mode;
 - creating a stopped empty-network persistent test container;
 - creating a stopped `none` smoke-test-only container;
 - running the package-owned networkless smoke test;
@@ -65,6 +68,7 @@ then generates copyable commands for:
 - running the macvlan DHCP/LAN probe in dry-run and explicit `--run` mode;
 - installing the in-container start hook dispatcher;
 - starting and stopping a package-created container explicitly;
+- backing up and removing stopped package-created containers explicitly;
 - probing `lxc-attach` as a diagnostic only.
 
 `lxc-attach` is not presented as a validated management path. On the current
